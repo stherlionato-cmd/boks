@@ -17,6 +17,14 @@ if(ALIAS[endpoint]){
   endpoint = ALIAS[endpoint]
 }
 
+if(endpoint === "admin"){
+  const token = url.searchParams.get("token")
+  if(token !== ADMIN_TOKEN){
+    return jsonErro("AUTH_ADMIN","Acesso negado")
+  }
+  return adminPanel(request)
+}
+
 if(endpoint === ""){
   return home(request)
 }
@@ -32,8 +40,8 @@ return consultar(endpoint,request,url,ctx)
 
 /* ================= CONFIG ================= */
 
-const BASE_SARA = "https://knowsapi.shop/api/consultas/"
-const API_KEY = "bigmouth"
+const ADMIN_TOKEN = "dragonsubdono"
+const BASE_KNOWS = "https://knowsapi.shop/api/consultas/"
 
 /* ================= TOKENS ================= */
 
@@ -48,35 +56,29 @@ const TOKENS = {
 
 const ENDPOINTS = {
 
-cpf:{
-  query:"cpf",
-  apis:[{
-    url:BASE_SARA+"cpf",
-    param:"code",
-    tipo:"normal",
-    apikey:true
-  }]
-},
-
-nome:{
-  query:"nome",
-  apis:[{
-    url:BASE_SARA+"nome",
-    param:"name",
-    tipo:"normal",
-    apikey:true
-  }]
-},
-
-telefone:{
-  query:"telefone",
-  apis:[{
-    url:BASE_SARA+"telefone",
-    param:"phone",
-    tipo:"normal",
-    apikey:true
-  }]
-}
+cpf:{query:"cpf",apis:[{url:BASE_KNOWS+"cpf",param:"cpf",tipo:"knows"}]},
+nome:{query:"nome",apis:[{url:BASE_KNOWS+"nome",param:"nome",tipo:"knows"}]},
+telefone:{query:"telefone",apis:[{url:BASE_KNOWS+"telefone",param:"telefone",tipo:"knows"}]},
+telefone_full:{query:"telefone",apis:[{url:BASE_KNOWS+"telefone-full",param:"telefone",tipo:"knows"}]},
+telefone_cpf:{query:"cpf",apis:[{url:BASE_KNOWS+"telefone-cpf",param:"cpf",tipo:"knows"}]},
+ddd:{query:"ddd",apis:[{url:BASE_KNOWS+"ddd",param:"ddd",tipo:"knows"}]},
+operadora:{query:"telefone",apis:[{url:BASE_KNOWS+"operadora",param:"telefone",tipo:"knows"}]},
+rg:{query:"rg",apis:[{url:BASE_KNOWS+"rg",param:"rg",tipo:"knows"}]},
+titulo:{query:"titulo",apis:[{url:BASE_KNOWS+"titulo",param:"titulo",tipo:"knows"}]},
+pis:{query:"pis",apis:[{url:BASE_KNOWS+"pis",param:"pis",tipo:"knows"}]},
+nis:{query:"nis",apis:[{url:BASE_KNOWS+"nis",param:"nis",tipo:"knows"}]},
+parentes:{query:"cpf",apis:[{url:BASE_KNOWS+"parentes",param:"cpf",tipo:"knows"}]},
+vizinhos:{query:"cpf",apis:[{url:BASE_KNOWS+"vizinhos",param:"cpf",tipo:"knows"}]},
+cep:{query:"cep",apis:[{url:BASE_KNOWS+"cep",param:"cep",tipo:"knows"}]},
+estado:{query:"uf",apis:[{url:BASE_KNOWS+"estado",param:"uf",tipo:"knows"}]},
+email:{query:"email",apis:[{url:BASE_KNOWS+"email",param:"email",tipo:"knows"}]},
+score:{query:"cpf",apis:[{url:BASE_KNOWS+"score",param:"cpf",tipo:"knows"}]},
+renda:{query:"valor",apis:[{url:BASE_KNOWS+"renda",param:"valor",tipo:"knows"}]},
+cbo:{query:"cbo",apis:[{url:BASE_KNOWS+"cbo",param:"cbo",tipo:"knows"}]},
+foto_sp:{query:"cpf",apis:[{url:BASE_KNOWS+"foto-sp",param:"cpf",tipo:"knows"}]},
+foto_ma:{query:"cpf",apis:[{url:BASE_KNOWS+"foto-ma",param:"cpf",tipo:"knows"}]},
+foto_ro:{query:"cpf",apis:[{url:BASE_KNOWS+"foto-ro",param:"cpf",tipo:"knows"}]},
+foto_all:{query:"cpf",apis:[{url:BASE_KNOWS+"foto-all",param:"cpf",tipo:"knows"}]}
 
 }
 
@@ -94,12 +96,10 @@ if(!token) return jsonErro("AUTH_002","Token obrigatório")
 const tokenData = TOKENS[token]
 if(!tokenData) return jsonErro("AUTH_001","Token inválido")
 
-// 🔒 BLOQUEIO
 if(tokenData.endpoints && !tokenData.endpoints.includes(endpoint)){
   return jsonErro("AUTH_003","Endpoint não liberado")
 }
 
-// 💰 CRÉDITOS
 if(tokenData.plano !== "VIP"){
   if(tokenData.credits <= 0){
     return jsonErro("LIMIT_001","Créditos esgotados")
@@ -118,13 +118,12 @@ let respostaFinal = null
 
 for(const apiConfig of config.apis){
 
-  // 🔥 MONTA URL DINÂMICA
-  let apiURL = apiConfig.url + "?" +
-               apiConfig.param + "=" + encodeURIComponent(valor)
+  let apiURL =
+    apiConfig.url + "?" +
+    apiConfig.param + "=" + encodeURIComponent(valor)
 
-  if(apiConfig.apikey){
-    apiURL += "&apikey=" + API_KEY
-  }
+  // 🔑 API KEY
+  apiURL += "&apikey=bigmouth"
 
   try{
 
@@ -150,20 +149,13 @@ for(const apiConfig of config.apis){
       continue
     }
 
-    // 🔥 TRATAMENTO UNIVERSAL
-    if(json?.body) json = json.body
-    if(json?.resultado?.body) json = json.resultado.body
+    let dados = tratarKnows(json)
 
-    // ❌ ignora erro da API
-    if(json?.error || json?.message){
+    if(!dados || (typeof dados === "object" && Object.keys(dados).length === 0)){
       continue
     }
 
-    if(!json || (typeof json === "object" && Object.keys(json).length === 0)){
-      continue
-    }
-
-    respostaFinal = json
+    respostaFinal = dados
     break
 
   }catch(e){
@@ -197,12 +189,23 @@ return new Response(JSON.stringify({
 
 }
 
+/* ================= TRATAR KNOWS ================= */
+
+function tratarKnows(api){
+  if(api?.body){
+    return api.body
+  }
+  return api
+}
+
 /* ================= LIMPAR ================= */
 
 function limparRespostaAPI(data){
 if(!data || typeof data !== "object") return data
 delete data.creator
+delete data.criador
 delete data.status
+delete data.statusCode
 return data
 }
 
