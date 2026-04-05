@@ -1,221 +1,184 @@
 export default {
-  async fetch(request) {
+async fetch(request){
 
-    const url = new URL(request.url)
-    const path = url.pathname.replace(/^\/|\/$/g, "")
+const url = new URL(request.url)
+const endpoint = url.pathname.replace(/^\/|\/$/g,"")
 
-    // =========================
-    // 🔐 TOKENS
-    // =========================
-    const TOKENS = ["SEU_TOKEN", "VIP_123"]
+// ============================
+// 🔐 TOKEN
+// ============================
+const TOKENS = ["AstroKey123"]
 
-    const token = url.searchParams.get("token")
-    if (!token || !TOKENS.includes(token)) {
-      return json({ status: false, erro: "Token inválido" })
-    }
-
-    // =========================
-    // 🔥 ROTAS
-    // =========================
-    if (path === "cpf") return await cpfHandler(url)
-    if (path === "api") return await universalHandler(url)
-
-    return json({ status: false, erro: "Rota não encontrada" })
-  }
+const token = url.searchParams.get("token")
+if(!TOKENS.includes(token)){
+  return json({status:false,message:"Token inválido"})
 }
 
-// =========================
-// 🔎 CPF DIRETO (SUA API)
-// =========================
-async function cpfHandler(url) {
+// ============================
+// 🔗 URL DA API EXTERNA
+// ============================
+const apiUrl = url.searchParams.get("url")
 
-  const cpf = url.searchParams.get("cpf")
-  if (!cpf) return json({ status: false, erro: "CPF não informado" })
-
-  try {
-
-    const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`
-
-    const res = await fetch(api)
-    let rawText = await res.text()
-
-    rawText = fixEncoding(rawText)
-    rawText = limparCreditos(rawText)
-
-    let jsonData = null
-    try { jsonData = JSON.parse(rawText) } catch {}
-
-    let texto = jsonData?.resultado || rawText
-
-    const dados = extrairTexto(texto)
-
-    const formatado = formatarPadrao("CONSULTA CPF", dados)
-
-    return json({
-      status: true,
-      tipo: "cpf",
-      query: cpf,
-
-      dados: dados,
-      formatado: formatado,
-      raw: texto
-    })
-
-  } catch (e) {
-    return json({ status: false, erro: "Erro na consulta", detalhe: e.message })
-  }
+if(!apiUrl){
+  return json({status:false,message:"Informe a URL da API"})
 }
 
-// =========================
-// 🌐 UNIVERSAL
-// =========================
-async function universalHandler(url) {
+try{
 
-  const target = url.searchParams.get("url")
-  if (!target) return json({ status: false, erro: "URL não informada" })
+const res = await fetch(apiUrl)
+let data = await res.json()
 
-  try {
+// ============================
+// 🔥 NORMALIZAÇÃO
+// ============================
+let cleaned = normalize(data)
 
-    const res = await fetch(target)
-    let rawText = await res.text()
+// ============================
+// 📦 RESPOSTA FINAL
+// ============================
+return json({
+  status:true,
+  base:"Astro API",
+  credits:"Astro Company | @puxardados5",
+  result: cleaned
+})
 
-    rawText = fixEncoding(rawText)
-    rawText = limparCreditos(rawText)
-
-    let jsonData = null
-    try { jsonData = JSON.parse(rawText) } catch {}
-
-    let dados = jsonData ? extrairJSON(jsonData) : extrairTexto(rawText)
-
-    const formatado = formatarPadrao("RESULTADO", dados)
-
-    return json({
-      status: true,
-      origem: target,
-      tipo: jsonData ? "json" : "texto",
-
-      dados,
-      formatado,
-      raw: rawText
-    })
-
-  } catch (e) {
-    return json({ status: false, erro: "Erro ao consumir API", detalhe: e.message })
-  }
+}catch(e){
+  return json({status:false,message:"Erro ao consumir API"})
 }
 
-// =========================
-// 🔍 EXTRAIR TEXTO
-// =========================
-function extrairTexto(texto) {
+}
+}
 
-  const linhas = texto.split("\n")
-  let resultado = {}
+// ============================
+// 🧠 NORMALIZADOR UNIVERSAL
+// ============================
+function normalize(data){
 
-  for (let linha of linhas) {
-    linha = linha.trim()
-    if (!linha.includes(":")) continue
+// 🔄 se vier string gigante
+if(typeof data === "string"){
+  return parseText(data)
+}
 
-    const [chave, ...resto] = linha.split(":")
-    const valor = resto.join(":").trim()
+// 🔄 se tiver campo resultado (caso comum)
+if(data.resultado){
+  return parseText(data.resultado)
+}
 
-    const key = normalizeKey(chave)
+// 🔄 JSON normal → limpa recursivo
+return cleanObject(data)
 
-    if (!resultado[key]) {
-      resultado[key] = valor
-    } else {
-      if (!Array.isArray(resultado[key])) {
-        resultado[key] = [resultado[key]]
-      }
-      resultado[key].push(valor)
-    }
+}
+
+// ============================
+// 🧹 LIMPAR OBJETO JSON
+// ============================
+function cleanObject(obj){
+
+if(Array.isArray(obj)){
+  return obj.map(cleanObject)
+}
+
+if(typeof obj === "object" && obj !== null){
+  let newObj = {}
+
+  for(let key in obj){
+
+    // ❌ remove créditos
+    if(key.toLowerCase().includes("criador")) continue
+    if(key.toLowerCase().includes("credit")) continue
+
+    newObj[normalizeKey(key)] = cleanObject(obj[key])
   }
 
-  return resultado
+  return newObj
 }
 
-// =========================
-// 🔍 EXTRAIR JSON
-// =========================
-function extrairJSON(obj) {
-  function deep(o) {
-    if (Array.isArray(o)) return o.map(deep)
-    if (typeof o === "object" && o !== null) {
-      let novo = {}
-      for (let k in o) novo[normalizeKey(k)] = deep(o[k])
-      return novo
-    }
-    return o
-  }
-  return deep(obj)
+// 🔤 limpar texto
+if(typeof obj === "string"){
+  return cleanString(obj)
 }
 
-// =========================
-// 🔧 NORMALIZAR CHAVE
-// =========================
-function normalizeKey(str) {
-  return str.toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]/g, "_")
+return obj
 }
 
-// =========================
-// 🔧 FIX ENCODING
-// =========================
-function fixEncoding(str) {
-  try { return decodeURIComponent(escape(str)) } catch { return str }
+// ============================
+// 🧠 PARSE DE TEXTO BRUTO
+// ============================
+function parseText(text){
+
+text = cleanString(text)
+
+let lines = text.split("\n").map(l=>l.trim()).filter(Boolean)
+
+let sections = {}
+let current = "geral"
+
+for(let line of lines){
+
+// 🧩 detectar título
+if(
+  line === line.toUpperCase() &&
+  line.length < 40 &&
+  !line.includes(":")
+){
+  current = normalizeKey(line)
+  sections[current] = []
+  continue
 }
 
-// =========================
-// 🧹 LIMPAR CRÉDITOS
-// =========================
-function limparCreditos(str) {
-  return str
-    .replace(/HydraCore/gi, "")
-    .replace(/ObitoSpam/gi, "")
-    .replace(/©.*$/gim, "")
-}
+// 🔑 chave: valor
+if(line.includes(":")){
+  let [k,...v] = line.split(":")
+  let value = v.join(":").trim()
 
-// =========================
-// 🎨 FORMATAÇÃO
-// =========================
-function formatarPadrao(titulo, dados) {
+  if(!sections[current]) sections[current] = []
 
-  let texto = ""
-
-  for (let key in dados) {
-    texto += `\n${key.toUpperCase()}:\n`
-
-    if (Array.isArray(dados[key])) {
-      dados[key].forEach(v => {
-        texto += ` - ${JSON.stringify(v)}\n`
-      })
-    } else {
-      texto += ` ${dados[key]}\n`
-    }
-  }
-
-  return `
-╔══════════════════════════════╗
-   ${titulo} — ASTRO API
-╚══════════════════════════════╝
-
-${texto}
-
-──────────────────────────────
-🚀 Astro Company | @puxardados5
-──────────────────────────────
-`.trim()
-}
-
-// =========================
-// 📦 RESPONSE
-// =========================
-function json(data) {
-  return new Response(JSON.stringify(data, null, 2), {
-    headers: {
-      "Content-Type": "application/json; charset=UTF-8"
-    }
+  sections[current].push({
+    key: normalizeKey(k),
+    value: value
   })
+}else{
+  if(!sections[current]) sections[current] = []
+  sections[current].push(line)
+}
+
+}
+
+return sections
+
+}
+
+// ============================
+// 🔤 LIMPAR STRING
+// ============================
+function cleanString(str){
+
+return str
+.replace(/©.*$/gmi,"")
+.replace(/HydraCore/gi,"")
+.replace(/ObitoSpam/gi,"")
+.replace(/════════.*════════/g,"")
+.replace(/[^\S\r\n]+/g," ")
+.trim()
+
+}
+
+// ============================
+// 🔑 NORMALIZAR CHAVE
+// ============================
+function normalizeKey(key){
+return key
+.toLowerCase()
+.replace(/[^\w\s]/g,"")
+.replace(/\s+/g,"_")
+}
+
+// ============================
+// 📦 RESPONSE
+// ============================
+function json(obj){
+return new Response(JSON.stringify(obj,null,2),{
+  headers:{"Content-Type":"application/json"}
+})
 }
