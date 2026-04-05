@@ -1,121 +1,115 @@
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request) {
 
     const url = new URL(request.url)
-    let path = url.pathname.replace(/^\/|\/$/g, "")
+    const path = url.pathname.replace(/^\/|\/$/g, "")
 
     // =========================
-    // 🔐 SISTEMA DE TOKENS
+    // 🔐 TOKENS
     // =========================
-    const TOKENS = [
-      "SEU_TOKEN_AQUI",
-      "VIP_123",
-      "TESTE"
-    ]
+    const TOKENS = ["SEU_TOKEN", "VIP_123"]
 
     const token = url.searchParams.get("token")
-
     if (!token || !TOKENS.includes(token)) {
-      return json({
-        status: false,
-        erro: "Token inválido ou não fornecido"
-      })
+      return json({ status: false, erro: "Token inválido" })
     }
 
     // =========================
     // 🔥 ROTAS
     // =========================
-    if (path === "cpf") {
-      return await consultaCPF(url)
-    }
+    if (path === "cpf") return await cpfHandler(url)
 
-    return json({
-      status: false,
-      erro: "Rota não encontrada"
-    })
+    return json({ status: false, erro: "Rota não encontrada" })
   }
 }
 
 // =========================
-// 🔎 CONSULTA CPF
+// 🔎 CPF HANDLER
 // =========================
-async function consultaCPF(url) {
+async function cpfHandler(url) {
 
   const cpf = url.searchParams.get("cpf")
-
-  if (!cpf) {
-    return json({
-      status: false,
-      erro: "CPF não informado"
-    })
-  }
+  if (!cpf) return json({ status: false, erro: "CPF não informado" })
 
   try {
 
-    // 🔥 API EXTERNA
-    const api = await fetch(`https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`)
-    const data = await api.json()
+    const res = await fetch(`https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`)
+    const data = await res.json()
 
     if (!data || data.status !== "ok") {
-      return json({
-        status: false,
-        erro: "Erro ao consultar CPF"
-      })
+      return json({ status: false, erro: "Erro na consulta" })
     }
 
     // =========================
-    // 🧠 LIMPEZA DO RESULTADO
+    // 🧠 NORMALIZAÇÃO UNIVERSAL
     // =========================
-    let resultado = data.resultado || ""
+    let texto = data.resultado || ""
 
-    // remove créditos antigos
-    resultado = resultado
-      .replace(/HydraCore/gi, "")
-      .replace(/ObitoSpam/gi, "")
-      .replace(/©.*?\n/gi, "")
+    texto = fixEncoding(texto)
+    texto = limparCreditos(texto)
 
-    // =========================
-    // 🎨 FORMATAÇÃO MELHORADA
-    // =========================
-    const respostaFormatada = `
+    const formatado = formatarPadrao("CONSULTA CPF", texto)
+
+    return json({
+      status: true,
+      tipo: "cpf",
+      query: cpf,
+      raw: texto,
+      formatado: formatado
+    })
+
+  } catch (e) {
+    return json({ status: false, erro: "Erro interno", detalhe: e.message })
+  }
+}
+
+// =========================
+// 🔧 CORRIGIR ENCODING
+// =========================
+function fixEncoding(str) {
+  try {
+    return decodeURIComponent(escape(str))
+  } catch {
+    return str
+  }
+}
+
+// =========================
+// 🧹 LIMPAR CRÉDITOS
+// =========================
+function limparCreditos(str) {
+  return str
+    .replace(/HydraCore/gi, "")
+    .replace(/ObitoSpam/gi, "")
+    .replace(/©.*$/gim, "")
+    .trim()
+}
+
+// =========================
+// 🎨 PADRÃO VISUAL GLOBAL
+// =========================
+function formatarPadrao(titulo, conteudo) {
+
+  return `
 ╔══════════════════════════════╗
-   CONSULTA CPF — ASTRO API
+   ${titulo} — ASTRO API
 ╚══════════════════════════════╝
 
-${resultado.trim()}
+${conteudo}
 
 ──────────────────────────────
 🚀 Astro Company | @puxardados5
 ──────────────────────────────
-`
-
-    // =========================
-    // 📦 RESPOSTA FINAL
-    // =========================
-    return json({
-      status: true,
-      tipo: "cpf",
-      cpf: cpf,
-      base: "completa",
-      resultado: respostaFormatada.trim()
-    })
-
-  } catch (e) {
-    return json({
-      status: false,
-      erro: "Erro interno",
-      detalhe: e.message
-    })
-  }
+`.trim()
 }
 
 // =========================
-// 📦 JSON RESPONSE
+// 📦 RESPONSE
 // =========================
 function json(data) {
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json; charset=UTF-8"
     }
   })
 }
