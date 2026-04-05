@@ -117,10 +117,9 @@ function limparTexto(txt) {
 // =========================
 function formatarBonito(txt, config) {
 
-  // separa blocos automaticamente
   const linhas = txt.split("\n")
 
-  let novo = []
+  let resultado = ""
   let blocoAtual = ""
 
   for (let linha of linhas) {
@@ -129,20 +128,39 @@ function formatarBonito(txt, config) {
 
     if (!linha) continue
 
-    // detecta títulos
-    if (linha.length < 40 && linha === linha.toUpperCase()) {
+    // 🧠 DETECTA SE É TÍTULO REAL
+    const isTitulo =
+      linha === linha.toUpperCase() &&
+      !linha.includes(":") &&
+      linha.length < 40
+
+    if (isTitulo) {
+
+      // fecha bloco anterior
       if (blocoAtual) {
-        novo.push(blocoAtual)
+        resultado += blocoAtual + "\n"
         blocoAtual = ""
       }
 
-      novo.push(`\n📌 ${linha}\n`)
-    } else {
-      blocoAtual += linha + "\n"
+      resultado += `\n━━━━━━━━━━━━━━━━━━━━\n📂 ${linha}\n━━━━━━━━━━━━━━━━━━━━\n\n`
+    }
+
+    // 🧠 DETECTA CHAVE: VALOR
+    else if (linha.includes(":")) {
+
+      let [chave, ...resto] = linha.split(":")
+      let valor = resto.join(":").trim()
+
+      blocoAtual += `• ${chave.trim()}: ${valor}\n`
+    }
+
+    // 🧠 LINHA SOLTA
+    else {
+      blocoAtual += `${linha}\n`
     }
   }
 
-  if (blocoAtual) novo.push(blocoAtual)
+  if (blocoAtual) resultado += blocoAtual
 
   return `
 ╔══════════════════════════════╗
@@ -150,11 +168,11 @@ function formatarBonito(txt, config) {
 ╚══════════════════════════════╝
 
 👤 Plano: ${config.user.plano}
-💳 Créditos restantes: ${config.user.creditos}
+💳 Créditos: ${config.user.creditos}
 
 📄 Consulta: ${config.consulta}
 
-${novo.join("\n")}
+${resultado.trim()}
 
 ──────────────────────────────
 🚀 Astro Company | @puxardados5
