@@ -2,12 +2,12 @@ export default {
 async fetch(request){
 
 const url = new URL(request.url)
-const endpoint = url.pathname.replace(/^\/|\/$/g,"")
+const path = url.pathname.replace(/^\/|\/$/g,"")
 
 // ============================
 // 🔐 TOKEN
 // ============================
-const TOKENS = ["AstroKey123"]
+const TOKENS = ["VIP_123"]
 
 const token = url.searchParams.get("token")
 if(!TOKENS.includes(token)){
@@ -15,39 +15,50 @@ if(!TOKENS.includes(token)){
 }
 
 // ============================
-// 🔗 URL DA API EXTERNA
+// 🚀 ROTAS
 // ============================
-const apiUrl = url.searchParams.get("url")
-
-if(!apiUrl){
-  return json({status:false,message:"Informe a URL da API"})
+if(path === "cpf"){
+  return handleCPF(url)
 }
+
+// futuro:
+// if(path === "telefone") return handleTelefone(url)
+// if(path === "nome") return handleNome(url)
+
+return json({status:false,message:"Endpoint não encontrado"})
+}
+}
+
+// ============================
+// 🔎 CPF
+// ============================
+async function handleCPF(url){
+
+const cpf = url.searchParams.get("cpf")
+if(!cpf){
+  return json({status:false,message:"CPF não informado"})
+}
+
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`
 
 try{
+  const res = await fetch(api)
+  const data = await res.json()
 
-const res = await fetch(apiUrl)
-let data = await res.json()
+  const normalized = normalize(data)
 
-// ============================
-// 🔥 NORMALIZAÇÃO
-// ============================
-let cleaned = normalize(data)
-
-// ============================
-// 📦 RESPOSTA FINAL
-// ============================
-return json({
-  status:true,
-  base:"Astro API",
-  credits:"Astro Company | @puxardados5",
-  result: cleaned
-})
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
 
 }catch(e){
-  return json({status:false,message:"Erro ao consumir API"})
+  return json({status:false,message:"Erro ao consultar"})
 }
 
-}
 }
 
 // ============================
@@ -55,23 +66,20 @@ return json({
 // ============================
 function normalize(data){
 
-// 🔄 se vier string gigante
 if(typeof data === "string"){
   return parseText(data)
 }
 
-// 🔄 se tiver campo resultado (caso comum)
 if(data.resultado){
   return parseText(data.resultado)
 }
 
-// 🔄 JSON normal → limpa recursivo
 return cleanObject(data)
 
 }
 
 // ============================
-// 🧹 LIMPAR OBJETO JSON
+// 🧹 LIMPAR JSON
 // ============================
 function cleanObject(obj){
 
@@ -80,21 +88,21 @@ if(Array.isArray(obj)){
 }
 
 if(typeof obj === "object" && obj !== null){
-  let newObj = {}
 
-  for(let key in obj){
+let newObj = {}
 
-    // ❌ remove créditos
-    if(key.toLowerCase().includes("criador")) continue
-    if(key.toLowerCase().includes("credit")) continue
+for(let key in obj){
 
-    newObj[normalizeKey(key)] = cleanObject(obj[key])
-  }
+// ❌ remove rastros
+if(key.toLowerCase().includes("criador")) continue
+if(key.toLowerCase().includes("credit")) continue
 
-  return newObj
+newObj[normalizeKey(key)] = cleanObject(obj[key])
 }
 
-// 🔤 limpar texto
+return newObj
+}
+
 if(typeof obj === "string"){
   return cleanString(obj)
 }
@@ -103,7 +111,7 @@ return obj
 }
 
 // ============================
-// 🧠 PARSE DE TEXTO BRUTO
+// 🧠 PARSE TEXTO
 // ============================
 function parseText(text){
 
@@ -116,10 +124,10 @@ let current = "geral"
 
 for(let line of lines){
 
-// 🧩 detectar título
+// título
 if(
   line === line.toUpperCase() &&
-  line.length < 40 &&
+  line.length < 50 &&
   !line.includes(":")
 ){
   current = normalizeKey(line)
@@ -127,7 +135,7 @@ if(
   continue
 }
 
-// 🔑 chave: valor
+// chave: valor
 if(line.includes(":")){
   let [k,...v] = line.split(":")
   let value = v.join(":").trim()
@@ -146,11 +154,10 @@ if(line.includes(":")){
 }
 
 return sections
-
 }
 
 // ============================
-// 🔤 LIMPAR STRING
+// 🧹 LIMPAR TEXTO
 // ============================
 function cleanString(str){
 
