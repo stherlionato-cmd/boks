@@ -4,33 +4,38 @@ export default {
     const url = new URL(request.url)
     let path = url.pathname.replace(/^\/|\/$/g, "")
 
-    // 🔐 TOKENS
-    const TOKENS = [
-      "Astro123",
-      "VIP456",
-      "TesteToken"
-    ]
-
-    const token = url.searchParams.get("token")
-    if (!TOKENS.includes(token)) {
-      return json({
-        status: false,
-        msg: "Token inválido."
-      })
+    // =========================
+    // 👤 USUÁRIOS / TOKENS
+    // =========================
+    const USERS = {
+      "Astro123": { plano: "FREE", creditos: 10 },
+      "VIP456": { plano: "VIP", creditos: 9999 },
+      "TesteToken": { plano: "FREE", creditos: 5 }
     }
 
-    // 🔀 ALIAS (facilita rotas duplicadas)
+    const token = url.searchParams.get("token")
+    const user = USERS[token]
+
+    if (!user) return error("Token inválido")
+
+    if (user.creditos <= 0) {
+      return error("Créditos esgotados")
+    }
+
+    // =========================
+    // 🔀 ALIAS
+    // =========================
     const ALIAS = {
       cpf2: "cpf",
-      cpf3: "cpf",
-      telefone: "tel",
-      telefone2: "tel",
-      nome2: "nome"
+      cpf3: "cpf"
     }
 
     if (ALIAS[path]) path = ALIAS[path]
 
     try {
+
+      let apiData
+      let consulta
 
       // =========================
       // 🔎 CPF
@@ -40,52 +45,51 @@ export default {
         const cpf = url.searchParams.get("cpf")
         if (!cpf) return error("Informe o cpf")
 
-        const api = await fetch(`https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`)
-        const data = await api.json()
+        consulta = cpf
 
-        return formatar(data, {
-          titulo: "CONSULTA CPF",
-          documento: cpf
-        })
+        const req = await fetch(`https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`)
+        apiData = await req.json()
+      }
+
+      else {
+        return error("Rota inválida")
+      }
+
+      // 💳 DESCONTA CRÉDITO
+      user.creditos--
+
+      // =========================
+      // 🧠 EXTRAÇÃO INTELIGENTE
+      // =========================
+      let raw = ""
+
+      if (apiData.resultado) {
+        raw = apiData.resultado
+      } else {
+        raw = JSON.stringify(apiData, null, 2)
       }
 
       // =========================
-      // 📱 TELEFONE (PRONTO PRA USAR)
+      // 🧹 LIMPEZA PESADA
       // =========================
-      if (path === "tel") {
-
-        const tel = url.searchParams.get("tel")
-        if (!tel) return error("Informe o telefone")
-
-        // 🔗 TROCAR QUANDO TIVER SUA API
-        const api = await fetch(`https://SUAAPI.com/telefone?numero=${tel}`)
-        const data = await api.json()
-
-        return formatar(data, {
-          titulo: "CONSULTA TELEFONE",
-          documento: tel
-        })
-      }
+      raw = limparTexto(raw)
 
       // =========================
-      // 👤 NOME (PRONTO PRA USAR)
+      // 🎨 FORMATAÇÃO BONITA
       // =========================
-      if (path === "nome") {
+      const resultado = formatarBonito(raw, {
+        titulo: path.toUpperCase(),
+        consulta,
+        user
+      })
 
-        const nome = url.searchParams.get("nome")
-        if (!nome) return error("Informe o nome")
-
-        // 🔗 TROCAR QUANDO TIVER SUA API
-        const api = await fetch(`https://SUAAPI.com/nome?nome=${encodeURIComponent(nome)}`)
-        const data = await api.json()
-
-        return formatar(data, {
-          titulo: "CONSULTA NOME",
-          documento: nome
-        })
-      }
-
-      return error("Rota inválida")
+      return json({
+        status: true,
+        consulta,
+        plano: user.plano,
+        creditos: user.creditos,
+        resultado
+      })
 
     } catch (e) {
       return error("Erro interno")
@@ -95,59 +99,85 @@ export default {
 }
 
 // =========================
-// 🎨 FORMATADOR GLOBAL
+// 🧹 LIMPEZA INTELIGENTE
 // =========================
-function formatar(apiResponse, config) {
-
-  if (!apiResponse || !apiResponse.resultado) {
-    return error("Sem resultado")
-  }
-
-  let txt = apiResponse.resultado
-
-  // 🧹 LIMPA MARCAS
-  txt = txt
+function limparTexto(txt) {
+  return txt
     .replace(/HydraCore/gi, "")
     .replace(/ObitoSpam/gi, "")
     .replace(/©/gi, "")
-    .replace(/══════════════════════════/g, "")
+    .replace(/={5,}/g, "")
+    .replace(/_{5,}/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+}
 
-  // 🎨 PADRÃO ASTRO
-  txt = `
+// =========================
+// 🎨 FORMATAÇÃO TOP
+// =========================
+function formatarBonito(txt, config) {
+
+  // separa blocos automaticamente
+  const linhas = txt.split("\n")
+
+  let novo = []
+  let blocoAtual = ""
+
+  for (let linha of linhas) {
+
+    linha = linha.trim()
+
+    if (!linha) continue
+
+    // detecta títulos
+    if (linha.length < 40 && linha === linha.toUpperCase()) {
+      if (blocoAtual) {
+        novo.push(blocoAtual)
+        blocoAtual = ""
+      }
+
+      novo.push(`\n📌 ${linha}\n`)
+    } else {
+      blocoAtual += linha + "\n"
+    }
+  }
+
+  if (blocoAtual) novo.push(blocoAtual)
+
+  return `
 ╔══════════════════════════════╗
-   🔎 ${config.titulo} — ASTRO API
+   🔎 CONSULTA ${config.titulo} — ASTRO API
 ╚══════════════════════════════╝
 
-📄 Consulta: ${config.documento}
+👤 Plano: ${config.user.plano}
+💳 Créditos restantes: ${config.user.creditos}
 
-${txt.trim()}
+📄 Consulta: ${config.consulta}
+
+${novo.join("\n")}
 
 ──────────────────────────────
 🚀 Astro Company | @puxardados5
 `
-
-  return json({
-    status: true,
-    consulta: config.documento,
-    resultado: txt
-  })
 }
 
 // =========================
-// ❌ ERRO PADRÃO
+// ❌ ERRO
 // =========================
 function error(msg) {
   return json({
     status: false,
-    msg: msg
+    msg
   })
 }
 
 // =========================
-// 📦 JSON RESPONSE
+// 📦 JSON UTF-8 CORRETO
 // =========================
 function json(data) {
   return new Response(JSON.stringify(data, null, 2), {
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json; charset=utf-8"
+    }
   })
 }
