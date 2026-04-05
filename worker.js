@@ -239,11 +239,195 @@ return new Response(JSON.stringify({
 /* ================= HOME SIMPLES ================= */
 
 function home(){
-return new Response(JSON.stringify({
-  status:true,
-  message:"🚀 Astro API Online",
-  endpoints:Object.keys(ENDPOINTS)
-},null,2),{
-  headers:{"Content-Type":"application/json"}
+return new Response(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro API | Painel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+
+body{
+background: radial-gradient(circle at top,#0f172a,#020617);
+color:#fff;
+overflow-x:hidden;
+}
+
+/* HEADER */
+.header{
+text-align:center;
+padding:40px 20px;
+}
+
+.header h1{
+font-size:2.2rem;
+color:#3b82f6;
+}
+
+.header p{
+opacity:.7;
+margin-top:10px;
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+padding:20px;
+max-width:1200px;
+margin:auto;
+}
+
+/* CARD */
+.card{
+background:#111827cc;
+border:1px solid #1f2937;
+border-radius:15px;
+padding:20px;
+backdrop-filter:blur(10px);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+border-color:#3b82f6;
+}
+
+/* TITULO */
+.card h3{
+color:#3b82f6;
+margin-bottom:10px;
+}
+
+/* INPUT */
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+background:#020617;
+color:#fff;
+}
+
+/* BUTTON */
+button{
+width:100%;
+margin-top:10px;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#3b82f6;
+color:#fff;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+opacity:.8;
+}
+
+/* RESULT */
+#result{
+max-width:1200px;
+margin:30px auto;
+padding:20px;
+background:#020617;
+border-radius:10px;
+white-space:pre-wrap;
+font-size:13px;
+overflow:auto;
+border:1px solid #1f2937;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>🚀 Astro API</h1>
+<p>Painel interativo de consultas</p>
+</div>
+
+<div class="grid" id="cards"></div>
+
+<div id="result">Selecione uma consulta...</div>
+
+<script>
+
+const ENDPOINTS = ${JSON.stringify(ENDPOINTS,null,2)}
+
+const BASE = window.location.origin
+
+const container = document.getElementById("cards")
+
+Object.keys(ENDPOINTS).forEach(key=>{
+
+const ep = ENDPOINTS[key]
+
+const card = document.createElement("div")
+card.className="card"
+
+card.innerHTML = \`
+<h3>\${key.toUpperCase()}</h3>
+<small>Parametro: \${ep.query}</small>
+
+<input placeholder="Digite o valor..." id="input-\${key}">
+
+<input placeholder="Token..." id="token-\${key}">
+
+<button onclick="consultar('\${key}')">Consultar</button>
+\`
+
+container.appendChild(card)
+
+})
+
+async function consultar(endpoint){
+
+const ep = ENDPOINTS[endpoint]
+
+const valor = document.getElementById("input-"+endpoint).value
+const token = document.getElementById("token-"+endpoint).value
+
+if(!valor || !token){
+alert("Preencha tudo")
+return
+}
+
+const url = BASE + "/" + endpoint + "?" + ep.query + "=" + encodeURIComponent(valor) + "&token=" + token
+
+document.getElementById("result").textContent = "Consultando..."
+
+try{
+
+const res = await fetch(url)
+const text = await res.text()
+
+try{
+const json = JSON.parse(text)
+document.getElementById("result").textContent = JSON.stringify(json,null,2)
+}catch{
+document.getElementById("result").textContent = text
+}
+
+}catch(e){
+document.getElementById("result").textContent = "Erro: "+e.message
+}
+
+}
+
+</script>
+
+</body>
+</html>`,{
+headers:{
+"Content-Type":"text/html;charset=UTF-8"
+}
 })
 }
