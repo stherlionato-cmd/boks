@@ -115,45 +115,66 @@ return obj
 // ============================
 function parseText(text){
 
+text = fixEncoding(text)
 text = cleanString(text)
 
 let lines = text.split("\n").map(l=>l.trim()).filter(Boolean)
 
-let sections = {}
+let result = {}
 let current = "geral"
+let currentObj = {}
 
 for(let line of lines){
 
-// título
+// 🧩 detectar seção
 if(
   line === line.toUpperCase() &&
   line.length < 50 &&
   !line.includes(":")
 ){
+  if(Object.keys(currentObj).length){
+    if(!result[current]) result[current] = []
+    result[current].push(currentObj)
+    currentObj = {}
+  }
+
   current = normalizeKey(line)
-  sections[current] = []
+  if(!result[current]) result[current] = []
   continue
 }
 
-// chave: valor
+// 🔑 chave: valor
 if(line.includes(":")){
   let [k,...v] = line.split(":")
+  let key = normalizeKey(k)
   let value = v.join(":").trim()
 
-  if(!sections[current]) sections[current] = []
+  // se repetir chave → novo objeto (ex: múltiplos endereços)
+  if(currentObj[key]){
+    result[current].push(currentObj)
+    currentObj = {}
+  }
 
-  sections[current].push({
-    key: normalizeKey(k),
-    value: value
-  })
-}else{
-  if(!sections[current]) sections[current] = []
-  sections[current].push(line)
+  currentObj[key] = value
 }
 
 }
 
-return sections
+// último objeto
+if(Object.keys(currentObj).length){
+  if(!result[current]) result[current] = []
+  result[current].push(currentObj)
+}
+
+return result
+}
+
+function fixEncoding(str){
+try{
+  return decodeURIComponent(escape(str))
+}catch{
+  return str
+}
 }
 
 // ============================
