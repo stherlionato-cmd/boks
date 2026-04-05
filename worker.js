@@ -5,197 +5,117 @@ export default {
     let path = url.pathname.replace(/^\/|\/$/g, "")
 
     // =========================
-    // 👤 USUÁRIOS / TOKENS
+    // 🔐 SISTEMA DE TOKENS
     // =========================
-    const USERS = {
-      "Astro123": { plano: "FREE", creditos: 10 },
-      "VIP456": { plano: "VIP", creditos: 9999 },
-      "TesteToken": { plano: "FREE", creditos: 5 }
-    }
+    const TOKENS = [
+      "SEU_TOKEN_AQUI",
+      "VIP_123",
+      "TESTE"
+    ]
 
     const token = url.searchParams.get("token")
-    const user = USERS[token]
 
-    if (!user) return error("Token inválido")
-
-    if (user.creditos <= 0) {
-      return error("Créditos esgotados")
-    }
-
-    // =========================
-    // 🔀 ALIAS
-    // =========================
-    const ALIAS = {
-      cpf2: "cpf",
-      cpf3: "cpf"
-    }
-
-    if (ALIAS[path]) path = ALIAS[path]
-
-    try {
-
-      let apiData
-      let consulta
-
-      // =========================
-      // 🔎 CPF
-      // =========================
-      if (path === "cpf") {
-
-        const cpf = url.searchParams.get("cpf")
-        if (!cpf) return error("Informe o cpf")
-
-        consulta = cpf
-
-        const req = await fetch(`https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`)
-        apiData = await req.json()
-      }
-
-      else {
-        return error("Rota inválida")
-      }
-
-      // 💳 DESCONTA CRÉDITO
-      user.creditos--
-
-      // =========================
-      // 🧠 EXTRAÇÃO INTELIGENTE
-      // =========================
-      let raw = ""
-
-      if (apiData.resultado) {
-        raw = apiData.resultado
-      } else {
-        raw = JSON.stringify(apiData, null, 2)
-      }
-
-      // =========================
-      // 🧹 LIMPEZA PESADA
-      // =========================
-      raw = limparTexto(raw)
-
-      // =========================
-      // 🎨 FORMATAÇÃO BONITA
-      // =========================
-      const resultado = formatarBonito(raw, {
-        titulo: path.toUpperCase(),
-        consulta,
-        user
-      })
-
+    if (!token || !TOKENS.includes(token)) {
       return json({
-        status: true,
-        consulta,
-        plano: user.plano,
-        creditos: user.creditos,
-        resultado
+        status: false,
+        erro: "Token inválido ou não fornecido"
       })
-
-    } catch (e) {
-      return error("Erro interno")
     }
 
+    // =========================
+    // 🔥 ROTAS
+    // =========================
+    if (path === "cpf") {
+      return await consultaCPF(url)
+    }
+
+    return json({
+      status: false,
+      erro: "Rota não encontrada"
+    })
   }
 }
 
 // =========================
-// 🧹 LIMPEZA INTELIGENTE
+// 🔎 CONSULTA CPF
 // =========================
-function limparTexto(txt) {
-  return txt
-    .replace(/HydraCore/gi, "")
-    .replace(/ObitoSpam/gi, "")
-    .replace(/©/gi, "")
-    .replace(/={5,}/g, "")
-    .replace(/_{5,}/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
-}
+async function consultaCPF(url) {
 
-// =========================
-// 🎨 FORMATAÇÃO TOP
-// =========================
-function formatarBonito(txt, config) {
+  const cpf = url.searchParams.get("cpf")
 
-  const linhas = txt.split("\n")
-
-  let resultado = ""
-  let blocoAtual = ""
-
-  for (let linha of linhas) {
-
-    linha = linha.trim()
-
-    if (!linha) continue
-
-    // 🧠 DETECTA SE É TÍTULO REAL
-    const isTitulo =
-      linha === linha.toUpperCase() &&
-      !linha.includes(":") &&
-      linha.length < 40
-
-    if (isTitulo) {
-
-      // fecha bloco anterior
-      if (blocoAtual) {
-        resultado += blocoAtual + "\n"
-        blocoAtual = ""
-      }
-
-      resultado += `\n━━━━━━━━━━━━━━━━━━━━\n📂 ${linha}\n━━━━━━━━━━━━━━━━━━━━\n\n`
-    }
-
-    // 🧠 DETECTA CHAVE: VALOR
-    else if (linha.includes(":")) {
-
-      let [chave, ...resto] = linha.split(":")
-      let valor = resto.join(":").trim()
-
-      blocoAtual += `• ${chave.trim()}: ${valor}\n`
-    }
-
-    // 🧠 LINHA SOLTA
-    else {
-      blocoAtual += `${linha}\n`
-    }
+  if (!cpf) {
+    return json({
+      status: false,
+      erro: "CPF não informado"
+    })
   }
 
-  if (blocoAtual) resultado += blocoAtual
+  try {
 
-  return `
+    // 🔥 API EXTERNA
+    const api = await fetch(`https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`)
+    const data = await api.json()
+
+    if (!data || data.status !== "ok") {
+      return json({
+        status: false,
+        erro: "Erro ao consultar CPF"
+      })
+    }
+
+    // =========================
+    // 🧠 LIMPEZA DO RESULTADO
+    // =========================
+    let resultado = data.resultado || ""
+
+    // remove créditos antigos
+    resultado = resultado
+      .replace(/HydraCore/gi, "")
+      .replace(/ObitoSpam/gi, "")
+      .replace(/©.*?\n/gi, "")
+
+    // =========================
+    // 🎨 FORMATAÇÃO MELHORADA
+    // =========================
+    const respostaFormatada = `
 ╔══════════════════════════════╗
-   🔎 CONSULTA ${config.titulo} — ASTRO API
+   CONSULTA CPF — ASTRO API
 ╚══════════════════════════════╝
-
-👤 Plano: ${config.user.plano}
-💳 Créditos: ${config.user.creditos}
-
-📄 Consulta: ${config.consulta}
 
 ${resultado.trim()}
 
 ──────────────────────────────
 🚀 Astro Company | @puxardados5
+──────────────────────────────
 `
+
+    // =========================
+    // 📦 RESPOSTA FINAL
+    // =========================
+    return json({
+      status: true,
+      tipo: "cpf",
+      cpf: cpf,
+      base: "completa",
+      resultado: respostaFormatada.trim()
+    })
+
+  } catch (e) {
+    return json({
+      status: false,
+      erro: "Erro interno",
+      detalhe: e.message
+    })
+  }
 }
 
 // =========================
-// ❌ ERRO
-// =========================
-function error(msg) {
-  return json({
-    status: false,
-    msg
-  })
-}
-
-// =========================
-// 📦 JSON UTF-8 CORRETO
+// 📦 JSON RESPONSE
 // =========================
 function json(data) {
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
-      "Content-Type": "application/json; charset=utf-8"
+      "Content-Type": "application/json"
     }
   })
 }
