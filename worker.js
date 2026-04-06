@@ -80,9 +80,39 @@ const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=T
 
 try{
 
-const res = await fetch(api)
-const data = await res.json()
+const res = await fetch(api,{
+  method:"GET",
+  headers:{
+    "User-Agent":"Mozilla/5.0",
+    "Accept":"application/json"
+  }
+})
 
+// 🔥 DEBUG REAL
+if(!res.ok){
+  const text = await res.text()
+  return json({
+    status:false,
+    message:"Erro na API externa",
+    http_status: res.status,
+    response: text
+  })
+}
+
+// ⚠️ pode não vir JSON válido
+let data
+try{
+  data = await res.json()
+}catch{
+  const text = await res.text()
+  return json({
+    status:false,
+    message:"Resposta não é JSON",
+    raw: text
+  })
+}
+
+// 🔥 NORMALIZA
 const normalized = normalize(data)
 
 return json({
@@ -93,7 +123,11 @@ return json({
 })
 
 }catch(e){
-  return json({status:false,message:"Erro ao consultar"})
+  return json({
+    status:false,
+    message:"Erro interno",
+    error: e.message
+  })
 }
 
 }
