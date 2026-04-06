@@ -96,7 +96,7 @@ const res = await fetch(api,{
   }
 })
 
-// 🔥 DEBUG REAL
+// erro HTTP
 if(!res.ok){
   const text = await res.text()
   return json({
@@ -107,8 +107,7 @@ if(!res.ok){
   })
 }
 
-// ⚠️ pode não vir JSON válido
-let data
+// leitura segura
 const text = await res.text()
 
 let data
@@ -121,14 +120,17 @@ try{
     raw: text
   })
 }
+
+// validação correta
+if(!data || data.status !== "ok"){
   return json({
     status:false,
-    message:"Resposta não é JSON",
-    raw: text
+    message:"API externa retornou erro",
+    raw: data
   })
 }
 
-// 🔥 NORMALIZA
+// normalização
 const normalized = normalize(data)
 
 return json({
