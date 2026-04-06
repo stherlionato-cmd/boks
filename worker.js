@@ -21,6 +21,10 @@ if(path === "cpf"){
   return handleCPF(url)
 }
 
+if(path === "placa"){
+  return handlePlaca(url)
+}
+
 // futuro:
 // if(path === "telefone") return handleTelefone(url)
 // if(path === "nome") return handleNome(url)
@@ -54,6 +58,39 @@ try{
     credits:"Astro Company | @puxardados5",
     result: normalized
   })
+
+}catch(e){
+  return json({status:false,message:"Erro ao consultar"})
+}
+
+}
+
+// ============================
+// 🔎 Placa
+// ============================
+
+async function handlePlaca(url){
+
+const placa = url.searchParams.get("placa")
+if(!placa){
+  return json({status:false,message:"Placa não informada"})
+}
+
+const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=Teste`
+
+try{
+
+const res = await fetch(api)
+const data = await res.json()
+
+const normalized = normalize(data)
+
+return json({
+  status:true,
+  base:"Astro API",
+  credits:"Astro Company | @puxardados5",
+  result: normalized
+})
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
@@ -126,18 +163,13 @@ let currentObj = {}
 
 for(let line of lines){
 
-// 🧩 detectar seção
+// 🧩 NOVA SEÇÃO
 if(
   line === line.toUpperCase() &&
-  line.length < 50 &&
+  line.length < 60 &&
   !line.includes(":")
 ){
-  if(Object.keys(currentObj).length){
-    if(!result[current]) result[current] = []
-    result[current].push(currentObj)
-    currentObj = {}
-  }
-
+  pushObj()
   current = normalizeKey(line)
   if(!result[current]) result[current] = []
   continue
@@ -149,10 +181,9 @@ if(line.includes(":")){
   let key = normalizeKey(k)
   let value = v.join(":").trim()
 
-  // se repetir chave → novo objeto (ex: múltiplos endereços)
-  if(currentObj[key]){
-    result[current].push(currentObj)
-    currentObj = {}
+  // 🔥 se chave repetir → novo objeto (ex: múltiplas restrições)
+  if(currentObj[key] !== undefined){
+    pushObj()
   }
 
   currentObj[key] = value
@@ -160,21 +191,19 @@ if(line.includes(":")){
 
 }
 
-// último objeto
-if(Object.keys(currentObj).length){
-  if(!result[current]) result[current] = []
-  result[current].push(currentObj)
-}
+pushObj()
 
 return result
+
+// ======================
+function pushObj(){
+  if(Object.keys(currentObj).length){
+    if(!result[current]) result[current] = []
+    result[current].push(currentObj)
+    currentObj = {}
+  }
 }
 
-function fixEncoding(str){
-try{
-  return decodeURIComponent(escape(str))
-}catch{
-  return str
-}
 }
 
 // ============================
