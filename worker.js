@@ -96,6 +96,8 @@ const res = await fetch(api,{
   }
 })
 
+
+
 // erro HTTP
 if(!res.ok){
   const text = await res.text()
@@ -118,15 +120,6 @@ try{
     status:false,
     message:"Resposta não é JSON",
     raw: text
-  })
-}
-
-// validação correta
-if(!data || data.status !== "ok"){
-  return json({
-    status:false,
-    message:"API externa retornou erro",
-    raw: data
   })
 }
 
@@ -256,14 +249,6 @@ function pushObj(){
   }
 }
 
-}
-
-if(!data || data.status !== "ok"){
-  return json({
-    status:false,
-    message:"API externa retornou erro",
-    raw: data
-  })
 }
 
 // ============================
