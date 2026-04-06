@@ -33,6 +33,14 @@ return json({status:false,message:"Endpoint não encontrado"})
 }
 }
 
+function fixEncoding(str){
+try{
+  return decodeURIComponent(escape(str))
+}catch(e){
+  return str
+}
+}
+
 // ============================
 // 🔎 CPF
 // ============================
