@@ -7,7 +7,7 @@ const path = url.pathname.replace(/^\/|\/$/g,"")
 // ============================
 // 🔐 TOKEN
 // ============================
-const TOKENS = ["VIP_123","IFNastro"]
+const TOKENS = ["TESTE","VIP_123","IFNastro"]
 
 const token = url.searchParams.get("token")
 if(!TOKENS.includes(token)){
