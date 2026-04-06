@@ -101,10 +101,18 @@ if(!res.ok){
 
 // ⚠️ pode não vir JSON válido
 let data
+const text = await res.text()
+
+let data
 try{
-  data = await res.json()
+  data = JSON.parse(text)
 }catch{
-  const text = await res.text()
+  return json({
+    status:false,
+    message:"Resposta não é JSON",
+    raw: text
+  })
+}
   return json({
     status:false,
     message:"Resposta não é JSON",
@@ -238,6 +246,14 @@ function pushObj(){
   }
 }
 
+}
+
+if(!data || data.status !== "ok"){
+  return json({
+    status:false,
+    message:"API externa retornou erro",
+    raw: data
+  })
 }
 
 // ============================
