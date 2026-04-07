@@ -25,6 +25,10 @@ if(path === "placa"){
   return handlePlaca(url)
 }
 
+if(path === "telefone"){
+  return handleTefone(url)
+}
+
 // futuro:
 // if(path === "telefone") return handleTelefone(url)
 // if(path === "nome") return handleNome(url)
@@ -53,6 +57,38 @@ if(!cpf){
 
 // 🔗 API EXTERNA (OCULTA)
 const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`
+
+try{
+  const res = await fetch(api)
+  const data = await res.json()
+
+  const normalized = normalize(data)
+
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
+
+}catch(e){
+  return json({status:false,message:"Erro ao consultar"})
+}
+
+}
+
+// ============================
+// 🔎 Telefone
+// ============================
+async function handleTelefone(url){
+
+const telefone = url.searchParams.get("telefone")
+if(!telefone){
+  return json({status:false,message:"Telefone não informado"})
+}
+
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/telefone?query=${telefone}&apikey=Teste`
 
 try{
   const res = await fetch(api)
