@@ -26,7 +26,7 @@ if(path === "placa"){
 }
 
 if(path === "telefone"){
-  return handleTefone(url)
+  return handleTelefone(url)
 }
 
 // futuro:
