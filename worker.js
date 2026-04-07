@@ -21,6 +21,10 @@ if(path === "cpf"){
   return handleCPF(url)
 }
 
+if(path === "nome"){
+  return handleNome(url)
+}
+
 if(path === "placa"){
   return handlePlaca(url)
 }
@@ -57,6 +61,38 @@ if(!cpf){
 
 // 🔗 API EXTERNA (OCULTA)
 const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`
+
+try{
+  const res = await fetch(api)
+  const data = await res.json()
+
+  const normalized = normalize(data)
+
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
+
+}catch(e){
+  return json({status:false,message:"Erro ao consultar"})
+}
+
+}
+
+// ============================
+// 🔎 Nome
+// ============================
+async function handleNome(url){
+
+const nome = url.searchParams.get("nome")
+if(!nome){
+  return json({status:false,message:"Nome não informado"})
+}
+
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/nome3?nome=${nome}&apikey=Teste`
 
 try{
   const res = await fetch(api)
