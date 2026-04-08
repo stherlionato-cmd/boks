@@ -5,37 +5,31 @@ const url = new URL(request.url)
 const path = url.pathname.replace(/^\/|\/$/g,"")
 
 // ============================
+// 🏠 HOME (PAINEL)
+// ============================
+if(path === ""){
+  return new Response(html(), {
+    headers: { "Content-Type": "text/html;charset=UTF-8" }
+  })
+}
+
+// ============================
 // 🔐 TOKEN
 // ============================
 const TOKENS = ["VIP_123","ifnvip"]
 
 const token = url.searchParams.get("token")
 if(!TOKENS.includes(token)){
-  return json({status:false,message:"Token inválido, adquira com: @puxardados5"})
+  return json({status:false,message:"Token inválido"})
 }
 
 // ============================
 // 🚀 ROTAS
 // ============================
-if(path === "cpf"){
-  return handleCPF(url)
-}
-
-if(path === "nome"){
-  return handleNome(url)
-}
-
-if(path === "placa"){
-  return handlePlaca(url)
-}
-
-if(path === "telefone"){
-  return handleTelefone(url)
-}
-
-// futuro:
-// if(path === "telefone") return handleTelefone(url)
-// if(path === "nome") return handleNome(url)
+if(path === "cpf") return handleCPF(url)
+if(path === "nome") return handleNome(url)
+if(path === "placa") return handlePlaca(url)
+if(path === "telefone") return handleTelefone(url)
 
 return json({status:false,message:"Endpoint não encontrado"})
 }
@@ -355,4 +349,118 @@ function json(obj){
 return new Response(JSON.stringify(obj,null,2),{
   headers:{"Content-Type":"application/json"}
 })
+}
+
+function html(){
+return `
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro API</title>
+
+<style>
+body{
+  background:#020617;
+  color:#fff;
+  font-family:Arial;
+  text-align:center;
+  padding:20px;
+}
+
+.box{
+  max-width:400px;
+  margin:auto;
+}
+
+.card{
+  background:#0b1228;
+  margin-top:10px;
+  padding:15px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:8px;
+  background:#3b82f6;
+  color:#fff;
+}
+
+pre{
+  margin-top:10px;
+  text-align:left;
+  background:#000;
+  padding:10px;
+  border-radius:10px;
+  overflow:auto;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🚀 Astro API</h2>
+
+<div class="box">
+
+<input id="token" placeholder="Token">
+
+<div class="card" onclick="openType('cpf')">CPF</div>
+<div class="card" onclick="openType('nome')">Nome</div>
+<div class="card" onclick="openType('telefone')">Telefone</div>
+<div class="card" onclick="openType('placa')">Placa</div>
+
+<input id="valor" placeholder="Digite o valor">
+
+<button onclick="consultar()">Consultar</button>
+
+<pre id="res"></pre>
+
+</div>
+
+<script>
+
+let tipo = "cpf"
+
+function openType(t){
+  tipo = t
+}
+
+async function consultar(){
+
+  let token = document.getElementById("token").value
+  let valor = document.getElementById("valor").value
+
+  let url = ""
+
+  if(tipo==="cpf") url = "/cpf?token="+token+"&cpf="+valor
+  if(tipo==="nome") url = "/nome?token="+token+"&nome="+encodeURIComponent(valor)
+  if(tipo==="telefone") url = "/telefone?token="+token+"&telefone="+valor
+  if(tipo==="placa") url = "/placa?token="+token+"&placa="+valor
+
+  const res = await fetch(url)
+  const data = await res.json()
+
+  document.getElementById("res").innerText = JSON.stringify(data,null,2)
+}
+
+</script>
+
+</body>
+</html>
+`
 }
