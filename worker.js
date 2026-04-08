@@ -29,6 +29,7 @@ if(!TOKENS.includes(token)){
 if(path === "cpf") return handleCPF(url)
 if(path === "cpf2") return handleCPF2(url)
 if(path === "nome") return handleNome(url)
+if(path === "nome2") return handleNome2(url)
 if(path === "placa") return handlePlaca(url)
 if(path === "telefone") return handleTelefone(url)
 
@@ -139,6 +140,39 @@ try{
 }
 
 }
+
+// ============================
+// 🔎 Nome 2
+// ============================
+async function handleNome2(url){
+
+const nome = url.searchParams.get("nome")
+if(!nome){
+  return json({status:false,message:"Nome não informado"})
+}
+
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/nome?nome=${nome}&apikey=bigmouthh`
+
+try{
+  const res = await fetch(api)
+  const data = await res.json()
+
+  const normalized = normalize(data)
+
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
+
+}catch(e){
+  return json({status:false,message:"Erro ao consultar"})
+}
+
+}
+
 
 // ============================
 // 🔎 Telefone
