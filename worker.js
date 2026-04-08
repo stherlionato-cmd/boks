@@ -2,17 +2,16 @@ export default {
 async fetch(request){
 
 const url = new URL(request.url)
+const path = url.pathname.replace(/^\/|\/$/g,"")
 
 // ============================
-// 🏠 HOME (LIBERADA)
+// 🏠 HOME LIBERADA (SEM TOKEN)
 // ============================
-if(url.pathname === "/" || url.pathname === ""){
+if(path === ""){
   return new Response(html(), {
     headers: { "Content-Type": "text/html;charset=UTF-8" }
   })
 }
-
-const path = url.pathname.replace(/^\/|\/$/g,"")
 
 // ============================
 // 🔐 TOKEN
@@ -21,141 +20,134 @@ const TOKENS = ["VIP_123","ifnvip"]
 
 const token = url.searchParams.get("token")
 if(!TOKENS.includes(token)){
-  return json({
-    status:false,
-    error_code:"AUTH_001",
-    message:"Token inválido, adquira com: @puxardados5"
-  })
+  return json({status:false,message:"Token inválido"})
 }
 
 // ============================
 // 🚀 ROTAS
 // ============================
-if(path === "api/cpf.php") return handleCPF(url)
-if(path === "api/cpf2.php") return handleCPF(url)
-if(path === "api/nome.php") return handleNome(url)
-if(path === "api/telefone.php") return handleTelefone(url)
-if(path === "api/placa.php") return handlePlaca(url)
-if(path === "api/foto.php") return handleFoto(url)
+if(path === "cpf") return handleCPF(url)
+if(path === "nome") return handleNome(url)
+if(path === "placa") return handlePlaca(url)
+if(path === "telefone") return handleTelefone(url)
 
 return json({status:false,message:"Endpoint não encontrado"})
 }
 }
 
 // ============================
-// 📸 FOTO
-// ============================
-async function handleFoto(url){
-const cpf = url.searchParams.get("cpf")
-if(!cpf){
-  return json({status:false,error_code:"REQ_001"})
-}
-
-return json({
-  status:true,
-  foto_url:"https://i.imgur.com/8Km9tLL.jpg"
-})
-}
-
-// ============================
 // 🔎 CPF
 // ============================
 async function handleCPF(url){
+
 const cpf = url.searchParams.get("cpf")
 if(!cpf){
-  return json({status:false,error_code:"REQ_001"})
+  return json({status:false,message:"CPF não informado"})
 }
 
+const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=bigmouthh`
+
 try{
-  const res = await fetch("https://obitostore.shop/api/consulta/cpf?cpf="+cpf+"&apikey=bigmouthh")
+  const res = await fetch(api)
   const data = await res.json()
 
-return json({
-  status:true,
-  dados: normalize(data)
-})
+  return json({
+    status:true,
+    result: normalize(data)
+  })
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
 }
+
 }
 
 // ============================
 // 🔎 NOME
 // ============================
 async function handleNome(url){
+
 const nome = url.searchParams.get("nome")
 if(!nome){
-  return json({status:false,error_code:"REQ_001"})
+  return json({status:false,message:"Nome não informado"})
 }
 
+const api = `https://obitostore.shop/api/consulta/nome3?nome=${nome}&apikey=bigmouthh`
+
 try{
-  const res = await fetch("https://obitostore.shop/api/consulta/nome3?nome="+encodeURIComponent(nome)+"&apikey=bigmouthh")
+  const res = await fetch(api)
   const data = await res.json()
 
-return json({
-  status:true,
-  dados: normalize(data)
-})
+  return json({
+    status:true,
+    result: normalize(data)
+  })
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
 }
+
 }
 
 // ============================
 // 🔎 TELEFONE
 // ============================
 async function handleTelefone(url){
+
 const telefone = url.searchParams.get("telefone")
 if(!telefone){
-  return json({status:false,error_code:"REQ_001"})
+  return json({status:false,message:"Telefone não informado"})
 }
 
+const api = `https://obitostore.shop/api/consulta/telefone?query=${telefone}&apikey=bigmouthh`
+
 try{
-  const res = await fetch("https://obitostore.shop/api/consulta/telefone?query="+telefone+"&apikey=bigmouthh")
+  const res = await fetch(api)
   const data = await res.json()
 
-return json({
-  status:true,
-  dados: normalize(data)
-})
+  return json({
+    status:true,
+    result: normalize(data)
+  })
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
 }
+
 }
 
 // ============================
 // 🔎 PLACA
 // ============================
 async function handlePlaca(url){
+
 const placa = url.searchParams.get("placa")
 if(!placa){
-  return json({status:false,error_code:"REQ_001"})
+  return json({status:false,message:"Placa não informada"})
 }
 
-try{
-  const res = await fetch("https://obitostore.shop/api/consulta/placa2?placa="+placa+"&apikey=bigmouthh")
-  const data = await res.json()
+const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=bigmouthh`
 
-return json({
-  status:true,
-  dados: normalize(data)
-})
+try{
+  const res = await fetch(api)
+  const text = await res.text()
+
+  let data
+  try{
+    data = JSON.parse(text)
+  }catch{
+    return json({status:false,message:"Resposta inválida"})
+  }
+
+  return json({
+    status:true,
+    result: normalize(data)
+  })
 
 }catch(e){
   return json({status:false,message:"Erro interno"})
 }
-}
 
-// ============================
-// 📦 JSON
-// ============================
-function json(obj){
-return new Response(JSON.stringify(obj,null,2),{
-  headers:{"Content-Type":"application/json"}
-})
 }
 
 // ============================
@@ -176,7 +168,7 @@ return cleanObject(data)
 }
 
 // ============================
-// 🧹 CLEAN JSON
+// 🧹 LIMPA JSON
 // ============================
 function cleanObject(obj){
 
@@ -207,57 +199,33 @@ return obj
 }
 
 // ============================
-// 🧠 PARSE TEXTO
+// 🧠 TEXTO → JSON
 // ============================
 function parseText(text){
 
 text = cleanString(text)
 
-let lines = text.split("\\n").map(l=>l.trim()).filter(Boolean)
+let lines = text.split("\n").map(l=>l.trim()).filter(Boolean)
 
 let result = {}
-let current = "geral"
-let currentObj = {}
+let current = "dados"
+let obj = {}
 
 for(let line of lines){
 
-if(line === line.toUpperCase() && !line.includes(":")){
-  pushObj()
-  current = normalizeKey(line)
-  if(!result[current]) result[current] = []
-  continue
-}
-
 if(line.includes(":")){
-  let parts = line.split(":")
-  let key = normalizeKey(parts.shift())
-  let value = parts.join(":").trim()
-
-  if(currentObj[key] !== undefined){
-    pushObj()
-  }
-
-  currentObj[key] = value
+  let [k,...v] = line.split(":")
+  obj[normalizeKey(k)] = v.join(":").trim()
 }
 
 }
 
-pushObj()
-
+result[current] = [obj]
 return result
-
-function pushObj(){
-  if(Object.keys(currentObj).length){
-    if(!result[current]) result[current] = []
-    result[current].push(currentObj)
-    currentObj = {}
-  }
-}
-
 }
 
 // ============================
-// 🧹 CLEAN STRING
+// 🧹 LIMPA STRING
 // ============================
 function cleanString(str){
 
@@ -265,12 +233,13 @@ return str
 .replace(/©.*$/gmi,"")
 .replace(/HydraCore/gi,"")
 .replace(/ObitoSpam/gi,"")
+.replace(/════════.*════════/g,"")
 .trim()
 
 }
 
 // ============================
-// 🔑 KEY NORMALIZE
+// 🔑 KEY
 // ============================
 function normalizeKey(key){
 return key
@@ -280,7 +249,16 @@ return key
 }
 
 // ============================
-// 🏠 HTML FULL (SEM CRASE BUG)
+// 📦 JSON
+// ============================
+function json(obj){
+return new Response(JSON.stringify(obj,null,2),{
+  headers:{"Content-Type":"application/json"}
+})
+}
+
+// ============================
+// 🏠 HOME (SEM ERRO)
 // ============================
 function html(){
 return `
@@ -291,70 +269,111 @@ return `
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Astro Search</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
 <style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+
 body{
-  margin:0;
   background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
-  color:#fff;
-  font-family:sans-serif;
+  color:#e2e8f0;
   overflow-x:hidden;
 }
 
-.header{
-  text-align:center;
-  padding:20px;
-  font-size:22px;
-  font-weight:bold;
+/* ⭐ ESTRELAS */
+canvas{
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ z-index:-1;
 }
 
+/* HEADER */
+.header{
+ padding:20px;
+ text-align:center;
+ font-weight:800;
+ font-size:24px;
+}
+.header span{color:#3b82f6;}
+
+/* BOX */
+.box{
+ max-width:420px;
+ margin:20px auto;
+ padding:15px;
+}
+
+/* CARD */
 .card{
-  margin:15px;
-  padding:15px;
-  border-radius:15px;
-  background:rgba(255,255,255,0.05);
-  cursor:pointer;
-  transition:.2s;
+ margin-top:12px;
+ padding:16px;
+ border-radius:16px;
+ background:rgba(255,255,255,0.02);
+ transition:.3s;
+ cursor:pointer;
 }
 .card:hover{
-  transform:scale(1.05);
+ transform:translateY(-6px);
+ box-shadow:0 10px 40px rgba(59,130,246,.25);
 }
 
+.desc{
+ font-size:12px;
+ opacity:.6;
+}
+
+/* INPUT */
 .input{
-  width:90%;
-  margin:10px auto;
-  display:block;
-  padding:10px;
-  border-radius:10px;
-  border:none;
+ width:100%;
+ padding:12px;
+ margin-top:10px;
+ border-radius:12px;
+ border:none;
+ background:#0b1228;
+ color:#fff;
 }
 
+/* BUTTON */
 .btn{
-  width:90%;
-  margin:10px auto;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:#3b82f6;
-  color:#fff;
+ margin-top:10px;
+ width:100%;
+ padding:12px;
+ border:none;
+ border-radius:12px;
+ background:#3b82f6;
+ color:#fff;
+ font-weight:600;
 }
 
-pre{
-  margin:10px;
-  background:#000;
-  padding:10px;
-  border-radius:10px;
-  overflow:auto;
+/* RESULT */
+.result{
+ margin-top:15px;
+ font-size:12px;
+ white-space:pre-wrap;
+ background:#020617;
+ padding:10px;
+ border-radius:10px;
 }
 
-/* ⭐ estrelas */
-canvas{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  z-index:-1;
+/* LOADING */
+.loader{
+ margin-top:10px;
+ height:40px;
+ border-radius:10px;
+ background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
+ background-size:200%;
+ animation:load 1s infinite;
 }
+
+@keyframes load{
+ 0%{background-position:200%}
+ 100%{background-position:-200%}
+}
+
 </style>
 </head>
 
@@ -362,31 +381,55 @@ canvas{
 
 <canvas id="bg"></canvas>
 
-<div class="header">🚀 Astro Search</div>
+<div class="header">Astro <span>Search</span></div>
 
-<div class="card" onclick="setType('cpf')">CPF</div>
-<div class="card" onclick="setType('nome')">Nome</div>
-<div class="card" onclick="setType('telefone')">Telefone</div>
-<div class="card" onclick="setType('placa')">Placa</div>
-<div class="card" onclick="setType('foto')">Foto</div>
+<div class="box">
 
-<input id="token" class="input" placeholder="Token">
-<input id="valor" class="input" placeholder="Valor">
+<input id="token" class="input" placeholder="Seu token">
+<input id="valor" class="input" placeholder="Digite o valor">
+
+<div class="card" onclick="setType('cpf')">
+  <strong>CPF</strong>
+  <div class="desc">Consulta completa</div>
+</div>
+
+<div class="card" onclick="setType('nome')">
+  <strong>Nome</strong>
+  <div class="desc">Busca por nome</div>
+</div>
+
+<div class="card" onclick="setType('telefone')">
+  <strong>Telefone</strong>
+  <div class="desc">Dados completos</div>
+</div>
+
+<div class="card" onclick="setType('placa')">
+  <strong>Placa</strong>
+  <div class="desc">Dados do veículo</div>
+</div>
 
 <button class="btn" onclick="consultar()">Consultar</button>
 
-<pre id="res"></pre>
+<div id="loading"></div>
+<div id="result" class="result"></div>
+
+</div>
 
 <script>
 
-// ⭐ FUNDO ANIMADO
-const c = document.getElementById("bg");
-const ctx = c.getContext("2d");
-c.width = window.innerWidth;
-c.height = window.innerHeight;
+let type="cpf"
 
-let stars = [];
+function setType(t){
+ type=t
+}
 
+/* ⭐ ESTRELAS */
+const c=document.getElementById("bg");
+const ctx=c.getContext("2d");
+c.width=innerWidth;
+c.height=innerHeight;
+
+let stars=[];
 for(let i=0;i<80;i++){
  stars.push({
   x:Math.random()*c.width,
@@ -398,49 +441,49 @@ for(let i=0;i<80;i++){
 function animate(){
  ctx.clearRect(0,0,c.width,c.height);
 
- stars.forEach(function(s){
-  s.y += s.speed;
-  if(s.y > c.height) s.y = 0;
+ stars.forEach(s=>{
+  s.y+=s.speed
+  if(s.y>c.height) s.y=0
 
-  ctx.fillStyle = "rgba(59,130,246,0.8)";
-  ctx.fillRect(s.x,s.y,2,2);
- });
+  ctx.fillStyle = "rgba(59,130,246,0.7)"
+  ctx.fillRect(s.x,s.y,1,1)
+ })
 
- requestAnimationFrame(animate);
+ requestAnimationFrame(animate)
 }
 
-animate();
+animate()
 
-// =================
-
-let type = "cpf";
-
-function setType(t){
- type = t;
-}
-
+/* CONSULTA */
 async function consultar(){
 
-let t = document.getElementById("token").value;
-let v = document.getElementById("valor").value;
+let token=document.getElementById("token").value
+let valor=document.getElementById("valor").value
 
-if(!t || !v){
- alert("Preencha tudo");
- return;
+if(!token || !valor){
+ alert("Preencha tudo")
+ return
 }
 
-let url = "";
+loading.innerHTML='<div class="loader"></div>'
+result.innerText=""
 
-if(type === "cpf") url = "/api/cpf.php?token="+t+"&cpf="+v;
-if(type === "nome") url = "/api/nome.php?token="+t+"&nome="+encodeURIComponent(v);
-if(type === "telefone") url = "/api/telefone.php?token="+t+"&telefone="+v;
-if(type === "placa") url = "/api/placa.php?token="+t+"&placa="+v;
-if(type === "foto") url = "/api/foto.php?token="+t+"&cpf="+v;
+let url = "/" + type + "?token=" + token + "&" + type + "=" + encodeURIComponent(valor)
 
-const r = await fetch(url);
-const data = await r.json();
+try{
 
-document.getElementById("res").innerText = JSON.stringify(data,null,2);
+ const r = await fetch(url)
+ const j = await r.json()
+
+ loading.innerHTML=""
+
+ result.innerText = JSON.stringify(j,null,2)
+
+}catch(e){
+ loading.innerHTML=""
+ result.innerText="Erro na consulta"
+}
+
 }
 
 </script>
