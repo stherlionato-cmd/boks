@@ -27,6 +27,7 @@ if(!TOKENS.includes(token)){
 // 🚀 ROTAS
 // ============================
 if(path === "cpf") return handleCPF(url)
+if(path === "cpf2") return handleCPF2(url)
 if(path === "nome") return handleNome(url)
 if(path === "placa") return handlePlaca(url)
 if(path === "telefone") return handleTelefone(url)
