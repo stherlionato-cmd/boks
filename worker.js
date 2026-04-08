@@ -60,7 +60,7 @@ if(!cpf){
 }
 
 // 🔗 API EXTERNA (OCULTA)
-const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=Teste`
+const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=bigmouthh`
 
 try{
   const res = await fetch(api)
@@ -92,7 +92,7 @@ if(!nome){
 }
 
 // 🔗 API EXTERNA (OCULTA)
-const api = `https://obitostore.shop/api/consulta/nome3?nome=${nome}&apikey=Teste`
+const api = `https://obitostore.shop/api/consulta/nome3?nome=${nome}&apikey=bigmouthh`
 
 try{
   const res = await fetch(api)
@@ -124,7 +124,7 @@ if(!telefone){
 }
 
 // 🔗 API EXTERNA (OCULTA)
-const api = `https://obitostore.shop/api/consulta/telefone?query=${telefone}&apikey=Teste`
+const api = `https://obitostore.shop/api/consulta/telefone?query=${telefone}&apikey=bigmouthh`
 
 try{
   const res = await fetch(api)
@@ -156,7 +156,7 @@ if(!placa){
   return json({status:false,message:"Placa não informada"})
 }
 
-const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=Teste`
+const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=bigmouthh`
 
 try{
 
