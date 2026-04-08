@@ -2,12 +2,12 @@ export default {
 async fetch(request){
 
 const url = new URL(request.url)
-const path = url.pathname.replace(/^\/|\/$/g,"")
+const path = url.pathname
 
 // ============================
 // 🏠 HOME (SUA INTERFACE)
 // ============================
-if(path === ""){
+if(path === "/" || path === ""){
   return new Response(html(), {
     headers: { "Content-Type": "text/html;charset=UTF-8" }
   })
