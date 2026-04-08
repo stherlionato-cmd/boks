@@ -16,7 +16,7 @@ if(path === ""){
 // ============================
 // 🔐 TOKEN
 // ============================
-const TOKENS = ["VIP_123","ifnvip"]
+const TOKENS = ["VIP_123","ifnastro"]
 
 const token = url.searchParams.get("token")
 if(!TOKENS.includes(token)){
