@@ -70,7 +70,10 @@ try{
   const res = await fetch("https://obitostore.shop/api/consulta/cpf?cpf="+cpf+"&apikey=bigmouthh")
   const data = await res.json()
 
-  return json({status:true,dados:data})
+return json({
+  status:true,
+  dados: normalize(data)
+})
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
@@ -90,7 +93,10 @@ try{
   const res = await fetch("https://obitostore.shop/api/consulta/nome3?nome="+encodeURIComponent(nome)+"&apikey=bigmouthh")
   const data = await res.json()
 
-  return json({status:true,dados:data})
+return json({
+  status:true,
+  dados: normalize(data)
+})
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
@@ -110,7 +116,10 @@ try{
   const res = await fetch("https://obitostore.shop/api/consulta/telefone?query="+telefone+"&apikey=bigmouthh")
   const data = await res.json()
 
-  return json({status:true,dados:data})
+return json({
+  status:true,
+  dados: normalize(data)
+})
 
 }catch(e){
   return json({status:false,message:"Erro ao consultar"})
@@ -130,7 +139,10 @@ try{
   const res = await fetch("https://obitostore.shop/api/consulta/placa2?placa="+placa+"&apikey=bigmouthh")
   const data = await res.json()
 
-  return json({status:true,dados:data})
+return json({
+  status:true,
+  dados: normalize(data)
+})
 
 }catch(e){
   return json({status:false,message:"Erro interno"})
@@ -144,6 +156,127 @@ function json(obj){
 return new Response(JSON.stringify(obj,null,2),{
   headers:{"Content-Type":"application/json"}
 })
+}
+
+// ============================
+// 🧠 NORMALIZADOR
+// ============================
+function normalize(data){
+
+if(typeof data === "string"){
+  return parseText(data)
+}
+
+if(data.resultado){
+  return parseText(data.resultado)
+}
+
+return cleanObject(data)
+
+}
+
+// ============================
+// 🧹 CLEAN JSON
+// ============================
+function cleanObject(obj){
+
+if(Array.isArray(obj)){
+  return obj.map(cleanObject)
+}
+
+if(typeof obj === "object" && obj !== null){
+
+let newObj = {}
+
+for(let key in obj){
+
+if(key.toLowerCase().includes("criador")) continue
+if(key.toLowerCase().includes("credit")) continue
+
+newObj[normalizeKey(key)] = cleanObject(obj[key])
+}
+
+return newObj
+}
+
+if(typeof obj === "string"){
+  return cleanString(obj)
+}
+
+return obj
+}
+
+// ============================
+// 🧠 PARSE TEXTO
+// ============================
+function parseText(text){
+
+text = cleanString(text)
+
+let lines = text.split("\\n").map(l=>l.trim()).filter(Boolean)
+
+let result = {}
+let current = "geral"
+let currentObj = {}
+
+for(let line of lines){
+
+if(line === line.toUpperCase() && !line.includes(":")){
+  pushObj()
+  current = normalizeKey(line)
+  if(!result[current]) result[current] = []
+  continue
+}
+
+if(line.includes(":")){
+  let parts = line.split(":")
+  let key = normalizeKey(parts.shift())
+  let value = parts.join(":").trim()
+
+  if(currentObj[key] !== undefined){
+    pushObj()
+  }
+
+  currentObj[key] = value
+}
+
+}
+
+pushObj()
+
+return result
+
+function pushObj(){
+  if(Object.keys(currentObj).length){
+    if(!result[current]) result[current] = []
+    result[current].push(currentObj)
+    currentObj = {}
+  }
+}
+
+}
+
+// ============================
+// 🧹 CLEAN STRING
+// ============================
+function cleanString(str){
+
+return str
+.replace(/©.*$/gmi,"")
+.replace(/HydraCore/gi,"")
+.replace(/ObitoSpam/gi,"")
+.trim()
+
+}
+
+// ============================
+// 🔑 KEY NORMALIZE
+// ============================
+function normalizeKey(key){
+return key
+.toLowerCase()
+.replace(/[^\w\s]/g,"")
+.replace(/\s+/g,"_")
 }
 
 // ============================
