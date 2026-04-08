@@ -1,17 +1,8 @@
-export default {
+ export default {
 async fetch(request){
 
 const url = new URL(request.url)
 const path = url.pathname.replace(/^\/|\/$/g,"")
-
-// ============================
-// 🏠 HOME (PAINEL)
-// ============================
-if(path === ""){
-  return new Response(html(), {
-    headers: { "Content-Type": "text/html;charset=UTF-8" }
-  })
-}
 
 // ============================
 // 🔐 TOKEN
@@ -26,114 +17,36 @@ if(!TOKENS.includes(token)){
 // ============================
 // 🚀 ROTAS
 // ============================
-if(path === "cpf") return handleCPF(url)
-if(path === "nome") return handleNome(url)
-if(path === "placa") return handlePlaca(url)
-if(path === "telefone") return handleTelefone(url)
+if(path === "cpf"){
+  return handleCPF(url)
+}
+
+if(path === "nome"){
+  return handleNome(url)
+}
+
+if(path === "placa"){
+  return handlePlaca(url)
+}
+
+if(path === "telefone"){
+  return handleTelefone(url)
+}
+
+// futuro:
+// if(path === "telefone") return handleTelefone(url)
+// if(path === "nome") return handleNome(url)
 
 return json({status:false,message:"Endpoint não encontrado"})
 }
 }
 
-// ============================
-// 🏠 HTML HOME
-// ============================
-function html(){
-return `<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astro Search</title>
-
-<style>
-body{
-  background:#020617;
-  color:#fff;
-  font-family:Arial;
-  text-align:center;
+function fixEncoding(str){
+try{
+  return decodeURIComponent(escape(str))
+}catch(e){
+  return str
 }
-
-.box{
-  max-width:400px;
-  margin:40px auto;
-  padding:20px;
-  border-radius:20px;
-  background:#0f172a;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border-radius:10px;
-  border:none;
-  background:#020617;
-  color:#fff;
-}
-
-button{
-  margin-top:10px;
-  padding:10px;
-  width:100%;
-  border:none;
-  border-radius:10px;
-  background:#3b82f6;
-  color:#fff;
-}
-
-.result{
-  margin-top:15px;
-  text-align:left;
-  font-size:12px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="box">
-<h2>🚀 Astro Search</h2>
-
-<input id="token" placeholder="Token">
-<input id="valor" placeholder="Digite aqui">
-
-<button onclick="consultar('cpf')">CPF</button>
-<button onclick="consultar('nome')">Nome</button>
-<button onclick="consultar('telefone')">Telefone</button>
-<button onclick="consultar('placa')">Placa</button>
-
-<div id="result" class="result"></div>
-</div>
-
-<script>
-async function consultar(tipo){
-
-let token = document.getElementById("token").value
-let valor = document.getElementById("valor").value
-
-if(!token || !valor){
-  alert("Preencha tudo")
-  return
-}
-
-let url = ""
-
-if(tipo==="cpf") url = "/cpf?token="+token+"&cpf="+valor
-if(tipo==="nome") url = "/nome?token="+token+"&nome="+encodeURIComponent(valor)
-if(tipo==="telefone") url = "/telefone?token="+token+"&telefone="+valor
-if(tipo==="placa") url = "/placa?token="+token+"&placa="+valor
-
-const res = await fetch(url)
-const data = await res.json()
-
-document.getElementById("result").innerText = JSON.stringify(data,null,2)
-
-}
-</script>
-
-</body>
-</html>`
 }
 
 // ============================
@@ -142,17 +55,30 @@ document.getElementById("result").innerText = JSON.stringify(data,null,2)
 async function handleCPF(url){
 
 const cpf = url.searchParams.get("cpf")
-if(!cpf) return json({status:false,message:"CPF não informado"})
+if(!cpf){
+  return json({status:false,message:"CPF não informado"})
+}
 
-const api = \`https://obitostore.shop/api/consulta/cpf?cpf=\${cpf}&apikey=bigmouthh\`
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=bigmouthh`
 
 try{
   const res = await fetch(api)
   const data = await res.json()
-  return json({status:true,result:normalize(data)})
-}catch{
+
+  const normalized = normalize(data)
+
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
+
+}catch(e){
   return json({status:false,message:"Erro ao consultar"})
 }
+
 }
 
 // ============================
@@ -161,17 +87,30 @@ try{
 async function handleNome(url){
 
 const nome = url.searchParams.get("nome")
-if(!nome) return json({status:false,message:"Nome não informado"})
+if(!nome){
+  return json({status:false,message:"Nome não informado"})
+}
 
-const api = \`https://obitostore.shop/api/consulta/nome3?nome=\${nome}&apikey=bigmouthh\`
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/nome3?nome=${nome}&apikey=bigmouthh`
 
 try{
   const res = await fetch(api)
   const data = await res.json()
-  return json({status:true,result:normalize(data)})
-}catch{
+
+  const normalized = normalize(data)
+
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
+
+}catch(e){
   return json({status:false,message:"Erro ao consultar"})
 }
+
 }
 
 // ============================
@@ -180,52 +119,233 @@ try{
 async function handleTelefone(url){
 
 const telefone = url.searchParams.get("telefone")
-if(!telefone) return json({status:false,message:"Telefone não informado"})
+if(!telefone){
+  return json({status:false,message:"Telefone não informado"})
+}
 
-const api = \`https://obitostore.shop/api/consulta/telefone?query=\${telefone}&apikey=bigmouthh\`
+// 🔗 API EXTERNA (OCULTA)
+const api = `https://obitostore.shop/api/consulta/telefone?query=${telefone}&apikey=bigmouthh`
 
 try{
   const res = await fetch(api)
   const data = await res.json()
-  return json({status:true,result:normalize(data)})
-}catch{
+
+  const normalized = normalize(data)
+
+  return json({
+    status:true,
+    base:"Astro API",
+    credits:"Astro Company | @puxardados5",
+    result: normalized
+  })
+
+}catch(e){
   return json({status:false,message:"Erro ao consultar"})
 }
+
 }
 
 // ============================
 // 🔎 Placa
 // ============================
+
 async function handlePlaca(url){
 
 const placa = url.searchParams.get("placa")
-if(!placa) return json({status:false,message:"Placa não informada"})
+if(!placa){
+  return json({status:false,message:"Placa não informada"})
+}
 
-const api = \`https://obitostore.shop/api/consulta/placa2?placa=\${placa}&apikey=bigmouthh\`
+const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=bigmouthh`
 
 try{
-  const res = await fetch(api)
-  const data = await res.json()
-  return json({status:true,result:normalize(data)})
-}catch{
-  return json({status:false,message:"Erro ao consultar"})
+
+const res = await fetch(api,{
+  method:"GET",
+  headers:{
+    "User-Agent":"Mozilla/5.0",
+    "Accept":"application/json"
+  }
+})
+
+
+
+// erro HTTP
+if(!res.ok){
+  const text = await res.text()
+  return json({
+    status:false,
+    message:"Erro na API externa",
+    http_status: res.status,
+    response: text
+  })
 }
+
+// leitura segura
+const text = await res.text()
+
+let data
+try{
+  data = JSON.parse(text)
+}catch{
+  return json({
+    status:false,
+    message:"Resposta não é JSON",
+    raw: text
+  })
+}
+
+// normalização
+const normalized = normalize(data)
+
+return json({
+  status:true,
+  base:"Astro API",
+  credits:"Astro Company | @puxardados5",
+  result: normalized
+})
+
+}catch(e){
+  return json({
+    status:false,
+    message:"Erro interno",
+    error: e.message
+  })
+}
+
 }
 
 // ============================
-// 🧠 NORMALIZADOR
+// 🧠 NORMALIZADOR UNIVERSAL
 // ============================
 function normalize(data){
 
 if(typeof data === "string"){
-  return data
+  return parseText(data)
 }
 
 if(data.resultado){
-  return data.resultado
+  return parseText(data.resultado)
 }
 
-return data
+return cleanObject(data)
+
+}
+
+// ============================
+// 🧹 LIMPAR JSON
+// ============================
+function cleanObject(obj){
+
+if(Array.isArray(obj)){
+  return obj.map(cleanObject)
+}
+
+if(typeof obj === "object" && obj !== null){
+
+let newObj = {}
+
+for(let key in obj){
+
+// ❌ remove rastros
+if(key.toLowerCase().includes("criador")) continue
+if(key.toLowerCase().includes("credit")) continue
+
+newObj[normalizeKey(key)] = cleanObject(obj[key])
+}
+
+return newObj
+}
+
+if(typeof obj === "string"){
+  return cleanString(obj)
+}
+
+return obj
+}
+
+// ============================
+// 🧠 PARSE TEXTO
+// ============================
+function parseText(text){
+
+text = fixEncoding(text)
+text = cleanString(text)
+
+let lines = text.split("\n").map(l=>l.trim()).filter(Boolean)
+
+let result = {}
+let current = "geral"
+let currentObj = {}
+
+for(let line of lines){
+
+// 🧩 NOVA SEÇÃO
+if(
+  line === line.toUpperCase() &&
+  line.length < 60 &&
+  !line.includes(":")
+){
+  pushObj()
+  current = normalizeKey(line)
+  if(!result[current]) result[current] = []
+  continue
+}
+
+// 🔑 chave: valor
+if(line.includes(":")){
+  let [k,...v] = line.split(":")
+  let key = normalizeKey(k)
+  let value = v.join(":").trim()
+
+  // 🔥 se chave repetir → novo objeto (ex: múltiplas restrições)
+  if(currentObj[key] !== undefined){
+    pushObj()
+  }
+
+  currentObj[key] = value
+}
+
+}
+
+pushObj()
+
+return result
+
+// ======================
+function pushObj(){
+  if(Object.keys(currentObj).length){
+    if(!result[current]) result[current] = []
+    result[current].push(currentObj)
+    currentObj = {}
+  }
+}
+
+}
+
+// ============================
+// 🧹 LIMPAR TEXTO
+// ============================
+function cleanString(str){
+
+return str
+.replace(/©.*$/gmi,"")
+.replace(/HydraCore/gi,"")
+.replace(/ObitoSpam/gi,"")
+.replace(/════════.*════════/g,"")
+.replace(/[^\S\r\n]+/g," ")
+.trim()
+
+}
+
+// ============================
+// 🔑 NORMALIZAR CHAVE
+// ============================
+function normalizeKey(key){
+return key
+.toLowerCase()
+.replace(/[^\w\s]/g,"")
+.replace(/\s+/g,"_")
 }
 
 // ============================
