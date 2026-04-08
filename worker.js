@@ -5,7 +5,7 @@ const url = new URL(request.url)
 const path = url.pathname.replace(/^\/|\/$/g,"")
 
 // ============================
-// 🏠 HOME
+// 🏠 HOME (PAINEL)
 // ============================
 if(path === ""){
   return new Response(html(), {
@@ -20,7 +20,7 @@ const TOKENS = ["VIP_123","ifnvip"]
 
 const token = url.searchParams.get("token")
 if(!TOKENS.includes(token)){
-  return json({status:false,message:"Token inválido"})
+  return json({status:false,message:"Token inválido, adquira com: @puxardados5"})
 }
 
 // ============================
@@ -44,101 +44,90 @@ return `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astro API</title>
+<title>Astro Search</title>
 
 <style>
 body{
-background:#020617;
-color:#fff;
-font-family:sans-serif;
-padding:20px;
-text-align:center;
+  background:#020617;
+  color:#fff;
+  font-family:Arial;
+  text-align:center;
 }
-.card{
-background:#0b1228;
-padding:15px;
-border-radius:12px;
-margin:10px;
-cursor:pointer;
+
+.box{
+  max-width:400px;
+  margin:40px auto;
+  padding:20px;
+  border-radius:20px;
+  background:#0f172a;
 }
+
 input{
-width:90%;
-padding:10px;
-margin:5px;
-border-radius:8px;
-border:none;
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:10px;
+  border:none;
+  background:#020617;
+  color:#fff;
 }
+
 button{
-padding:10px;
-border:none;
-border-radius:8px;
-background:#3b82f6;
-color:#fff;
-margin-top:10px;
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:10px;
+  background:#3b82f6;
+  color:#fff;
 }
-#result{
-margin-top:20px;
-text-align:left;
-white-space:pre-wrap;
+
+.result{
+  margin-top:15px;
+  text-align:left;
+  font-size:12px;
 }
 </style>
-
 </head>
+
 <body>
 
-<h2>🚀 Astro API</h2>
+<div class="box">
+<h2>🚀 Astro Search</h2>
 
-<div class="card" onclick="openModal('cpf')">CPF</div>
-<div class="card" onclick="openModal('nome')">Nome</div>
-<div class="card" onclick="openModal('telefone')">Telefone</div>
-<div class="card" onclick="openModal('placa')">Placa</div>
-
-<div id="modal" style="display:none;">
-<br>
 <input id="token" placeholder="Token">
-<input id="valor" placeholder="Valor">
-<br>
-<button onclick="consultar()">Consultar</button>
+<input id="valor" placeholder="Digite aqui">
+
+<button onclick="consultar('cpf')">CPF</button>
+<button onclick="consultar('nome')">Nome</button>
+<button onclick="consultar('telefone')">Telefone</button>
+<button onclick="consultar('placa')">Placa</button>
+
+<div id="result" class="result"></div>
 </div>
 
-<div id="result"></div>
-
 <script>
-let type="";
+async function consultar(tipo){
 
-function openModal(t){
-type=t;
-document.getElementById("modal").style.display="block";
-}
-
-async function consultar(){
-
-let token = document.getElementById("token").value;
-let valor = document.getElementById("valor").value;
+let token = document.getElementById("token").value
+let valor = document.getElementById("valor").value
 
 if(!token || !valor){
-alert("Preencha tudo");
-return;
+  alert("Preencha tudo")
+  return
 }
 
-let url = "";
+let url = ""
 
-if(type==="cpf") url=\`/cpf?token=\${token}&cpf=\${valor}\`
-if(type==="nome") url=\`/nome?token=\${token}&nome=\${encodeURIComponent(valor)}\`
-if(type==="telefone") url=\`/telefone?token=\${token}&telefone=\${valor}\`
-if(type==="placa") url=\`/placa?token=\${token}&placa=\${valor}\`
+if(tipo==="cpf") url = "/cpf?token="+token+"&cpf="+valor
+if(tipo==="nome") url = "/nome?token="+token+"&nome="+encodeURIComponent(valor)
+if(tipo==="telefone") url = "/telefone?token="+token+"&telefone="+valor
+if(tipo==="placa") url = "/placa?token="+token+"&placa="+valor
 
-document.getElementById("result").innerText="🔎 Consultando...";
+const res = await fetch(url)
+const data = await res.json()
 
-try{
-const res = await fetch(url);
-const data = await res.json();
-
-document.getElementById("result").innerText = JSON.stringify(data,null,2);
-
-}catch(e){
-document.getElementById("result").innerText="Erro na consulta";
-}
+document.getElementById("result").innerText = JSON.stringify(data,null,2)
 
 }
 </script>
@@ -153,9 +142,7 @@ document.getElementById("result").innerText="Erro na consulta";
 async function handleCPF(url){
 
 const cpf = url.searchParams.get("cpf")
-if(!cpf){
-  return json({status:false,message:"CPF não informado"})
-}
+if(!cpf) return json({status:false,message:"CPF não informado"})
 
 const api = \`https://obitostore.shop/api/consulta/cpf?cpf=\${cpf}&apikey=bigmouthh\`
 
@@ -166,7 +153,6 @@ try{
 }catch{
   return json({status:false,message:"Erro ao consultar"})
 }
-
 }
 
 // ============================
@@ -175,9 +161,7 @@ try{
 async function handleNome(url){
 
 const nome = url.searchParams.get("nome")
-if(!nome){
-  return json({status:false,message:"Nome não informado"})
-}
+if(!nome) return json({status:false,message:"Nome não informado"})
 
 const api = \`https://obitostore.shop/api/consulta/nome3?nome=\${nome}&apikey=bigmouthh\`
 
@@ -188,7 +172,6 @@ try{
 }catch{
   return json({status:false,message:"Erro ao consultar"})
 }
-
 }
 
 // ============================
@@ -197,9 +180,7 @@ try{
 async function handleTelefone(url){
 
 const telefone = url.searchParams.get("telefone")
-if(!telefone){
-  return json({status:false,message:"Telefone não informado"})
-}
+if(!telefone) return json({status:false,message:"Telefone não informado"})
 
 const api = \`https://obitostore.shop/api/consulta/telefone?query=\${telefone}&apikey=bigmouthh\`
 
@@ -210,7 +191,6 @@ try{
 }catch{
   return json({status:false,message:"Erro ao consultar"})
 }
-
 }
 
 // ============================
@@ -219,9 +199,7 @@ try{
 async function handlePlaca(url){
 
 const placa = url.searchParams.get("placa")
-if(!placa){
-  return json({status:false,message:"Placa não informada"})
-}
+if(!placa) return json({status:false,message:"Placa não informada"})
 
 const api = \`https://obitostore.shop/api/consulta/placa2?placa=\${placa}&apikey=bigmouthh\`
 
@@ -232,7 +210,6 @@ try{
 }catch{
   return json({status:false,message:"Erro ao consultar"})
 }
-
 }
 
 // ============================
