@@ -29,6 +29,10 @@ if(endpoint === ""){
   return home(request)
 }
 
+if(endpoint === "pagar"){
+  return gerarPagamento(url)
+}
+
 if(!ENDPOINTS[endpoint]){
   return jsonErro("ENDPOINT_404","Endpoint não encontrado")
 }
@@ -46,11 +50,11 @@ const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 /* ================= TOKENS (SEM KV) ================= */
 
 const TOKENS = {
- aue:{plano:"VIP",credits:-1,endpoints:null},
-  krops:{plano:"VIP",credits:-1,endpoints:null},
-  atena:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
-  zeusss:{plano:"PRO",credits:500000,endpoints:null},
-  rich:{plano:"PRO",credits:1000,endpoints:null}
+ ifnvipilimitado:{plano:"VIP",credits:-1,endpoints:null},
+  bocadass:{plano:"VIP",credits:-1,endpoints:null},
+  astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
+  fxckbuscas:{plano:"PRO",credits:500000,endpoints:null},
+  astropro:{plano:"PRO",credits:1000,endpoints:null}
 }
 
 /* ================= ENDPOINTS ================= */
@@ -403,6 +407,55 @@ if(data !== null && typeof data === "object"){
   return novo
 }
 return data
+}
+
+/* ================= PAGAMENTOS ================= */
+
+const PLANOS = {
+  diario: 15.00,
+  mensal: 30.00,
+  vitalicio: 50.00
+}
+
+async function gerarPagamento(url){
+
+  const plano = url.searchParams.get("plano")
+
+  if(!plano || !PLANOS[plano]){
+    return jsonErro("PAY_001","Plano inválido")
+  }
+
+  const valor = PLANOS[plano].toFixed(2)
+
+  try{
+
+    const api = `https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor=${valor}`
+
+    const res = await fetch(api)
+    const data = await res.json()
+
+    if(!data || !data.pixCopiaECola){
+      return jsonErro("PAY_002","Erro ao gerar pagamento")
+    }
+
+    return new Response(JSON.stringify({
+      status:true,
+      plano,
+      valor,
+      pagamento:{
+        txid: data.txid,
+        copia_cola: data.pixCopiaECola,
+        qr_code: data.qrcode_base64,
+        expira_em: data.calendario.expiracao
+      }
+    },null,2),{
+      headers:{"Content-Type":"application/json"}
+    })
+
+  }catch(e){
+    return jsonErro("PAY_500","Erro interno pagamento")
+  }
+
 }
 
 /* ================= ERRO ================= */
@@ -770,35 +823,6 @@ pre{
  animation:stars 4s linear infinite;
 }
 
-.plans{
- display:flex;
- flex-direction:column;
- gap:10px;
-}
-
-.plan{
- position:relative;
- overflow:hidden;
-}
-
-.plan .price{
- font-size:18px;
- font-weight:800;
- color:#22c55e;
-}
-
-.plan.destaque{
- border:1px solid gold;
- box-shadow:0 0 20px rgba(250,204,21,.3);
- animation:pulse 2s infinite;
-}
-
-@keyframes pulse{
- 0%{box-shadow:0 0 10px rgba(250,204,21,.2)}
- 50%{box-shadow:0 0 30px rgba(250,204,21,.6)}
- 100%{box-shadow:0 0 10px rgba(250,204,21,.2)}
-}
-
 </style>
 
 </head>
@@ -910,50 +934,6 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 
 <canvas id="bg"></canvas>
 
-<!-- 💰 PLANOS -->
-<div class="card">
-
-  <h2 style="font-size:16px;margin-bottom:10px;">🔥 Escolha seu acesso</h2>
-
-  <div class="plans">
-
-    <div class="plan" onclick="comprarPlano(15.00,'DIARIO')">
-      <b>⚡ Diário</b><br>
-      Acesso por 24h<br>
-      <span class="price">R$15</span>
-    </div>
-
-    <div class="plan" onclick="comprarPlano(30.00,'MENSAL')">
-      <b>🚀 Mensal</b><br>
-      Acesso completo<br>
-      <span class="price">R$30</span>
-    </div>
-
-    <div class="plan destaque" onclick="comprarPlano(50.00,'VITALICIO')">
-      <b>👑 Vitalício</b><br>
-      Acesso infinito<br>
-      <span class="price">R$50</span>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- 💳 MODAL PIX -->
-<div class="modal" id="pixModal">
-  <div class="modal-box">
-
-    <h2 style="font-size:16px;margin-bottom:10px;">💸 Finalizar pagamento</h2>
-
-    <img id="qrImg" style="width:100%;border-radius:12px;margin-bottom:10px;"/>
-
-    <textarea id="pixCode" style="width:100%;height:80px;"></textarea>
-
-    <button onclick="copiarPix()">Copiar código PIX</button>
-
-  </div>
-</div>
-
 <script>
 /* ===== TOKENS ===== */
 const TOKENS = {
@@ -1033,108 +1013,6 @@ function mostrarToast(msg){
   t.innerText = msg;
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),3000);
-}
-
-let pagamentoAtual = null;
-let checkInterval = null;
-
-async function comprarPlano(valor, plano){
-
-  mostrarToast("Gerando pagamento...");
-
-  try{
-
-    const res = await fetch(
-      "https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor=" + valor.toFixed(2)
-    );
-
-    const data = await res.json();
-
-    if(!data.pixCopiaECola || !data.txid){
-      throw new Error("Erro ao gerar pagamento");
-    }
-
-    pagamentoAtual = {
-      txid: data.txid,
-      valor: data.valor,
-      plano: plano
-    };
-
-    abrirPixModal(data);
-
-    iniciarVerificacao();
-
-  }catch(e){
-    console.error(e);
-    mostrarToast("Erro ao gerar PIX ❌");
-  }
-
-}
-
-function iniciarVerificacao(){
-
-  if(checkInterval) clearInterval(checkInterval);
-
-  checkInterval = setInterval(async () => {
-
-    if(!pagamentoAtual) return;
-
-    try{
-
-      const res = await fetch(
-        "https://promstpagamentos.discloud.app/check_payment?txid=" + pagamentoAtual.txid
-      );
-
-      const data = await res.json();
-
-      console.log("STATUS:", data);
-
-      if(data.status === "paid"){
-
-        clearInterval(checkInterval);
-
-        mostrarToast("Pagamento confirmado ✅");
-
-        liberarAcesso(pagamentoAtual.plano);
-
-        fecharPixModal();
-
-      }
-
-    }catch(e){
-      console.error("Erro ao verificar pagamento");
-    }
-
-  }, 5000); // verifica a cada 5s
-}
-
-function liberarAcesso(plano){
-
-  let tokenGerado = "user_" + Math.random().toString(36).slice(2,10);
-
-  // salva token fake local
-  TOKENS[tokenGerado] = plano;
-
-  localStorage.setItem("astro_token", tokenGerado);
-
-  document.getElementById("token").value = tokenGerado;
-
-  renderBadge(plano);
-  efeitoPremium(tokenGerado);
-
-  mostrarToast("Acesso liberado 🚀");
-
-}
-
-function fecharPixModal(){
-  document.getElementById("pixModal").classList.remove("show");
-}
-
-function copiarPix(){
-  const code = document.getElementById("pixCode");
-  code.select();
-  document.execCommand("copy");
-  mostrarToast("PIX copiado 💸");
 }
 
 /* ===== CONSULTAR ===== */
