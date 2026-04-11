@@ -823,6 +823,29 @@ pre{
  animation:stars 4s linear infinite;
 }
 
+.copy-btn{
+ position:absolute;
+ top:8px;
+ right:8px;
+ width:32px;
+ height:32px;
+ border-radius:8px;
+ border:none;
+ background:#111827;
+ color:#fff;
+ cursor:pointer;
+ font-size:16px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ transition:.2s;
+}
+
+.copy-btn:hover{
+ background:#1f2937;
+ transform:scale(1.1);
+}
+
 </style>
 
 </head>
@@ -905,29 +928,23 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       Planos disponíveis:
     </div>
 
-    <div class="plan">
-      <b>FREE</b><br>
-      100 consultas<br>
-      <span style="opacity:.6;">Grátis</span>
-    </div>
+<div class="plan" onclick="abrirPagamento('diario')">
+  <div class="badge free">DIÁRIO</div>
+  <h3>R$5</h3>
+  <p>Acesso por 24h</p>
+</div>
 
-    <div class="plan">
-      <b>PRO</b><br>
-      1000 consultas<br>
-      <span style="opacity:.6;">R$30 mensal</span>
-    </div>
+<div class="plan" onclick="abrirPagamento('mensal')">
+  <div class="badge pro">PRO</div>
+  <h3>R$30</h3>
+  <p>1000 consultas / mês</p>
+</div>
 
-    <div class="plan">
-      <b>VIP</b><br>
-      Ilimitado<br>
-      <span style="opacity:.6;">R$50 vitalício</span>
-    </div>
-
-    <div class="plan">
-      <b>DIÁRIO</b><br>
-      Acesso 24h<br>
-      <span style="opacity:.6;">R$5</span>
-    </div>
+<div class="plan" onclick="abrirPagamento('vitalicio')">
+  <div class="badge vip">VIP</div>
+  <h3>R$50</h3>
+  <p>Acesso ilimitado</p>
+</div>
 
   </div>
 </div>
@@ -976,6 +993,30 @@ function efeitoPremium(token){
     body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
   }
 }
+
+<div class="modal" id="payModal">
+  <div class="modal-box">
+
+    <h2 style="font-size:16px;margin-bottom:10px;">
+      💳 Pagamento
+    </h2>
+
+    <div id="payInfo" style="font-size:13px;opacity:.7;margin-bottom:10px;"></div>
+
+    <div class="box" style="position:relative;">
+      <pre id="pixCode">Carregando...</pre>
+
+      <button onclick="copiarPix()" class="copy-btn">
+        ⧉
+      </button>
+    </div>
+
+    <button onclick="fecharPayModal()" style="margin-top:12px;">
+      Fechar
+    </button>
+
+  </div>
+</div>
 
 /* ===== ERRO SHAKE ===== */
 function efeitoErro(){
@@ -1112,6 +1153,43 @@ function createParticles(qtd=60){
       speed: Math.random()*0.5 + 0.2
     });
   }
+}
+
+function abrirPagamento(plano){
+  const modal = document.getElementById("payModal");
+  const info = document.getElementById("payInfo");
+  const pix = document.getElementById("pixCode");
+
+  modal.classList.add("show");
+
+  info.innerText = "Gerando pagamento para: " + plano.toUpperCase();
+  pix.innerText = "Carregando...";
+
+  fetch("/pagar?plano=" + plano)
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data.status){
+        pix.innerText = "Erro ao gerar pagamento";
+        return;
+      }
+
+      pix.innerText = data.pagamento.copia_cola;
+    })
+    .catch(()=>{
+      pix.innerText = "Erro na requisição";
+    });
+}
+
+function fecharPayModal(){
+  document.getElementById("payModal").classList.remove("show");
+}
+
+function copiarPix(){
+  const text = document.getElementById("pixCode").innerText;
+
+  navigator.clipboard.writeText(text);
+
+  mostrarToast("PIX copiado 💸");
 }
 
 function drawParticles(){
