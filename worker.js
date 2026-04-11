@@ -29,10 +29,6 @@ if(endpoint === ""){
   return home(request)
 }
 
-if(endpoint === "pagar"){
-  return gerarPagamento(url)
-}
-
 if(!ENDPOINTS[endpoint]){
   return jsonErro("ENDPOINT_404","Endpoint não encontrado")
 }
@@ -409,55 +405,6 @@ if(data !== null && typeof data === "object"){
 return data
 }
 
-/* ================= PAGAMENTOS ================= */
-
-const PLANOS = {
-  diario: 15.00,
-  mensal: 30.00,
-  vitalicio: 50.00
-}
-
-async function gerarPagamento(url){
-
-  const plano = url.searchParams.get("plano")
-
-  if(!plano || !PLANOS[plano]){
-    return jsonErro("PAY_001","Plano inválido")
-  }
-
-  const valor = PLANOS[plano].toFixed(2)
-
-  try{
-
-    const api = `https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor=${valor}`
-
-    const res = await fetch(api)
-    const data = await res.json()
-
-    if(!data || !data.pixCopiaECola){
-      return jsonErro("PAY_002","Erro ao gerar pagamento")
-    }
-
-    return new Response(JSON.stringify({
-      status:true,
-      plano,
-      valor,
-      pagamento:{
-        txid: data.txid,
-        copia_cola: data.pixCopiaECola,
-        qr_code: data.qrcode_base64,
-        expira_em: data.calendario.expiracao
-      }
-    },null,2),{
-      headers:{"Content-Type":"application/json"}
-    })
-
-  }catch(e){
-    return jsonErro("PAY_500","Erro interno pagamento")
-  }
-
-}
-
 /* ================= ERRO ================= */
 
 function jsonErro(code,msg,extra=null){
@@ -485,6 +432,9 @@ return new Response(`
 <html lang="pt-br">
 <head>
 
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
@@ -494,7 +444,15 @@ return new Response(`
 
 <style>
 
-:root{--blue:#3b82f6;}
+:root{
+  --blue:#3b82f6;
+  --blue-strong:#2563eb;
+  --bg:#020617;
+  --card:rgba(255,255,255,0.03);
+  --border:rgba(255,255,255,0.06);
+  --text:#e2e8f0;
+  --muted:#9ca3af;
+}
 
 *{
  margin:0;
@@ -504,8 +462,11 @@ return new Response(`
 }
 
 body{
- background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
- color:#e2e8f0;
+ background:
+ radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15), transparent 40%),
+ radial-gradient(circle at 80% 0%, rgba(168,85,247,0.15), transparent 40%),
+ var(--bg);
+ color:var(--text);
  padding:20px;
 }
 
@@ -527,17 +488,19 @@ body{
 /* CARD */
 .card{
  margin-top:15px;
- padding:16px;
- border-radius:18px;
- background:rgba(255,255,255,0.03);
- border:1px solid rgba(255,255,255,0.05);
- backdrop-filter:blur(10px);
- transition:.3s;
+ padding:18px;
+ border-radius:20px;
+ background:var(--card);
+ border:1px solid var(--border);
+ backdrop-filter:blur(14px);
+ transition:.35s;
+ box-shadow:0 10px 30px rgba(0,0,0,.3);
 }
 
 .card:hover{
- transform:translateY(-3px);
- border-color:rgba(59,130,246,.4);
+ transform:translateY(-5px) scale(1.01);
+ border-color:rgba(59,130,246,.5);
+ box-shadow:0 20px 40px rgba(0,0,0,.4);
 }
 
 /* INPUT */
@@ -553,35 +516,38 @@ body{
 
 input,select{
  width:100%;
- padding:12px;
- border-radius:12px;
- border:none;
- background:#0b1228;
+ padding:13px;
+ border-radius:14px;
+ border:1px solid transparent;
+ background:#020617;
  color:#fff;
  outline:none;
+ transition:.25s;
 }
 
 input:focus,select:focus{
- box-shadow:0 0 0 2px rgba(59,130,246,.3);
+ border-color:var(--blue);
+ box-shadow:0 0 0 3px rgba(59,130,246,.2);
 }
 
 /* BUTTON */
 button{
  width:100%;
- padding:12px;
+ padding:13px;
  margin-top:12px;
- border-radius:12px;
+ border-radius:14px;
  border:none;
- font-weight:600;
- background:linear-gradient(90deg,#3b82f6,#2563eb);
+ font-weight:700;
+ background:linear-gradient(135deg,var(--blue),var(--blue-strong));
  color:#fff;
  cursor:pointer;
  transition:.25s;
+ box-shadow:0 10px 25px rgba(59,130,246,.25);
 }
 
 button:hover{
- transform:translateY(-2px);
- box-shadow:0 10px 25px rgba(59,130,246,.3);
+ transform:translateY(-2px) scale(1.02);
+ box-shadow:0 15px 35px rgba(59,130,246,.35);
 }
 
 button:active{
@@ -591,16 +557,19 @@ button:active{
 /* BOX RESULT */
 .box{
  margin-top:12px;
- background:#020617;
- padding:12px;
- border-radius:12px;
+ background:#010409;
+ padding:14px;
+ border-radius:14px;
  font-size:12px;
- position:relative;
+ border:1px solid var(--border);
+ box-shadow:inset 0 0 20px rgba(0,0,0,.6);
 }
 
 pre{
  white-space:pre-wrap;
  word-wrap:break-word;
+ color:#4ade80;
+ font-family:'JetBrains Mono',monospace;
 }
 
 /* COPY */
@@ -616,8 +585,8 @@ pre{
 /* LOADING */
 .loader{
  height:40px;
- border-radius:10px;
- background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
+ border-radius:12px;
+ background:linear-gradient(90deg,#020617 25%,#0f172a 50%,#020617 75%);
  background-size:200%;
  animation:load 1s infinite;
 }
@@ -725,10 +694,28 @@ pre{
  display:inline-flex;
  align-items:center;
  gap:6px;
- padding:6px 12px;
+ padding:6px 14px;
  border-radius:999px;
  font-size:11px;
- font-weight:600;
+ font-weight:700;
+ background:rgba(59,130,246,.15);
+ color:#3b82f6;
+ border:1px solid rgba(59,130,246,.25);
+ backdrop-filter:blur(10px);
+}
+
+.card::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:20px;
+ background:linear-gradient(120deg,transparent,rgba(255,255,255,.08),transparent);
+ opacity:0;
+ transition:.4s;
+}
+
+.card:hover::before{
+ opacity:1;
 }
 
 /* FREE */
@@ -823,29 +810,6 @@ pre{
  animation:stars 4s linear infinite;
 }
 
-.copy-btn{
- position:absolute;
- top:8px;
- right:8px;
- width:32px;
- height:32px;
- border-radius:8px;
- border:none;
- background:#111827;
- color:#fff;
- cursor:pointer;
- font-size:16px;
- display:flex;
- align-items:center;
- justify-content:center;
- transition:.2s;
-}
-
-.copy-btn:hover{
- background:#1f2937;
- transform:scale(1.1);
-}
-
 </style>
 
 </head>
@@ -928,23 +892,29 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       Planos disponíveis:
     </div>
 
-<div class="plan" onclick="abrirPagamento('diario')">
-  <div class="badge free">DIÁRIO</div>
-  <h3>R$5</h3>
-  <p>Acesso por 24h</p>
-</div>
+    <div class="plan">
+      <b>FREE</b><br>
+      100 consultas<br>
+      <span style="opacity:.6;">Grátis</span>
+    </div>
 
-<div class="plan" onclick="abrirPagamento('mensal')">
-  <div class="badge pro">PRO</div>
-  <h3>R$30</h3>
-  <p>1000 consultas / mês</p>
-</div>
+    <div class="plan">
+      <b>PRO</b><br>
+      1000 consultas<br>
+      <span style="opacity:.6;">R$30 mensal</span>
+    </div>
 
-<div class="plan" onclick="abrirPagamento('vitalicio')">
-  <div class="badge vip">VIP</div>
-  <h3>R$50</h3>
-  <p>Acesso ilimitado</p>
-</div>
+    <div class="plan">
+      <b>VIP</b><br>
+      Ilimitado<br>
+      <span style="opacity:.6;">R$50 vitalício</span>
+    </div>
+
+    <div class="plan">
+      <b>DIÁRIO</b><br>
+      Acesso 24h<br>
+      <span style="opacity:.6;">R$5</span>
+    </div>
 
   </div>
 </div>
@@ -993,30 +963,6 @@ function efeitoPremium(token){
     body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
   }
 }
-
-<div class="modal" id="payModal">
-  <div class="modal-box">
-
-    <h2 style="font-size:16px;margin-bottom:10px;">
-      💳 Pagamento
-    </h2>
-
-    <div id="payInfo" style="font-size:13px;opacity:.7;margin-bottom:10px;"></div>
-
-    <div class="box" style="position:relative;">
-      <pre id="pixCode">Carregando...</pre>
-
-      <button onclick="copiarPix()" class="copy-btn">
-        ⧉
-      </button>
-    </div>
-
-    <button onclick="fecharPayModal()" style="margin-top:12px;">
-      Fechar
-    </button>
-
-  </div>
-</div>
 
 /* ===== ERRO SHAKE ===== */
 function efeitoErro(){
@@ -1153,43 +1099,6 @@ function createParticles(qtd=60){
       speed: Math.random()*0.5 + 0.2
     });
   }
-}
-
-function abrirPagamento(plano){
-  const modal = document.getElementById("payModal");
-  const info = document.getElementById("payInfo");
-  const pix = document.getElementById("pixCode");
-
-  modal.classList.add("show");
-
-  info.innerText = "Gerando pagamento para: " + plano.toUpperCase();
-  pix.innerText = "Carregando...";
-
-  fetch("/pagar?plano=" + plano)
-    .then(r=>r.json())
-    .then(data=>{
-      if(!data.status){
-        pix.innerText = "Erro ao gerar pagamento";
-        return;
-      }
-
-      pix.innerText = data.pagamento.copia_cola;
-    })
-    .catch(()=>{
-      pix.innerText = "Erro na requisição";
-    });
-}
-
-function fecharPayModal(){
-  document.getElementById("payModal").classList.remove("show");
-}
-
-function copiarPix(){
-  const text = document.getElementById("pixCode").innerText;
-
-  navigator.clipboard.writeText(text);
-
-  mostrarToast("PIX copiado 💸");
 }
 
 function drawParticles(){
