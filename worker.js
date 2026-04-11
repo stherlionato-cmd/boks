@@ -1045,12 +1045,25 @@ async function comprarPlano(valor, plano){
       "https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor=" + valor.toFixed(2)
     );
 
-    const data = await res.json();
+    const text = await res.text();
+    console.log("API RESPONSE:", text);
+
+    let data;
+    try{
+      data = JSON.parse(text);
+    }catch{
+      throw new Error("Resposta inválida");
+    }
+
+    if(!data.qrcode_base64 || !data.pixCopiaECola){
+      throw new Error("Dados de pagamento inválidos");
+    }
 
     abrirPixModal(data);
 
   }catch(e){
-    mostrarToast("Erro ao gerar pagamento ❌");
+    console.error(e);
+    mostrarToast("Falha ao gerar pagamento ❌");
   }
 
 }
