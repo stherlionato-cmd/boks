@@ -1035,6 +1035,9 @@ function mostrarToast(msg){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
+let pagamentoAtual = null;
+let checkInterval = null;
+
 async function comprarPlano(valor, plano){
 
   mostrarToast("Gerando pagamento...");
@@ -1045,39 +1048,86 @@ async function comprarPlano(valor, plano){
       "https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor=" + valor.toFixed(2)
     );
 
-    const text = await res.text();
-    console.log("API RESPONSE:", text);
+    const data = await res.json();
 
-    let data;
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error("Resposta inválida");
+    if(!data.pixCopiaECola || !data.txid){
+      throw new Error("Erro ao gerar pagamento");
     }
 
-    if(!data.qrcode_base64 || !data.pixCopiaECola){
-      throw new Error("Dados de pagamento inválidos");
-    }
+    pagamentoAtual = {
+      txid: data.txid,
+      valor: data.valor,
+      plano: plano
+    };
 
     abrirPixModal(data);
 
+    iniciarVerificacao();
+
   }catch(e){
     console.error(e);
-    mostrarToast("Falha ao gerar pagamento ❌");
+    mostrarToast("Erro ao gerar PIX ❌");
   }
 
 }
 
-function abrirPixModal(data){
+function iniciarVerificacao(){
 
-  const modal = document.getElementById("pixModal");
-  const img = document.getElementById("qrImg");
-  const code = document.getElementById("pixCode");
+  if(checkInterval) clearInterval(checkInterval);
 
-  img.src = data.qrcode_base64;
-  code.value = data.pixCopiaECola;
+  checkInterval = setInterval(async () => {
 
-  modal.classList.add("show");
+    if(!pagamentoAtual) return;
+
+    try{
+
+      const res = await fetch(
+        "https://promstpagamentos.discloud.app/check_payment?txid=" + pagamentoAtual.txid
+      );
+
+      const data = await res.json();
+
+      console.log("STATUS:", data);
+
+      if(data.status === "paid"){
+
+        clearInterval(checkInterval);
+
+        mostrarToast("Pagamento confirmado ✅");
+
+        liberarAcesso(pagamentoAtual.plano);
+
+        fecharPixModal();
+
+      }
+
+    }catch(e){
+      console.error("Erro ao verificar pagamento");
+    }
+
+  }, 5000); // verifica a cada 5s
+}
+
+function liberarAcesso(plano){
+
+  let tokenGerado = "user_" + Math.random().toString(36).slice(2,10);
+
+  // salva token fake local
+  TOKENS[tokenGerado] = plano;
+
+  localStorage.setItem("astro_token", tokenGerado);
+
+  document.getElementById("token").value = tokenGerado;
+
+  renderBadge(plano);
+  efeitoPremium(tokenGerado);
+
+  mostrarToast("Acesso liberado 🚀");
+
+}
+
+function fecharPixModal(){
+  document.getElementById("pixModal").classList.remove("show");
 }
 
 function copiarPix(){
