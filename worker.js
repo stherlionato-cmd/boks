@@ -770,6 +770,39 @@ pre{
  animation:stars 4s linear infinite;
 }
 
+.sec{
+  margin-bottom:10px;
+  padding:10px;
+  background:#020617;
+  border-radius:10px;
+}
+
+.sec-title{
+  font-weight:600;
+  margin-bottom:6px;
+  color:#3b82f6;
+}
+
+.sec-content{
+  font-size:12px;
+  line-height:1.5;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.key{
+  opacity:.6;
+}
+
+.value{
+  font-weight:500;
+}
+
 </style>
 
 </head>
@@ -990,53 +1023,97 @@ async function consultar(){
   salvarToken(token);
   efeitoPremium(token);
 
-const PARAMS = {
-  cpf:"cpf",
-  nome:"nome",
-  telefone:"telefone",
-  telefone_full:"telefone",
-  telefone_cpf:"cpf",
-  placa:"placa",  
-  ddd:"ddd",
-  operadora:"telefone",
-  rg:"rg",
-  titulo:"titulo",
-  pis:"pis",
-  nis:"nis",
-  parentes:"cpf",
-  vizinhos:"cpf",
-  cep:"cep",
-  estado:"uf",
-  email:"email",
-  score:"cpf",
-  renda:"valor",
-  cbo:"cbo",
-  foto_sp:"cpf",
-  foto_ma:"cpf",
-  foto_ro:"cpf",
-  foto_all:"cpf"
-}
+  const PARAMS = {
+    cpf:"cpf",
+    nome:"nome",
+    telefone:"telefone",
+    telefone_full:"telefone",
+    telefone_cpf:"cpf",
+    placa:"placa",  
+    ddd:"ddd",
+    operadora:"telefone",
+    rg:"rg",
+    titulo:"titulo",
+    pis:"pis",
+    nis:"nis",
+    parentes:"cpf",
+    vizinhos:"cpf",
+    cep:"cep",
+    estado:"uf",
+    email:"email",
+    score:"cpf",
+    renda:"valor",
+    cbo:"cbo",
+    foto_sp:"cpf",
+    foto_ma:"cpf",
+    foto_ro:"cpf",
+    foto_all:"cpf"
+  }
 
-const param = PARAMS[endpoint];
+  const param = PARAMS[endpoint];
+
   const url = window.location.origin + "/" + endpoint +
-              "?token=" + token + "&" + param + "=" + valor;
+              "?token=" + token + "&" + param + "=" + encodeURIComponent(valor);
 
   document.getElementById("url").innerText = url;
+
   const resBox = document.getElementById("resBox");
   resBox.innerHTML = '<div class="loader"></div>';
 
   try{
     const r = await fetch(url);
-    const j = await r.json();
-    resBox.innerHTML = "<pre id='resposta'>"+JSON.stringify(j,null,2)+"</pre>";
+    const data = await r.json();
+
+    resBox.innerHTML = renderResultado(data);
+
     mostrarToast("Consulta feita com sucesso 🚀");
-  } catch {
+
+  } catch(e){
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
   }
 
   btn.disabled = false;
   btn.innerText = "Consultar";
+}
+
+function renderResultado(data){
+
+  if(!data) return "<pre>Sem resposta</pre>";
+
+  // modo JSON bruto
+  if(document.getElementById("modoJson")?.checked){
+    return "<pre id='resposta'>" + JSON.stringify(data,null,2) + "</pre>";
+  }
+
+  if(!data.dados || !data.dados.resultado){
+    return "<pre>" + JSON.stringify(data,null,2) + "</pre>";
+  }
+
+  const resultado = data.dados.resultado;
+
+  // 🔥 CASO: ARRAY DE SEÇÕES
+  if(Array.isArray(resultado)){
+    return resultado.map(sec => `
+      <div class="sec">
+        <div class="sec-title">${sec.titulo}</div>
+        <div class="sec-content">${sec.conteudo.replace(/\n/g,"<br>")}</div>
+      </div>
+    `).join("");
+  }
+
+  // 🔥 CASO: OBJETO
+  if(typeof resultado === "object"){
+    return Object.entries(resultado).map(([k,v]) => `
+      <div class="item">
+        <span class="key">${k}</span>
+        <span class="value">${v}</span>
+      </div>
+    `).join("");
+  }
+
+  // 🔥 fallback
+  return "<pre>" + JSON.stringify(resultado,null,2) + "</pre>";
 }
 
 /* ===== PARTICULAS DE FUNDO ===== */
