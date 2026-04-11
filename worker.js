@@ -1,367 +1,567 @@
 export default {
-async fetch(request){
+async fetch(request, env, ctx){
 
 const url = new URL(request.url)
-const path = url.pathname.replace(/^\/|\/$/g,"")
+let endpoint = url.pathname.replace("/","")
 
-// ============================
-// 🏠 HOME LIBERADA (SEM TOKEN)
-// ============================
-if(path === ""){
-  return new Response(html(), {
-    headers: { "Content-Type": "text/html;charset=UTF-8" }
-  })
+// 🔥 ALIAS
+const ALIAS = {
+  cpf2:"cpf",
+  cpf3:"cpf",
+  cpf4:"cpf",
+  cpf5:"cpf",
+  cpf6:"cpf"
 }
 
-// ============================
-// 🔐 TOKEN
-// ============================
-const TOKENS = ["VIP_123","ifnvip"]
+if(ALIAS[endpoint]){
+  endpoint = ALIAS[endpoint]
+}
+
+if(endpoint === "admin"){
+  const token = url.searchParams.get("token")
+  if(token !== ADMIN_TOKEN){
+    return jsonErro("AUTH_ADMIN","Acesso negado")
+  }
+  return adminPanel(request)
+}
+
+if(endpoint === ""){
+  return home(request)
+}
+
+if(!ENDPOINTS[endpoint]){
+  return jsonErro("ENDPOINT_404","Endpoint não encontrado")
+}
+
+return consultar(endpoint,request,url,ctx)
+
+}
+}
+
+/* ================= CONFIG ================= */
+
+const ADMIN_TOKEN = "dragonsubdono"
+const BASE_SARA = "https://sara-api.xyz/api/consulta/"
+
+/* ================= TOKENS (SEM KV) ================= */
+
+const TOKENS = {
+ aue:{plano:"VIP",credits:-1,endpoints:null},
+  krops:{plano:"VIP",credits:-1,endpoints:null},
+  atena:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
+  zeusss:{plano:"PRO",credits:500000,endpoints:null},
+  rich:{plano:"PRO",credits:1000,endpoints:null}
+}
+
+/* ================= ENDPOINTS ================= */
+
+const ENDPOINTS = {
+  placa: {
+    query: "placa",
+    url: "https://obitostore.shop/api/consulta/placa2",
+    param: "placa"
+  },
+  cpf: {
+    query: "cpf",
+    url: "https://obitostore.shop/api/consulta/cpf",
+    param: "cpf"
+  },
+  telefone: {
+    query: "telefone",
+    url: "https://obitostore.shop/api/consulta/telefone",
+    param: "telefone"
+  },
+  cnpj: {
+    query: "query",
+    url: "https://obitostore.shop/api/consulta/cnpj",
+    param: "query"
+  },
+
+nome: {
+  query: "nome",
+  url: BASE_SARA + "nome",
+  param: "nome",
+  tipo: "sara"
+},
+
+telefone_full: {
+  query: "telefone",
+  url: BASE_SARA + "telefone-full",
+  param: "phone",
+  tipo: "sara"
+},
+
+telefone_cpf: {
+  query: "cpf",
+  url: BASE_SARA + "telefone-cpf",
+  param: "cpf",
+  tipo: "sara"
+},
+
+ddd: {
+  query: "ddd",
+  url: BASE_SARA + "ddd",
+  param: "ddd",
+  tipo: "sara"
+},
+
+operadora: {
+  query: "telefone",
+  url: BASE_SARA + "operadora",
+  param: "telefone",
+  tipo: "sara"
+},
+
+rg: {
+  query: "rg",
+  url: BASE_SARA + "rg",
+  param: "rg",
+  tipo: "sara"
+},
+
+titulo: {
+  query: "titulo",
+  url: BASE_SARA + "titulo",
+  param: "titulo",
+  tipo: "sara"
+},
+
+pis: {
+  query: "pis",
+  url: BASE_SARA + "pis",
+  param: "pis",
+  tipo: "sara"
+},
+
+nis: {
+  query: "nis",
+  url: BASE_SARA + "nis",
+  param: "nis",
+  tipo: "sara"
+},
+
+parentes: {
+  query: "cpf",
+  url: BASE_SARA + "parentes",
+  param: "cpf",
+  tipo: "sara"
+},
+
+vizinhos: {
+  query: "cpf",
+  url: BASE_SARA + "vizinhos",
+  param: "cpf",
+  tipo: "sara"
+},
+
+estado: {
+  query: "uf",
+  url: BASE_SARA + "estado",
+  param: "uf",
+  tipo: "sara"
+},
+
+email: {
+  query: "email",
+  url: BASE_SARA + "email",
+  param: "email",
+  tipo: "sara"
+},
+
+score: {
+  query: "cpf",
+  url: BASE_SARA + "score",
+  param: "cpf",
+  tipo: "sara"
+},
+
+renda: {
+  query: "valor",
+  url: BASE_SARA + "renda",
+  param: "valor",
+  tipo: "sara"
+},
+
+cbo: {
+  query: "cbo",
+  url: BASE_SARA + "cbo",
+  param: "cbo",
+  tipo: "sara"
+},
+
+bin: {
+  query: "bin",
+  url: BASE_SARA + "bin",
+  param: "bin",
+  tipo: "sara"
+},
+
+foto_sp: {
+  query: "cpf",
+  url: BASE_SARA + "foto-sp",
+  param: "cpf",
+  tipo: "sara"
+},
+
+foto_ro: {
+  query: "cpf",
+  url: BASE_SARA + "foto-ro",
+  param: "cpf",
+  tipo: "sara"
+},
+
+foto_ma: {
+  query: "cpf",
+  url: BASE_SARA + "foto-ma",
+  param: "cpf",
+  tipo: "sara"
+},
+
+foto_all: {
+  query: "cpf",
+  url: BASE_SARA + "foto-all",
+  param: "cpf",
+  tipo: "sara"
+},
+  cep: {
+    query: "cep",
+    url: "https://obitostore.shop/api/consulta/cep",
+    param: "cep"
+  }
+}
+/* ================= CONSULTA ================= */
+
+async function consultar(endpoint, request, url, ctx){
+
+if(request.method !== "GET"){
+  return jsonErro("REQ_000","Método inválido")
+}
 
 const token = url.searchParams.get("token")
-if(!TOKENS.includes(token)){
-  return json({status:false,message:"Token inválido"})
+if(!token) return jsonErro("AUTH_002","Token obrigatório")
+
+const tokenData = TOKENS[token]
+if(!tokenData) return jsonErro("AUTH_001","Token inválido")
+
+// 🔒 BLOQUEIO
+if(tokenData.endpoints && !tokenData.endpoints.includes(endpoint)){
+  return jsonErro("AUTH_003","Endpoint não liberado")
 }
 
-// ============================
-// 🚀 ROTAS
-// ============================
-if(path === "cpf") return handleCPF(url)
-if(path === "nome") return handleNome(url)
-if(path === "placa") return handlePlaca(url)
-if(path === "telefone") return handleTelefone(url)
-
-return json({status:false,message:"Endpoint não encontrado"})
-}
+// 💰 CRÉDITOS
+if(tokenData.plano !== "VIP"){
+  if(tokenData.credits <= 0){
+    return jsonErro("LIMIT_001","Créditos esgotados")
+  }
+  tokenData.credits -= 1
 }
 
-// ============================
-// 🔎 CPF
-// ============================
-async function handleCPF(url){
+const config = ENDPOINTS[endpoint]
+const valor = url.searchParams.get(config.query)
 
-const cpf = url.searchParams.get("cpf")
-if(!cpf){
-  return json({status:false,message:"CPF não informado"})
+if(!valor){
+  return jsonErro("REQ_001","Parâmetro ausente")
 }
-
-const api = `https://obitostore.shop/api/consulta/cpf?cpf=${cpf}&apikey=bigmouthh`
 
 try{
-  const res = await fetch(api)
-  const data = await res.json()
 
-  return json({
-    status:true,
-    result: normalize(data)
+const apikey = config.tipo === "sara" ? "bigmouth" : "bigmouthh";
+
+const apiURL = config.url + "?" +
+  config.param + "=" + encodeURIComponent(valor) +
+  "&apikey=" + apikey;
+
+  const res = await fetch(apiURL,{
+    headers:{
+      "User-Agent":"Mozilla/5.0",
+      "Accept":"application/json"
+    }
   })
 
-}catch(e){
-  return json({status:false,message:"Erro ao consultar"})
+  const json = await res.json()
+
+if(!json){
+  return jsonErro("API_001","Erro na API")
 }
 
+  // 🔥 LIMPEZA PADRÃO ASTRO
+// 🔥 LIMPEZA PADRÃO ASTRO
+let dados = json
+
+// 🔥 TRATAMENTO ESPECÍFICO SARA
+if(config.tipo === "sara"){
+  dados = tratarSara(dados)
 }
 
-// ============================
-// 🔎 NOME
-// ============================
-async function handleNome(url){
+delete dados.criador
+delete dados.status
 
-const nome = url.searchParams.get("nome")
-if(!nome){
-  return json({status:false,message:"Nome não informado"})
-}
+/* ==================== PADRONIZAR RESULTADO ==================== */
+function formatarResultado(dados){
+  if(!dados || !dados.resultado) return dados;
 
-const api = `https://obitostore.shop/api/consulta/nome3?nome=${nome}&apikey=bigmouthh`
+  // Limpeza básica
+  let resultado = dados.resultado;
 
-try{
-  const res = await fetch(api)
-  const data = await res.json()
+  if(typeof resultado === "string"){
+    resultado = resultado
+      .replace(/©.*HydraCore/gi,"")
+      .replace(/══════════════════════════/g,"")
+      .replace(/\r/g,"")
+      .replace(/\n{2,}/g,"\n\n")
+      .trim();
 
-  return json({
-    status:true,
-    result: normalize(data)
-  })
+    // Separar seções pelo título
+    const seções = resultado.split(/\n\n(?=[A-ZÀ-Ú ]{3,}:)/g).map(sec => {
+      const [titulo, ...conteudo] = sec.split("\n");
+      return { titulo: titulo.trim(), conteudo: conteudo.join("\n").trim() };
+    });
 
-}catch(e){
-  return json({status:false,message:"Erro ao consultar"})
-}
-
-}
-
-// ============================
-// 🔎 TELEFONE
-// ============================
-async function handleTelefone(url){
-
-const telefone = url.searchParams.get("telefone")
-if(!telefone){
-  return json({status:false,message:"Telefone não informado"})
-}
-
-const api = `https://obitostore.shop/api/consulta/telefone?query=${telefone}&apikey=bigmouthh`
-
-try{
-  const res = await fetch(api)
-  const data = await res.json()
-
-  return json({
-    status:true,
-    result: normalize(data)
-  })
-
-}catch(e){
-  return json({status:false,message:"Erro ao consultar"})
-}
-
-}
-
-// ============================
-// 🔎 PLACA
-// ============================
-async function handlePlaca(url){
-
-const placa = url.searchParams.get("placa")
-if(!placa){
-  return json({status:false,message:"Placa não informada"})
-}
-
-const api = `https://obitostore.shop/api/consulta/placa2?placa=${placa}&apikey=bigmouthh`
-
-try{
-  const res = await fetch(api)
-  const text = await res.text()
-
-  let data
-  try{
-    data = JSON.parse(text)
-  }catch{
-    return json({status:false,message:"Resposta inválida"})
+    dados.resultado = seções;
   }
 
-  return json({
+  if(typeof resultado === "object" && !Array.isArray(resultado)){
+    dados.resultado = normalizarDados(resultado);
+  }
+
+  return dados;
+}
+
+// Aplica a formatação antes de retornar
+dados = formatarResultado(dados);
+
+  return new Response(JSON.stringify({
     status:true,
-    result: normalize(data)
+    meta:{
+      api:"Astro Ultra",
+      plano: tokenData.plano,
+      creditos_restantes: tokenData.plano === "VIP" ? "ilimitado" : tokenData.credits,
+      endpoint,
+      timestamp:new Date().toISOString()
+    },
+    consulta:{[config.query]:valor},
+    dados
+  },null,2),{
+    headers:{
+      "Content-Type":"application/json;charset=UTF-8"
+    }
   })
 
 }catch(e){
-  return json({status:false,message:"Erro interno"})
+  return jsonErro("API_500","Erro interno")
 }
 
 }
 
-// ============================
-// 🧠 NORMALIZADOR
-// ============================
-function normalize(data){
+/* ================= TRATAR SARA ================= */
 
-if(typeof data === "string"){
-  return parseText(data)
+function tratarSara(api){
+  if(!api) return api;
+
+  // remove lixo
+  delete api.criador;
+  delete api.status;
+
+  if(api.resultado){
+
+    // pega o body direto
+    if(api.resultado.body){
+      return {
+        resultado: normalizarDados(api.resultado.body)
+      };
+    }
+
+    // fallback caso não tenha body
+    return {
+      resultado: normalizarDados(api.resultado)
+    };
+  }
+
+  return api;
 }
 
-if(data.resultado){
-  return parseText(data.resultado)
+/* ================= LIMPAR ================= */
+
+function limparRespostaAPI(data){
+if(!data || typeof data !== "object") return data
+delete data.creator
+delete data.status
+return data
 }
 
-return cleanObject(data)
+/* ================= NORMALIZAR ================= */
 
+function normalizarDados(data){
+if(Array.isArray(data)){
+  return data.map(normalizarDados)
+}
+if(data !== null && typeof data === "object"){
+  const novo={}
+  for(const k in data){
+    novo[k]=normalizarDados(data[k])
+  }
+  return novo
+}
+return data
 }
 
-// ============================
-// 🧹 LIMPA JSON
-// ============================
-function cleanObject(obj){
+/* ================= ERRO ================= */
 
-if(Array.isArray(obj)){
-  return obj.map(cleanObject)
-}
-
-if(typeof obj === "object" && obj !== null){
-
-let newObj = {}
-
-for(let key in obj){
-
-if(key.toLowerCase().includes("criador")) continue
-if(key.toLowerCase().includes("credit")) continue
-
-newObj[normalizeKey(key)] = cleanObject(obj[key])
-}
-
-return newObj
-}
-
-if(typeof obj === "string"){
-  return cleanString(obj)
-}
-
-return obj
-}
-
-// ============================
-// 🧠 TEXTO → JSON
-// ============================
-function parseText(text){
-
-text = cleanString(text)
-
-let lines = text.split("\n").map(l=>l.trim()).filter(Boolean)
-
-let result = {}
-let current = "dados"
-let obj = {}
-
-for(let line of lines){
-
-if(line.includes(":")){
-  let [k,...v] = line.split(":")
-  obj[normalizeKey(k)] = v.join(":").trim()
-}
-
-}
-
-result[current] = [obj]
-return result
-}
-
-// ============================
-// 🧹 LIMPA STRING
-// ============================
-function cleanString(str){
-
-return str
-.replace(/©.*$/gmi,"")
-.replace(/HydraCore/gi,"")
-.replace(/ObitoSpam/gi,"")
-.replace(/════════.*════════/g,"")
-.trim()
-
-}
-
-// ============================
-// 🔑 KEY
-// ============================
-function normalizeKey(key){
-return key
-.toLowerCase()
-.replace(/[^\w\s]/g,"")
-.replace(/\s+/g,"_")
-}
-
-// ============================
-// 📦 JSON
-// ============================
-function json(obj){
-return new Response(JSON.stringify(obj,null,2),{
+function jsonErro(code,msg,extra=null){
+return new Response(JSON.stringify({
+  status:false,
+  erro:{code,msg,extra}
+},null,2),{
   headers:{"Content-Type":"application/json"}
 })
 }
 
-// ============================
-// 🏠 HOME (SEM ERRO)
-// ============================
-function html(){
-return `
+/*
+|--------------------------------------------------------------------------
+| HOME UI
+|--------------------------------------------------------------------------
+*/
+
+function home(request){
+
+const base = new URL(request.url).origin
+
+return new Response(`
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astro Search</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Astro Search API</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+:root{--blue:#3b82f6;}
 
-body{
-  background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
-  color:#e2e8f0;
-  overflow-x:hidden;
+*{
+ margin:0;
+ padding:0;
+ box-sizing:border-box;
+ font-family:'Inter',sans-serif;
 }
 
-/* ⭐ ESTRELAS */
-canvas{
- position:fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
- z-index:-1;
+body{
+ background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
+ color:#e2e8f0;
+ padding:20px;
 }
 
 /* HEADER */
 .header{
- padding:20px;
  text-align:center;
- font-weight:800;
- font-size:24px;
+ margin-bottom:20px;
 }
-.header span{color:#3b82f6;}
 
-/* BOX */
-.box{
- max-width:420px;
- margin:20px auto;
- padding:15px;
+.header h1{
+ font-size:22px;
+ font-weight:800;
+}
+
+.header span{
+ color:var(--blue);
 }
 
 /* CARD */
 .card{
- margin-top:12px;
+ margin-top:15px;
  padding:16px;
- border-radius:16px;
- background:rgba(255,255,255,0.02);
+ border-radius:18px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.05);
+ backdrop-filter:blur(10px);
  transition:.3s;
- cursor:pointer;
-}
-.card:hover{
- transform:translateY(-6px);
- box-shadow:0 10px 40px rgba(59,130,246,.25);
 }
 
-.desc{
- font-size:12px;
- opacity:.6;
+.card:hover{
+ transform:translateY(-3px);
+ border-color:rgba(59,130,246,.4);
 }
 
 /* INPUT */
-.input{
+.input-group{
+ margin-top:10px;
+}
+
+.label{
+ font-size:11px;
+ opacity:.6;
+ margin-bottom:4px;
+}
+
+input,select{
  width:100%;
  padding:12px;
- margin-top:10px;
  border-radius:12px;
  border:none;
  background:#0b1228;
  color:#fff;
+ outline:none;
+}
+
+input:focus,select:focus{
+ box-shadow:0 0 0 2px rgba(59,130,246,.3);
 }
 
 /* BUTTON */
-.btn{
- margin-top:10px;
+button{
  width:100%;
  padding:12px;
- border:none;
+ margin-top:12px;
  border-radius:12px;
- background:#3b82f6;
- color:#fff;
+ border:none;
  font-weight:600;
+ background:linear-gradient(90deg,#3b82f6,#2563eb);
+ color:#fff;
+ cursor:pointer;
+ transition:.25s;
 }
 
-/* RESULT */
-.result{
- margin-top:15px;
- font-size:12px;
- white-space:pre-wrap;
+button:hover{
+ transform:translateY(-2px);
+ box-shadow:0 10px 25px rgba(59,130,246,.3);
+}
+
+button:active{
+ transform:scale(.96);
+}
+
+/* BOX RESULT */
+.box{
+ margin-top:12px;
  background:#020617;
- padding:10px;
- border-radius:10px;
+ padding:12px;
+ border-radius:12px;
+ font-size:12px;
+ position:relative;
+}
+
+pre{
+ white-space:pre-wrap;
+ word-wrap:break-word;
+}
+
+/* COPY */
+.copy{
+ margin-top:10px;
+ background:rgba(34,197,94,.2);
+}
+
+.copy:hover{
+ box-shadow:0 0 15px rgba(34,197,94,.3);
 }
 
 /* LOADING */
 .loader{
- margin-top:10px;
  height:40px;
  border-radius:10px;
  background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
@@ -374,121 +574,1090 @@ canvas{
  100%{background-position:-200%}
 }
 
+/* TOAST */
+#toast{
+ position:fixed;
+ bottom:20px;
+ left:50%;
+ transform:translateX(-50%) translateY(100px);
+ background:#111827;
+ padding:10px 20px;
+ border-radius:10px;
+ font-size:12px;
+ opacity:0;
+ transition:.3s;
+}
+
+#toast.show{
+ transform:translateX(-50%) translateY(0);
+ opacity:1;
+}
+
+/* MODAL */
+.modal{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,.7);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ z-index:999;
+ opacity:0;
+ pointer-events:none;
+ transition:.3s;
+}
+
+/* MODAIS SOBREPOSTOS */
+#maintenanceModal {
+  z-index: 900;  /* fica atrás */
+}
+
+#modal {
+  z-index: 1000; /* fica na frente */
+}
+
+.modal.show{
+ opacity:1;
+ pointer-events:all;
+}
+
+.modal-box{
+ width:100%;
+ max-width:380px;
+ background:#020617;
+ border-radius:18px;
+ padding:20px;
+ transform:scale(.9);
+ transition:.3s;
+}
+
+.modal.show .modal-box{
+ transform:scale(1);
+}
+
+/* PLANOS */
+.plan{
+ padding:14px;
+ border-radius:16px;
+ margin-top:10px;
+ border:1px solid rgba(255,255,255,.06);
+ background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
+ transition:.3s;
+ cursor:pointer;
+ position:relative;
+ overflow:hidden;
+}
+
+.plan:hover{
+ transform:translateY(-4px) scale(1.02);
+ border-color:rgba(59,130,246,.4);
+}
+
+/* glow */
+.plan::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
+ opacity:0;
+ transition:.4s;
+}
+
+.plan:hover::after{
+ opacity:1;
+}
+
+/* BADGE */
+.badge{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+ padding:6px 12px;
+ border-radius:999px;
+ font-size:11px;
+ font-weight:600;
+}
+
+/* FREE */
+.badge.free{
+ background:rgba(34,197,94,.15);
+ color:#22c55e;
+}
+
+/* PRO */
+.badge.pro{
+ background:rgba(59,130,246,.15);
+ color:#3b82f6;
+}
+
+/* VIP */
+.badge.vip{
+ background:rgba(168,85,247,.15);
+ color:#a855f7;
+ position:relative;
+ overflow:hidden;
+}
+
+/* PARTÍCULAS VIP */
+/* FREE partículas leves */
+.badge.free::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ background:radial-gradient(circle,#22c55e 1px,transparent 1px);
+ background-size:16px 16px;
+ opacity:.15;
+ animation:stars 10s linear infinite;
+}
+
+/* VIP mais forte */
+.badge.vip::after{
+ content:"";
+ position:absolute;
+ inset:-50%;
+ background:radial-gradient(circle,#fff 1px,transparent 1px);
+ background-size:18px 18px;
+ opacity:.25;
+ animation:stars 4s linear infinite;
+}
+
+@keyframes stars{
+ from{transform:translateY(0)}
+ to{transform:translateY(40px)}
+}
+
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  50%{transform:translateX(5px)}
+  75%{transform:translateX(-5px)}
+  100%{transform:translateX(0)}
+}
+
+#bg{
+ position:fixed;
+ inset:0;
+ z-index:-1;
+}
+
+/* BADGE */
+.badge{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+ padding:6px 12px;
+ border-radius:999px;
+ font-size:11px;
+ font-weight:600;
+}
+
+/* Todas em amarelo */
+.badge.free,
+.badge.pro,
+.badge.vip{
+ background: rgba(250,204,21,.2);
+ color: #facc15;
+}
+
+/* Partículas VIP */
+.badge.vip::after{
+ content:"";
+ position:absolute;
+ inset:-50%;
+ background:radial-gradient(circle,#facc15 1px,transparent 1px);
+ background-size:18px 18px;
+ opacity:.25;
+ animation:stars 4s linear infinite;
+}
+
+.plans{
+ display:flex;
+ flex-direction:column;
+ gap:10px;
+}
+
+.plan{
+ position:relative;
+ overflow:hidden;
+}
+
+.plan .price{
+ font-size:18px;
+ font-weight:800;
+ color:#22c55e;
+}
+
+.plan.destaque{
+ border:1px solid gold;
+ box-shadow:0 0 20px rgba(250,204,21,.3);
+ animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+ 0%{box-shadow:0 0 10px rgba(250,204,21,.2)}
+ 50%{box-shadow:0 0 30px rgba(250,204,21,.6)}
+ 100%{box-shadow:0 0 10px rgba(250,204,21,.2)}
+}
+
 </style>
+
 </head>
 
 <body>
 
+<!-- MODAL MANUTENÇÃO -->
+<div class="modal" id="maintenanceModal">
+  <div class="modal-box">
+    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ Sistema em Manutenção</h2>
+    <p style="font-size:14px;opacity:.8;line-height:1.5;">
+      O sistema está passando por atualizações e estará disponível novamente às <b>07:30</b>.<br>
+      Estamos trabalhando o mais rápido possível, <b>3 pessoas</b> estão dedicadas para isso.
+    </p>
+    <button onclick="fecharMaintenanceModal()" style="margin-top:15px;">Fechar</button>
+  </div>
+</div>
+
+<div class="header">
+  <h1>🚀 Astro <span>Search</span></h1>
+  <div id="badgeContainer" style="margin-top:8px;"></div>
+</div>
+
+<div class="card">
+
+<div class="input-group">
+<div class="label">Token</div>
+<input id="token" placeholder="seu token">
+</div>
+
+<div class="input-group">
+<div class="label">Endpoint</div>
+<select id="endpoint">
+${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
+</select>
+</div>
+
+<div class="input-group">
+<div class="label">Valor</div>
+<input id="valor" placeholder="valor da consulta">
+</div>
+
+<button id="btnConsultar" onclick="consultar()">Consultar</button>
+
+</div>
+
+<div class="card">
+
+<div class="label">URL</div>
+<div class="box"><pre id="url"></pre></div>
+
+<button class="copy" onclick="copiar('url')">Copiar URL</button>
+
+</div>
+
+<div class="card">
+
+<div class="label">Resposta</div>
+<div class="box" id="resBox">
+<pre id="resposta"></pre>
+</div>
+
+<button class="copy" onclick="copiar('resposta')">Copiar resposta</button>
+
+</div>
+
+<div id="toast">Copiado!</div>
+
+<!-- MODAL TOKEN -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+
+    <h2 style="font-size:16px;margin-bottom:10px;">🔐 Acesso</h2>
+
+    <input id="tokenInput" placeholder="Digite seu token">
+
+<button onclick="salvarTokenModal()">Entrar</button>
+
+    <div style="margin-top:15px;font-size:12px;opacity:.6;">
+      Planos disponíveis:
+    </div>
+
+    <div class="plan">
+      <b>FREE</b><br>
+      100 consultas<br>
+      <span style="opacity:.6;">Grátis</span>
+    </div>
+
+    <div class="plan">
+      <b>PRO</b><br>
+      1000 consultas<br>
+      <span style="opacity:.6;">R$30 mensal</span>
+    </div>
+
+    <div class="plan">
+      <b>VIP</b><br>
+      Ilimitado<br>
+      <span style="opacity:.6;">R$50 vitalício</span>
+    </div>
+
+    <div class="plan">
+      <b>DIÁRIO</b><br>
+      Acesso 24h<br>
+      <span style="opacity:.6;">R$5</span>
+    </div>
+
+  </div>
+</div>
+
 <canvas id="bg"></canvas>
 
-<div class="header">Astro <span>Search</span></div>
+<!-- 💰 PLANOS -->
+<div class="card">
 
-<div class="box">
+  <h2 style="font-size:16px;margin-bottom:10px;">🔥 Escolha seu acesso</h2>
 
-<input id="token" class="input" placeholder="Seu token">
-<input id="valor" class="input" placeholder="Digite o valor">
+  <div class="plans">
 
-<div class="card" onclick="setType('cpf')">
-  <strong>CPF</strong>
-  <div class="desc">Consulta completa</div>
+    <div class="plan" onclick="comprarPlano(15.00,'DIARIO')">
+      <b>⚡ Diário</b><br>
+      Acesso por 24h<br>
+      <span class="price">R$15</span>
+    </div>
+
+    <div class="plan" onclick="comprarPlano(30.00,'MENSAL')">
+      <b>🚀 Mensal</b><br>
+      Acesso completo<br>
+      <span class="price">R$30</span>
+    </div>
+
+    <div class="plan destaque" onclick="comprarPlano(50.00,'VITALICIO')">
+      <b>👑 Vitalício</b><br>
+      Acesso infinito<br>
+      <span class="price">R$50</span>
+    </div>
+
+  </div>
+
 </div>
 
-<div class="card" onclick="setType('nome')">
-  <strong>Nome</strong>
-  <div class="desc">Busca por nome</div>
-</div>
+<!-- 💳 MODAL PIX -->
+<div class="modal" id="pixModal">
+  <div class="modal-box">
 
-<div class="card" onclick="setType('telefone')">
-  <strong>Telefone</strong>
-  <div class="desc">Dados completos</div>
-</div>
+    <h2 style="font-size:16px;margin-bottom:10px;">💸 Finalizar pagamento</h2>
 
-<div class="card" onclick="setType('placa')">
-  <strong>Placa</strong>
-  <div class="desc">Dados do veículo</div>
-</div>
+    <img id="qrImg" style="width:100%;border-radius:12px;margin-bottom:10px;"/>
 
-<button class="btn" onclick="consultar()">Consultar</button>
+    <textarea id="pixCode" style="width:100%;height:80px;"></textarea>
 
-<div id="loading"></div>
-<div id="result" class="result"></div>
+    <button onclick="copiarPix()">Copiar código PIX</button>
 
+  </div>
 </div>
 
 <script>
+/* ===== TOKENS ===== */
+const TOKENS = {
+  dragon: "VIP",
+  italoedu7: "VIP",
+  IFNastro: "VIP",
+  astrofree: "FREE",
+  astropro: "PRO"
+};
 
-let type="cpf"
-
-function setType(t){
- type=t
+/* ===== MODAIS ===== */
+function abrirModal(){
+  document.getElementById("modal").classList.add("show");
 }
 
-/* ⭐ ESTRELAS */
-const c=document.getElementById("bg");
-const ctx=c.getContext("2d");
-c.width=innerWidth;
-c.height=innerHeight;
-
-let stars=[];
-for(let i=0;i<80;i++){
- stars.push({
-  x:Math.random()*c.width,
-  y:Math.random()*c.height,
-  speed:Math.random()*0.5
- });
+function fecharModal(){
+  document.getElementById("modal").classList.remove("show");
 }
 
-function animate(){
- ctx.clearRect(0,0,c.width,c.height);
-
- stars.forEach(s=>{
-  s.y+=s.speed
-  if(s.y>c.height) s.y=0
-
-  ctx.fillStyle = "rgba(59,130,246,0.7)"
-  ctx.fillRect(s.x,s.y,1,1)
- })
-
- requestAnimationFrame(animate)
+function fecharMaintenanceModal(){
+  document.getElementById("maintenanceModal").classList.remove("show");
 }
 
-animate()
+/* ===== BADGE ===== */
+function renderBadge(plano){
+  const el = document.getElementById("badgeContainer");
+  const classe = plano.toLowerCase();
+  const texto = plano.toUpperCase() + " • MANUTENÇÃO";
+  el.innerHTML = '<div class="badge ' + classe + '" style="background:rgba(250,204,21,.2); color:#facc15;">' + texto + '</div>';
+}
 
-/* CONSULTA */
+/* ===== PREMIUM EFFECT ===== */
+function efeitoPremium(token){
+  const plano = TOKENS[token];
+  const body = document.body;
+
+  if(plano === "VIP"){
+    body.style.boxShadow = "inset 0 0 120px rgba(168,85,247,.3)";
+  } else if(plano === "FREE"){
+    body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
+  }
+}
+
+/* ===== ERRO SHAKE ===== */
+function efeitoErro(){
+  const input = document.getElementById("token");
+  input.style.animation = "shake .3s";
+  setTimeout(()=>input.style.animation="",300);
+}
+
+/* ===== SALVAR TOKEN ===== */
+function salvarToken(token){
+  localStorage.setItem("astro_token", token);
+  renderBadge(TOKENS[token]);
+}
+
+/* ===== SALVAR TOKEN PELO MODAL ===== */
+function salvarTokenModal(){
+  const input = document.getElementById("tokenInput");
+  const token = input.value.trim();
+
+  if(!TOKENS[token]){
+    input.style.border = "1px solid red";
+    efeitoErro();
+    return;
+  }
+
+  document.getElementById("token").value = token;
+  salvarToken(token);
+  efeitoPremium(token);
+  fecharModal();
+}
+
+/* ===== TOAST ===== */
+function mostrarToast(msg){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+async function comprarPlano(valor, plano){
+
+  mostrarToast("Gerando pagamento...");
+
+  try{
+
+    const res = await fetch(
+      "https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor=" + valor.toFixed(2)
+    );
+
+    const data = await res.json();
+
+    abrirPixModal(data);
+
+  }catch(e){
+    mostrarToast("Erro ao gerar pagamento ❌");
+  }
+
+}
+
+function abrirPixModal(data){
+
+  const modal = document.getElementById("pixModal");
+  const img = document.getElementById("qrImg");
+  const code = document.getElementById("pixCode");
+
+  img.src = data.qrcode_base64;
+  code.value = data.pixCopiaECola;
+
+  modal.classList.add("show");
+}
+
+function copiarPix(){
+  const code = document.getElementById("pixCode");
+  code.select();
+  document.execCommand("copy");
+  mostrarToast("PIX copiado 💸");
+}
+
+/* ===== CONSULTAR ===== */
 async function consultar(){
+  const btn = document.getElementById("btnConsultar");
+  btn.disabled = true;
+  btn.innerText = "Consultando...";
 
-let token=document.getElementById("token").value
-let valor=document.getElementById("valor").value
+  const token = document.getElementById("token").value.trim();
+  const endpoint = document.getElementById("endpoint").value;
+  const valor = document.getElementById("valor").value;
 
-if(!token || !valor){
- alert("Preencha tudo")
- return
+  if(!token){
+    abrirModal();
+    btn.disabled = false;
+    btn.innerText = "Consultar";
+    return;
+  }
+
+  if(!TOKENS[token]){
+    abrirModal();
+    efeitoErro();
+    btn.disabled = false;
+    btn.innerText = "Consultar";
+    return;
+  }
+
+  salvarToken(token);
+  efeitoPremium(token);
+
+const PARAMS = {
+  cpf:"cpf",
+  nome:"nome",
+  telefone:"telefone",
+  telefone_full:"telefone",
+  telefone_cpf:"cpf",
+  placa:"placa",  
+  ddd:"ddd",
+  operadora:"telefone",
+  rg:"rg",
+  titulo:"titulo",
+  pis:"pis",
+  nis:"nis",
+  parentes:"cpf",
+  vizinhos:"cpf",
+  cep:"cep",
+  estado:"uf",
+  email:"email",
+  score:"cpf",
+  renda:"valor",
+  cbo:"cbo",
+  foto_sp:"cpf",
+  foto_ma:"cpf",
+  foto_ro:"cpf",
+  foto_all:"cpf"
 }
 
-loading.innerHTML='<div class="loader"></div>'
-result.innerText=""
+const param = PARAMS[endpoint];
+  const url = window.location.origin + "/" + endpoint +
+              "?token=" + token + "&" + param + "=" + valor;
 
-let url = "/" + type + "?token=" + token + "&" + type + "=" + encodeURIComponent(valor)
+  document.getElementById("url").innerText = url;
+  const resBox = document.getElementById("resBox");
+  resBox.innerHTML = '<div class="loader"></div>';
 
-try{
+  try{
+    const r = await fetch(url);
+    const j = await r.json();
+    resBox.innerHTML = "<pre id='resposta'>"+JSON.stringify(j,null,2)+"</pre>";
+    mostrarToast("Consulta feita com sucesso 🚀");
+  } catch {
+    resBox.innerHTML = "<pre>Erro ao consultar</pre>";
+    mostrarToast("Erro na consulta ❌");
+  }
 
- const r = await fetch(url)
- const j = await r.json()
-
- loading.innerHTML=""
-
- result.innerText = JSON.stringify(j,null,2)
-
-}catch(e){
- loading.innerHTML=""
- result.innerText="Erro na consulta"
+  btn.disabled = false;
+  btn.innerText = "Consultar";
 }
 
+/* ===== PARTICULAS DE FUNDO ===== */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 
+function createParticles(qtd=60){
+  particles = [];
+  for(let i=0;i<qtd;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.5,
+      speed: Math.random()*0.5 + 0.2
+    });
+  }
+}
+
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.y += p.speed;
+    if(p.y > canvas.height){
+      p.y = 0;
+      p.x = Math.random()*canvas.width;
+    }
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.6)";
+    ctx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+
+/* ===== LOAD ===== */
+window.addEventListener("load", ()=>{
+  // Primeiro: mostrar modal de manutenção
+  const maintenanceModal = document.getElementById("maintenanceModal");
+  maintenanceModal.classList.add("show");
+
+  // Checar se existe token válido no localStorage
+  const token = localStorage.getItem("astro_token");
+  if(token && TOKENS[token]){
+    // Token válido: exibe badge e efeito premium
+    document.getElementById("token").value = token;
+    renderBadge(TOKENS[token]);
+    efeitoPremium(token);
+  } else {
+    // Sem token ou inválido: abrir modal de token **por cima da manutenção**
+    abrirModal(); // modal de token
+  }
+
+  // Partículas
+  resizeCanvas();
+  createParticles();
+  drawParticles();
+});
+
+window.addEventListener("resize", resizeCanvas);
 </script>
 
 </body>
 </html>
-`
+
+`,{
+  headers: { 
+    "content-type": "text/html",
+    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate"
+  }
+})
+
 }
+
+function adminPanel(request){
+  const url = new URL(request.url);
+  const token = url.searchParams.get("token");
+  const valid = token === ADMIN_TOKEN;
+
+  return new Response(`
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Panel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+:root{--blue:#3b82f6;}
+
+*{
+ margin:0;
+ padding:0;
+ box-sizing:border-box;
+ font-family:'Inter',sans-serif;
+}
+
+body{
+ background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
+ color:#e2e8f0;
+ padding:20px;
+ min-height:100vh;
+}
+
+/* HEADER */
+.header{
+ text-align:center;
+ margin-bottom:20px;
+}
+
+.header h1{
+ font-size:22px;
+ font-weight:800;
+}
+
+.header span{
+ color:var(--blue);
+}
+
+/* CARD */
+.card{
+ margin-top:15px;
+ padding:16px;
+ border-radius:18px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.05);
+ backdrop-filter:blur(10px);
+ transition:.3s;
+}
+
+.card:hover{
+ transform:translateY(-3px);
+ border-color:rgba(59,130,246,.4);
+}
+
+/* INPUT */
+.input-group{
+ margin-top:10px;
+}
+
+.label{
+ font-size:11px;
+ opacity:.6;
+ margin-bottom:4px;
+}
+
+input,select{
+ width:100%;
+ padding:12px;
+ border-radius:12px;
+ border:none;
+ background:#0b1228;
+ color:#fff;
+ outline:none;
+}
+
+input:focus,select:focus{
+ box-shadow:0 0 0 2px rgba(59,130,246,.3);
+}
+
+/* BUTTON */
+button{
+ width:100%;
+ padding:12px;
+ margin-top:12px;
+ border-radius:12px;
+ border:none;
+ font-weight:600;
+ background:linear-gradient(90deg,#3b82f6,#2563eb);
+ color:#fff;
+ cursor:pointer;
+ transition:.25s;
+}
+
+button:hover{
+ transform:translateY(-2px);
+ box-shadow:0 10px 25px rgba(59,130,246,.3);
+}
+
+button:active{
+ transform:scale(.96);
+}
+
+/* BOX RESULT */
+.box{
+ margin-top:12px;
+ background:#020617;
+ padding:12px;
+ border-radius:12px;
+ font-size:12px;
+ position:relative;
+}
+
+pre{
+ white-space:pre-wrap;
+ word-wrap:break-word;
+}
+
+/* COPY */
+.copy{
+ margin-top:10px;
+ background:rgba(34,197,94,.2);
+}
+
+.copy:hover{
+ box-shadow:0 0 15px rgba(34,197,94,.3);
+}
+
+/* LOADING */
+.loader{
+ height:40px;
+ border-radius:10px;
+ background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
+ background-size:200%;
+ animation:load 1s infinite;
+}
+
+@keyframes load{
+ 0%{background-position:200%}
+ 100%{background-position:-200%}
+}
+
+/* TOAST */
+#toast{
+ position:fixed;
+ bottom:20px;
+ left:50%;
+ transform:translateX(-50%) translateY(100px);
+ background:#111827;
+ padding:10px 20px;
+ border-radius:10px;
+ font-size:12px;
+ opacity:0;
+ transition:.3s;
+}
+
+#toast.show{
+ transform:translateX(-50%) translateY(0);
+ opacity:1;
+}
+
+/* MODAL */
+.modal{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,.7);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ z-index:999;
+ opacity:0;
+ pointer-events:none;
+ transition:.3s;
+}
+
+.modal.show{
+ opacity:1;
+ pointer-events:all;
+}
+
+.modal-box{
+ width:100%;
+ max-width:380px;
+ background:#020617;
+ border-radius:18px;
+ padding:20px;
+ transform:scale(.9);
+ transition:.3s;
+}
+
+.modal.show .modal-box{
+ transform:scale(1);
+}
+
+/* PLANOS */
+.plan{
+ padding:14px;
+ border-radius:16px;
+ margin-top:10px;
+ border:1px solid rgba(255,255,255,.06);
+ background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
+ transition:.3s;
+ cursor:pointer;
+ position:relative;
+ overflow:hidden;
+}
+
+.plan:hover{
+ transform:translateY(-4px) scale(1.02);
+ border-color:rgba(59,130,246,.4);
+}
+
+/* glow */
+.plan::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
+ opacity:0;
+ transition:.4s;
+}
+
+.plan:hover::after{
+ opacity:1;
+}
+
+/* BADGE */
+.badge{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+ padding:6px 12px;
+ border-radius:999px;
+ font-size:11px;
+ font-weight:600;
+ background: rgba(250,204,21,.2);
+ color: #facc15;
+ position:relative;
+ overflow:hidden;
+}
+
+.badge.vip::after{
+ content:"";
+ position:absolute;
+ inset:-50%;
+ background:radial-gradient(circle,#facc15 1px,transparent 1px);
+ background-size:18px 18px;
+ opacity:.25;
+ animation:stars 4s linear infinite;
+}
+
+@keyframes stars{
+ from{transform:translateY(0)}
+ to{transform:translateY(40px)}
+}
+
+/* SHAKE */
+@keyframes shake{
+ 0%{transform:translateX(0)}
+ 25%{transform:translateX(-5px)}
+ 50%{transform:translateX(5px)}
+ 75%{transform:translateX(-5px)}
+ 100%{transform:translateX(0)}
+}
+
+#bg{
+ position:fixed;
+ inset:0;
+ z-index:-1;
+}
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <h1>🔐 Admin <span>Panel</span></h1>
+  <div id="badgeContainer"></div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal show" id="loginModal">
+  <div class="modal-box">
+    <h2 style="font-size:16px;margin-bottom:10px;">🔑 Acesso Admin</h2>
+    <input id="adminToken" placeholder="Digite token">
+    <button onclick="login()">Entrar</button>
+  </div>
+</div>
+
+<div id="panel" style="display:${valid ? "block" : "none"}">
+
+<div class="card">
+<h3>🎟️ Gerar Token</h3>
+<input id="nome" placeholder="Nome do cliente">
+<select id="plano">
+<option value="FREE">FREE</option>
+<option value="PRO">PRO</option>
+<option value="VIP">VIP</option>
+</select>
+<h4 style="margin-top:10px;font-size:13px;opacity:.7;">Endpoints liberados</h4>
+<div id="endpoints"></div>
+<button onclick="gerar()">Gerar Token</button>
+<div class="token-box" id="resultado"></div>
+</div>
+
+</div>
+
+<canvas id="bg"></canvas>
+
+<script>
+const ADMIN = "` + ADMIN_TOKEN + `";
+const ENDPOINTS = ${JSON.stringify(Object.keys(ENDPOINTS))};
+
+function login(){
+ const val = document.getElementById("adminToken").value;
+ if(val !== ADMIN){
+  alert("Token inválido");
+  return;
+ }
+ document.getElementById("loginModal").classList.remove("show");
+ document.getElementById("panel").style.display="block";
+ renderEndpoints();
+ renderBadge("VIP");
+}
+
+// Renderiza endpoints
+function renderEndpoints(){
+  const div = document.getElementById("endpoints");
+  div.innerHTML = ENDPOINTS.map(e =>
+    '<label style="display:flex;gap:8px;margin-top:6px;font-size:12px;">' +
+      '<input type="checkbox" value="' + e + '" checked>' +
+      e +
+    '</label>'
+  ).join('');
+}
+
+// Gerar token
+function gerar(){
+  const nome = document.getElementById("nome").value || "user";
+  const plano = document.getElementById("plano").value;
+  const checks = [...document.querySelectorAll("#endpoints input:checked")];
+  const perms = checks.map(c=>c.value);
+  const token = nome + "_" + Math.random().toString(36).slice(2,10);
+
+  // Atualiza TOKENS em memória
+  TOKENS[token] = plano;
+
+  // Salva no localStorage
+  let todosTokens = JSON.parse(localStorage.getItem("astro_tokens") || "{}");
+  todosTokens[token] = { plano, endpoints: perms };
+  localStorage.setItem("astro_tokens", JSON.stringify(todosTokens));
+
+  let limite = "100 consultas";
+  if(plano === "PRO") limite = "1000 consultas";
+  if(plano === "VIP") limite = "Ilimitado";
+
+  const mensagem = 
+    "🎉 TOKEN GERADO COM SUCESSO!\\n\\n" +
+    "🔑 • Token: " + token + "\\n" +
+    "💎 • Plano: " + plano + "\\n" +
+    "♾️ • Limite: " + limite + "\\n\\n" +
+    "⚠️ Endpoints liberados: " + perms.join(", ");
+
+  document.getElementById("resultado").innerText = mensagem;
+}
+
+// PARTICULAS DE FUNDO
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function createParticles(qtd=60){
+  particles = [];
+  for(let i=0;i<qtd;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.5,
+      speed: Math.random()*0.5 + 0.2
+    });
+  }
+}
+
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.y += p.speed;
+    if(p.y > canvas.height){
+      p.y = 0;
+      p.x = Math.random()*canvas.width;
+    }
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.6)";
+    ctx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+
+window.addEventListener("load", ()=>{
+  resizeCanvas();
+  createParticles();
+  drawParticles();
+});
+
+window.addEventListener("resize", resizeCanvas);
+</script>
+
+</body>
+</html>
+
+`,{
+    headers: { 
+      "content-type": "text/html",
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate"
+    }
+  })
+}
+
