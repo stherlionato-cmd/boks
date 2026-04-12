@@ -1133,12 +1133,6 @@ function mostrarPix(data){
     <button onclick="copiarPix()">Copiar PIX</button>
     <button onclick="this.closest('.modal').remove()">Fechar</button>
   </div>
-`;
-
-      <button onclick="this.closest('.modal').remove()">
-        Fechar
-      </button>
-    </div>
   `;
 
   document.body.appendChild(modal);
