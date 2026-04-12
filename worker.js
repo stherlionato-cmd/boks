@@ -1004,7 +1004,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       <span class="price">Grátis</span>
     </div>
     <div class="plan-info">
-      100 consultas
+      2 consultas
     </div>
   </div>
 
