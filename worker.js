@@ -1094,13 +1094,7 @@ document.querySelectorAll(".plan").forEach(card=>{
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width/2;
     const y = e.clientY - rect.top - rect.height/2;
-
-    card.style.transform = `
-      translateY(-6px)
-      scale(1.03)
-      rotateX(${ -y/20 }deg)
-      rotateY(${ x/20 }deg)
-    `;
+    card.style.transform = `translateY(-6px) scale(1.03) rotateX(${ -y/20 }deg) rotateY(${ x/20 }deg)`;
   });
 
   card.addEventListener("mouseleave", ()=>{
