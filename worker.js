@@ -544,24 +544,6 @@ button:active{
  transform:scale(.96);
 }
 
-button{
- position:relative;
- overflow:hidden;
-}
-
-button::after{
- content:"";
- position:absolute;
- inset:0;
- background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent);
- transform:translateX(-100%);
-}
-
-button:hover::after{
- transform:translateX(100%);
- transition:.6s;
-}
-
 /* BOX RESULT */
 .box{
  margin-top:12px;
@@ -621,19 +603,26 @@ pre{
 }
 
 /* MODAL */
-/* ===== MODAL ULTRA ===== */
 .modal{
  position:fixed;
  inset:0;
- background:radial-gradient(circle at center, rgba(10,15,40,.6), rgba(0,0,0,.9));
+ background:rgba(0,0,0,.7);
  display:flex;
  align-items:center;
  justify-content:center;
- z-index:1000;
+ z-index:999;
  opacity:0;
  pointer-events:none;
- transition:.4s cubic-bezier(.22,.61,.36,1);
- backdrop-filter: blur(10px);
+ transition:.3s;
+}
+
+/* MODAIS SOBREPOSTOS */
+#maintenanceModal {
+  z-index: 900;  /* fica atrás */
+}
+
+#modal {
+  z-index: 1000; /* fica na frente */
 }
 
 .modal.show{
@@ -641,126 +630,50 @@ pre{
  pointer-events:all;
 }
 
-/* CAIXA */
 .modal-box{
  width:100%;
- max-width:420px;
- padding:22px;
-
- border-radius:22px;
-
- background:linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
- border:1px solid rgba(255,255,255,.08);
-
- backdrop-filter: blur(25px);
-
- box-shadow:
-  0 20px 80px rgba(0,0,0,.8),
-  inset 0 1px 0 rgba(255,255,255,.08);
-
- transform:scale(.85) translateY(40px);
- opacity:0;
- transition:.5s cubic-bezier(.22,.61,.36,1);
+ max-width:380px;
+ background:#020617;
+ border-radius:18px;
+ padding:20px;
+ transform:scale(.9);
+ transition:.3s;
 }
 
 .modal.show .modal-box{
- transform:scale(1) translateY(0);
- opacity:1;
+ transform:scale(1);
 }
 
-/* ===== PLANOS ULTRA ===== */
+/* PLANOS */
 .plan{
- position:relative;
- padding:16px;
- border-radius:18px;
- margin-top:12px;
- cursor:pointer;
-
- background:linear-gradient(145deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+ padding:14px;
+ border-radius:16px;
+ margin-top:10px;
  border:1px solid rgba(255,255,255,.06);
-
- transition:.35s cubic-bezier(.22,.61,.36,1);
+ background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
+ transition:.3s;
+ cursor:pointer;
+ position:relative;
  overflow:hidden;
 }
 
-/* glow base */
-.plan::before{
- content:"";
- position:absolute;
- inset:-2px;
- border-radius:inherit;
- opacity:0;
- transition:.4s;
-}
-
-/* hover magnético */
 .plan:hover{
- transform:translateY(-6px) scale(1.03);
+ transform:translateY(-4px) scale(1.02);
+ border-color:rgba(59,130,246,.4);
 }
 
-/* brilho passando */
+/* glow */
 .plan::after{
  content:"";
  position:absolute;
  inset:0;
- background:linear-gradient(120deg,transparent,rgba(255,255,255,.15),transparent);
- transform:translateX(-100%);
- transition:.6s;
+ background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
+ opacity:0;
+ transition:.4s;
 }
 
 .plan:hover::after{
- transform:translateX(100%);
-}
-
-/* ===== VARIAÇÕES ===== */
-.plan.free::before{
- background:linear-gradient(90deg,#22c55e,#4ade80);
-}
-.plan.pro::before{
- background:linear-gradient(90deg,#3b82f6,#60a5fa);
-}
-.plan.vip::before{
- background:linear-gradient(90deg,#a855f7,#e879f9);
-}
-
-.plan:hover::before{
- opacity:.4;
- filter:blur(12px);
-}
-
-/* VIP aura */
-.plan.vip{
- box-shadow:0 0 40px rgba(168,85,247,.15);
-}
-
-.plan.vip:hover{
- box-shadow:0 0 80px rgba(168,85,247,.4);
-}
-
-/* SELECIONADO */
-.plan.active{
- border:1px solid #fff;
- transform:scale(1.04);
- box-shadow:0 0 60px rgba(255,255,255,.2);
-}
-
-/* ripple click */
-.plan .ripple{
- position:absolute;
- border-radius:50%;
- transform:scale(0);
- background:rgba(255,255,255,.4);
- animation:ripple .6s linear;
-}
-
-/* TEXTO */
-.plan b{
- font-size:14px;
-}
-
-.plan span{
- font-size:12px;
- opacity:.7;
+ opacity:1;
 }
 
 /* BADGE */
@@ -866,6 +779,24 @@ pre{
  animation:stars 4s linear infinite;
 }
 
+button{
+ position:relative;
+ overflow:hidden;
+}
+
+button::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent);
+ transform:translateX(-100%);
+}
+
+button:hover::after{
+ transform:translateX(100%);
+ transition:.6s;
+}
+
 @keyframes ripple{
  to{
   transform:scale(2);
@@ -955,29 +886,29 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       Planos disponíveis:
     </div>
 
-<div class="plan free" onclick="selectPlan(this)">
-  <b>FREE</b><br>
-  100 consultas<br>
-  <span>Grátis</span>
-</div>
+    <div class="plan">
+      <b>FREE</b><br>
+      100 consultas<br>
+      <span style="opacity:.6;">Grátis</span>
+    </div>
 
-<div class="plan pro" onclick="selectPlan(this)">
-  <b>PRO</b><br>
-  1000 consultas<br>
-  <span>R$30 mensal</span>
-</div>
+    <div class="plan">
+      <b>PRO</b><br>
+      1000 consultas<br>
+      <span style="opacity:.6;">R$30 mensal</span>
+    </div>
 
-<div class="plan vip" onclick="selectPlan(this)">
-  <b>VIP</b><br>
-  Ilimitado<br>
-  <span>R$50 vitalício</span>
-</div>
+    <div class="plan">
+      <b>VIP</b><br>
+      Ilimitado<br>
+      <span style="opacity:.6;">R$50 vitalício</span>
+    </div>
 
-<div class="plan pro" onclick="selectPlan(this)">
-  <b>DIÁRIO</b><br>
-  24h acesso<br>
-  <span>R$5</span>
-</div>
+    <div class="plan">
+      <b>DIÁRIO</b><br>
+      Acesso 24h<br>
+      <span style="opacity:.6;">R$5</span>
+    </div>
 
   </div>
 </div>
@@ -1065,85 +996,6 @@ function mostrarToast(msg){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-function selectPlan(el){
-  document.querySelectorAll(".plan").forEach(p=>p.classList.remove("active"));
-  el.classList.add("active");
-
-  const nome = el.innerText;
-
-  if(nome.includes("PRO")) gerarPix(30);
-  if(nome.includes("VIP")) gerarPix(50);
-  if(nome.includes("DIÁRIO")) gerarPix(5);
-
-  // ripple effect ✅ AGORA DENTRO
-  const circle = document.createElement("span");
-  circle.classList.add("ripple");
-
-  const rect = el.getBoundingClientRect();
-  circle.style.left = "50%";
-  circle.style.top = "50%";
-
-  el.appendChild(circle);
-
-  setTimeout(()=>circle.remove(),600);
-}
-
-/* HOVER MAGNÉTICO */
-document.querySelectorAll(".plan").forEach(card=>{
-  card.addEventListener("mousemove", e=>{
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width/2;
-    const y = e.clientY - rect.top - rect.height/2;
-    card.style.transform = "translateY(-6px) scale(1.03) rotateX(" + (-y/20) + "deg) rotateY(" + (x/20) + "deg)";
-  });
-
-  card.addEventListener("mouseleave", ()=>{
-    card.style.transform = "";
-  });
-});
-
-async function gerarPix(valor){
-  try{
-    const res = await fetch("https://promstpagamentos.discloud.app/create_payment?user_id=7320236887&valor="+valor);
-    const json = await res.json();
-
-    if(!json.pixCopiaECola){
-      mostrarToast("Erro ao gerar PIX ❌");
-      return;
-    }
-
-    mostrarPix(json);
-  }catch{
-    mostrarToast("Erro no pagamento ❌");
-  }
-}
-
-function mostrarPix(data){
-  const modal = document.createElement("div");
-  modal.className = "modal show";
-
-  modal.innerHTML = `
-  <div class="modal-box">
-    <h2>💰 Pagamento</h2>
-    <p><b>R$ ${data.valor}</b></p>
-    <p style="font-size:12px;opacity:.6;">${data.txid}</p>
-
-    <textarea id="pixArea" style="width:100%;margin-top:10px;height:80px;border-radius:10px;padding:10px;">${data.pixCopiaECola}</textarea>
-
-    <button onclick="copiarPix()">Copiar PIX</button>
-    <button onclick="this.closest('.modal').remove()">Fechar</button>
-  </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-window.pixCopia = data.pixCopiaECola;
-
-window.copiarPix = function(){
-  navigator.clipboard.writeText(window.pixCopia);
-};
-
 /* ===== CONSULTAR ===== */
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
@@ -1227,6 +1079,26 @@ setTimeout(()=>{
   btn.disabled = false;
   btn.innerText = "Consultar";
 }
+
+document.querySelectorAll("button").forEach(btn=>{
+  btn.addEventListener("click", e=>{
+    const ripple = document.createElement("span");
+    ripple.style.position="absolute";
+    ripple.style.borderRadius="50%";
+    ripple.style.background="rgba(255,255,255,.4)";
+    ripple.style.transform="scale(0)";
+    ripple.style.animation="ripple .6s linear";
+
+    const rect = btn.getBoundingClientRect();
+    ripple.style.width = ripple.style.height = rect.width + "px";
+    ripple.style.left = e.clientX - rect.left - rect.width/2 + "px";
+    ripple.style.top = e.clientY - rect.top - rect.width/2 + "px";
+
+    btn.appendChild(ripple);
+
+    setTimeout(()=>ripple.remove(),600);
+  });
+});
 
 /* ===== PARTICULAS DE FUNDO ===== */
 const canvas = document.getElementById("bg");
@@ -1737,3 +1609,4 @@ window.addEventListener("resize", resizeCanvas);
     }
   })
 }
+
