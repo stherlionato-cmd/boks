@@ -923,10 +923,10 @@ button:hover::after{
 <!-- MODAL MANUTENÇÃO -->
 <div class="modal" id="maintenanceModal">
   <div class="modal-box">
-    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ Sistema em Manutenção</h2>
+    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ Manutenção Finalizada!</h2>
     <p style="font-size:14px;opacity:.8;line-height:1.5;">
-      O sistema está passando por atualizações e estará disponível novamente às <b>07:30</b>.<br>
-      Estamos trabalhando o mais rápido possível, <b>3 pessoas</b> estão dedicadas para isso.
+      O sistema segue ativo novamente!</b>.<br>
+      Estamos trabalhando em novas atualizações, <b>3 pessoas</b> estão dedicadas para isso.
     </p>
     <button onclick="fecharMaintenanceModal()" style="margin-top:15px;">Fechar</button>
   </div>
@@ -1069,7 +1069,7 @@ function fecharMaintenanceModal(){
 function renderBadge(plano){
   const el = document.getElementById("badgeContainer");
   const classe = plano.toLowerCase();
-  const texto = plano.toUpperCase() + " • MANUTENÇÃO";
+  const texto = plano.toUpperCase() + " • ATIVO";
   el.innerHTML = '<div class="badge ' + classe + '" style="background:rgba(250,204,21,.2); color:#facc15;">' + texto + '</div>';
 }
 
