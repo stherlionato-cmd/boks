@@ -452,20 +452,9 @@ return new Response(`
 }
 
 body{
- background: radial-gradient(1200px at 10% 10%, #1e293b 0%, transparent 60%),
-             radial-gradient(800px at 90% 20%, #1d4ed8 0%, transparent 60%),
-             radial-gradient(1000px at 50% 100%, #020617 0%, #02030a 100%);
+ background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
  color:#e2e8f0;
  padding:20px;
- overflow-x:hidden;
-}
-body::after{
- content:"";
- position:fixed;
- inset:0;
- pointer-events:none;
-
- background:radial-gradient(circle at center, transparent, rgba(0,0,0,.6));
 }
 
 /* HEADER */
@@ -486,44 +475,30 @@ body::after{
 /* CARD */
 .card{
  margin-top:15px;
- padding:18px;
- border-radius:20px;
+ padding:16px;
+ border-radius:18px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.06);
+ backdrop-filter:blur(14px);
 
- background: rgba(255,255,255,0.03);
- backdrop-filter: blur(20px);
+ box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.05),
+   0 10px 40px rgba(0,0,0,.6);
 
- border:1px solid rgba(255,255,255,0.08);
-
- transition: all .35s ease;
- position:relative;
- overflow:hidden;
-}
-
-.card::before{
- content:"";
- position:absolute;
- inset:0;
- background:linear-gradient(120deg,transparent,rgba(255,255,255,.08),transparent);
- opacity:0;
- transition:.5s;
+ transition:.3s;
 }
 
 .card:hover{
- transform:translateY(-6px) scale(1.01);
+ transform:translateY(-4px) scale(1.01);
  border-color:rgba(59,130,246,.5);
- box-shadow:0 25px 60px rgba(0,0,0,.6);
-}
-
-.card:hover::before{
- opacity:1;
+ box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.08),
+   0 20px 60px rgba(59,130,246,.15);
 }
 
 /* INPUT */
 .input-group{
  margin-top:10px;
-}
-input:hover, select:hover{
- border-color:rgba(59,130,246,.4);
 }
 
 .label{
@@ -534,45 +509,47 @@ input:hover, select:hover{
 
 input,select{
  width:100%;
- padding:14px;
- border-radius:14px;
- border:1px solid transparent;
-
- background:#020617;
+ padding:12px;
+ border-radius:12px;
+ border:none;
+ background:#0b1228;
  color:#fff;
-
- transition: all .25s ease;
+ outline:none;
 }
 
 input:focus,select:focus{
- border-color:#3b82f6;
- box-shadow:
-   0 0 0 2px rgba(59,130,246,.2),
-   0 10px 30px rgba(59,130,246,.15);
- transform:scale(1.01);
+ box-shadow:0 0 0 2px rgba(59,130,246,.3);
 }
 
 /* BUTTON */
 button{
- position:relative;
- overflow:hidden;
-
  width:100%;
- padding:14px;
- border-radius:14px;
+ padding:12px;
+ margin-top:12px;
+ border-radius:12px;
  border:none;
-
  font-weight:600;
- letter-spacing:.3px;
-
- background:linear-gradient(135deg,#3b82f6,#2563eb);
+ background:linear-gradient(90deg,#3b82f6,#2563eb);
  color:#fff;
-
  cursor:pointer;
- transition:.3s;
+ transition:.25s;
 }
 
-button::before{
+button:hover{
+ transform:translateY(-2px);
+ box-shadow:0 10px 25px rgba(59,130,246,.3);
+}
+
+button:active{
+ transform:scale(.96);
+}
+
+button{
+ position:relative;
+ overflow:hidden;
+}
+
+button::after{
  content:"";
  position:absolute;
  inset:0;
@@ -580,18 +557,9 @@ button::before{
  transform:translateX(-100%);
 }
 
-button:hover::before{
+button:hover::after{
  transform:translateX(100%);
  transition:.6s;
-}
-
-button:hover{
- transform:translateY(-3px) scale(1.02);
- box-shadow:0 15px 40px rgba(59,130,246,.5);
-}
-
-button:active{
- transform:scale(.96);
 }
 
 /* BOX RESULT */
@@ -622,10 +590,10 @@ pre{
 /* LOADING */
 .loader{
  height:40px;
- border-radius:12px;
- background:linear-gradient(90deg,#0f172a 25%,#1e293b 50%,#0f172a 75%);
+ border-radius:10px;
+ background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
  background-size:200%;
- animation:load 1.2s infinite;
+ animation:load 1s infinite;
 }
 
 @keyframes load{
@@ -829,15 +797,11 @@ pre{
  animation:stars 4s linear infinite;
 }
 
-.dots::after{
- content:"...";
- animation:dots 1.5s infinite;
-}
-
-@keyframes dots{
- 0%{content:"."}
- 33%{content:".."}
- 66%{content:"..."}
+@keyframes ripple{
+ to{
+  transform:scale(2);
+  opacity:0;
+ }
 }
 
 </style>
@@ -1036,7 +1000,7 @@ function mostrarToast(msg){
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
   btn.disabled = true;
-btn.innerHTML = "Consultando <span class='dots'></span>";
+  btn.innerText = "Consultando...";
 
   const token = document.getElementById("token").value.trim();
   const endpoint = document.getElementById("endpoint").value;
@@ -1098,7 +1062,14 @@ const param = PARAMS[endpoint];
   try{
     const r = await fetch(url);
     const j = await r.json();
-    resBox.innerHTML = "<pre id='resposta'>"+JSON.stringify(j,null,2)+"</pre>";
+resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
+
+setTimeout(()=>{
+  const el = document.getElementById("resposta");
+  el.style.transition=".4s";
+  el.style.opacity="1";
+  el.style.transform="translateY(0)";
+},50);
     mostrarToast("Consulta feita com sucesso 🚀");
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
@@ -1109,15 +1080,41 @@ const param = PARAMS[endpoint];
   btn.innerText = "Consultar";
 }
 
+document.querySelectorAll("button").forEach(btn=>{
+  btn.addEventListener("click", e=>{
+    const ripple = document.createElement("span");
+    ripple.style.position="absolute";
+    ripple.style.borderRadius="50%";
+    ripple.style.background="rgba(255,255,255,.4)";
+    ripple.style.transform="scale(0)";
+    ripple.style.animation="ripple .6s linear";
+
+    const rect = btn.getBoundingClientRect();
+    ripple.style.width = ripple.style.height = rect.width + "px";
+    ripple.style.left = e.clientX - rect.left - rect.width/2 + "px";
+    ripple.style.top = e.clientY - rect.top - rect.width/2 + "px";
+
+    btn.appendChild(ripple);
+
+    setTimeout(()=>ripple.remove(),600);
+  });
+});
+
 /* ===== PARTICULAS DE FUNDO ===== */
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 let particles = [];
+let mouse = {x: null, y: null};
 
 function resizeCanvas(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
+
+window.addEventListener("mousemove", e=>{
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
 
 function createParticles(qtd=80){
   particles = [];
@@ -1125,9 +1122,9 @@ function createParticles(qtd=80){
     particles.push({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
-      r: Math.random()*2,
-      vx: (Math.random()-0.5)*0.3,
-      vy: (Math.random()-0.5)*0.3
+      vx: (Math.random()-.5)*0.5,
+      vy: (Math.random()-.5)*0.5,
+      r: Math.random()*1.5 + .5
     });
   }
 }
@@ -1135,41 +1132,54 @@ function createParticles(qtd=80){
 function drawParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  particles.forEach((p,i)=>{
+  for(let i=0;i<particles.length;i++){
+    const p = particles[i];
+
+    // movimento
     p.x += p.vx;
     p.y += p.vy;
 
+    // bounce
     if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
     if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
+    // interação com mouse
+    if(mouse.x){
+      const dx = mouse.x - p.x;
+      const dy = mouse.y - p.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if(dist < 120){
+        p.x -= dx * 0.01;
+        p.y -= dy * 0.01;
+      }
+    }
+
+    // draw
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
     ctx.fillStyle="rgba(255,255,255,0.7)";
     ctx.fill();
 
-    // conexão entre partículas (efeito premium)
+    // conexões
     for(let j=i+1;j<particles.length;j++){
-      const dx = p.x - particles[j].x;
-      const dy = p.y - particles[j].y;
+      const p2 = particles[j];
+      const dx = p.x - p2.x;
+      const dy = p.y - p2.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
 
-      if(dist < 120){
+      if(dist < 100){
         ctx.beginPath();
         ctx.moveTo(p.x,p.y);
-        ctx.lineTo(particles[j].x,particles[j].y);
-        ctx.strokeStyle = "rgba(59,130,246,"+(1-dist/120)*0.3+")";
+        ctx.lineTo(p2.x,p2.y);
+        ctx.strokeStyle="rgba(255,255,255,"+(1-dist/100)*0.2+")";
         ctx.stroke();
       }
     }
-  });
+  }
 
   requestAnimationFrame(drawParticles);
 }
-
-document.addEventListener("mousemove",(e)=>{
-  document.body.style.backgroundPosition =
-    (e.clientX/50)+"px "+(e.clientY/50)+"px";
-});
 
 /* ===== LOAD ===== */
 window.addEventListener("load", ()=>{
