@@ -1074,9 +1074,8 @@ function selectPlan(el){
   if(nome.includes("PRO")) gerarPix(30);
   if(nome.includes("VIP")) gerarPix(50);
   if(nome.includes("DIÁRIO")) gerarPix(5);
-}
 
-  // ripple effect
+  // ripple effect ✅ AGORA DENTRO
   const circle = document.createElement("span");
   circle.classList.add("ripple");
 
