@@ -858,13 +858,45 @@ button:hover::after{
 /* BADGE */
 .badge-plan{
  position:absolute;
- top:-7px;
+ top:10px;
  right:10px;
- background:#3b82f6;
+
+ background:linear-gradient(135deg,#3b82f6,#2563eb);
  color:#fff;
+
  font-size:10px;
- padding:3px 8px;
+ font-weight:600;
+ padding:4px 10px;
  border-radius:999px;
+
+ box-shadow:
+   0 4px 12px rgba(59,130,246,.3),
+   inset 0 1px 0 rgba(255,255,255,.2);
+
+ letter-spacing:.3px;
+}
+
+.plan.featured{
+ border:1px solid rgba(59,130,246,.6);
+ box-shadow:
+   0 10px 30px rgba(59,130,246,.15),
+   inset 0 0 0 1px rgba(255,255,255,.05);
+ position:relative;
+}
+
+.plan.featured .plan-top span:first-child{
+ color:#3b82f6;
+}
+
+/* glow suave animado */
+.plan.featured::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:inherit;
+ background:linear-gradient(120deg,transparent,rgba(59,130,246,.2),transparent);
+ opacity:.4;
+ pointer-events:none;
 }
 
 /* VIP SUTIL */
