@@ -1296,7 +1296,7 @@ function animate(){
       s.x = Math.random()*c.width;
     }
 
-    ctx.fillStyle = `rgba(59,130,246,${0.4 + glowBoost})`;
+ctx.fillStyle = "rgba(59,130,246," + (0.4 + glowBoost) + ")";
     ctx.fillRect(s.x, s.y, starSize, starSize);
   });
 
