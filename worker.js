@@ -1094,7 +1094,7 @@ document.querySelectorAll(".plan").forEach(card=>{
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width/2;
     const y = e.clientY - rect.top - rect.height/2;
-    card.style.transform = `translateY(-6px) scale(1.03) rotateX(${ -y/20 }deg) rotateY(${ x/20 }deg)`;
+    card.style.transform = "translateY(-6px) scale(1.03) rotateX(" + (-y/20) + "deg) rotateY(" + (x/20) + "deg)";
   });
 
   card.addEventListener("mouseleave", ()=>{
@@ -1123,19 +1123,17 @@ function mostrarPix(data){
   modal.className = "modal show";
 
   modal.innerHTML = `
-    <div class="modal-box">
-      <h2>💰 Pagamento</h2>
-      <p><b>R$ ${data.valor}</b></p>
-      <p style="font-size:12px;opacity:.6;">${data.txid}</p>
+  <div class="modal-box">
+    <h2>💰 Pagamento</h2>
+    <p><b>R$ ${data.valor}</b></p>
+    <p style="font-size:12px;opacity:.6;">${data.txid}</p>
 
-      <textarea style="width:100%;margin-top:10px;height:80px;border-radius:10px;padding:10px;">${data.pixCopiaECola}</textarea>
+    <textarea id="pixArea" style="width:100%;margin-top:10px;height:80px;border-radius:10px;padding:10px;">${data.pixCopiaECola}</textarea>
 
-      <button onclick="copiarPix()">Copiar PIX</button>
-window.pixCopia = data.pixCopiaECola;
-
-function copiarPix(){
-  navigator.clipboard.writeText(window.pixCopia);
-}
+    <button onclick="copiarPix()">Copiar PIX</button>
+    <button onclick="this.closest('.modal').remove()">Fechar</button>
+  </div>
+`;
 
       <button onclick="this.closest('.modal').remove()">
         Fechar
@@ -1145,6 +1143,12 @@ function copiarPix(){
 
   document.body.appendChild(modal);
 }
+
+window.pixCopia = data.pixCopiaECola;
+
+window.copiarPix = function(){
+  navigator.clipboard.writeText(window.pixCopia);
+};
 
 /* ===== CONSULTAR ===== */
 async function consultar(){
