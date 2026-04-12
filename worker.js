@@ -745,8 +745,17 @@ pre{
 
 #bg{
  position:fixed;
- inset:0;
- z-index:-1;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ z-index:0;
+ pointer-events:none;
+}
+
+body > *{
+ position:relative;
+ z-index:1;
 }
 
 /* BADGE */
@@ -1063,6 +1072,17 @@ function fecharModal(){
 
 function fecharMaintenanceModal(){
   document.getElementById("maintenanceModal").classList.remove("show");
+
+  // 🚀 boost visual
+  globalSpeed = 5;
+  glowBoost = 0.8;
+  starSize = 2;
+
+  setTimeout(()=>{
+    globalSpeed = 1;
+    glowBoost = 0;
+    starSize = 1;
+  }, 800);
 }
 
 /* ===== BADGE ===== */
@@ -1241,68 +1261,55 @@ document.querySelectorAll(".plan").forEach(plan=>{
 });
 
 /* ===== PARTICULAS DE FUNDO ===== */
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
-let particles = [];
+const c = document.getElementById("bg");
+const ctx = c.getContext("2d");
 
-function resizeCanvas(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+let stars = [];
+let starSize = 1;
+let globalSpeed = 1;
+let glowBoost = 0;
+
+function resize(){
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
 }
 
-function createParticles(qtd=60){
-  particles = [];
-  for(let i=0;i<qtd;i++){
-    particles.push({
-      x: Math.random()*canvas.width,
-      y: Math.random()*canvas.height,
-      r: Math.random()*1.5,
-      speed: Math.random()*0.5 + 0.2
+function createStars(){
+  stars = [];
+  for(let i=0;i<80;i++){
+    stars.push({
+      x: Math.random()*c.width,
+      y: Math.random()*c.height,
+      baseSpeed: Math.random()*0.3
     });
   }
 }
 
-function drawParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.y += p.speed;
-    if(p.y > canvas.height){
-      p.y = 0;
-      p.x = Math.random()*canvas.width;
+function animate(){
+  ctx.clearRect(0,0,c.width,c.height);
+
+  stars.forEach(s=>{
+    s.y += s.baseSpeed * globalSpeed;
+
+    if(s.y > c.height){
+      s.y = 0;
+      s.x = Math.random()*c.width;
     }
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.6)";
-    ctx.fill();
+
+    ctx.fillStyle = `rgba(59,130,246,${0.4 + glowBoost})`;
+    ctx.fillRect(s.x, s.y, starSize, starSize);
   });
-  requestAnimationFrame(drawParticles);
+
+  requestAnimationFrame(animate);
 }
 
-/* ===== LOAD ===== */
 window.addEventListener("load", ()=>{
-  // Primeiro: mostrar modal de manutenção
-  const maintenanceModal = document.getElementById("maintenanceModal");
-  maintenanceModal.classList.add("show");
-
-  // Checar se existe token válido no localStorage
-  const token = localStorage.getItem("astro_token");
-  if(token && TOKENS[token]){
-    // Token válido: exibe badge e efeito premium
-    document.getElementById("token").value = token;
-    renderBadge(TOKENS[token]);
-    efeitoPremium(token);
-  } else {
-    // Sem token ou inválido: abrir modal de token **por cima da manutenção**
-    abrirModal(); // modal de token
-  }
-
-  // Partículas
-  resizeCanvas();
-  createParticles();
-  drawParticles();
+  resize();
+  createStars();
+  animate(); // 🔥 ESSENCIAL
 });
 
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener("resize", resize);
 </script>
 
 </body>
@@ -1593,8 +1600,17 @@ pre{
 
 #bg{
  position:fixed;
- inset:0;
- z-index:-1;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ z-index:0;
+ pointer-events:none;
+}
+
+body > *{
+ position:relative;
+ z-index:1;
 }
 </style>
 
