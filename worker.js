@@ -1130,9 +1130,12 @@ function mostrarPix(data){
 
       <textarea style="width:100%;margin-top:10px;height:80px;border-radius:10px;padding:10px;">${data.pixCopiaECola}</textarea>
 
-      <button onclick="navigator.clipboard.writeText('${data.pixCopiaECola}')">
-        Copiar PIX
-      </button>
+      <button onclick="copiarPix()">Copiar PIX</button>
+window.pixCopia = data.pixCopiaECola;
+
+function copiarPix(){
+  navigator.clipboard.writeText(window.pixCopia);
+}
 
       <button onclick="this.closest('.modal').remove()">
         Fechar
