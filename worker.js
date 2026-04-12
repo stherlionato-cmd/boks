@@ -804,6 +804,84 @@ button:hover::after{
  }
 }
 
+.plans{
+ display:flex;
+ flex-direction:column;
+ gap:10px;
+ margin-top:10px;
+}
+
+/* CARD BASE */
+.plan{
+ position:relative;
+ padding:12px 14px;
+ border-radius:14px;
+ border:1px solid rgba(255,255,255,.06);
+ background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+ cursor:pointer;
+ transition:.25s;
+}
+
+/* HOVER LIMPO */
+.plan:hover{
+ transform:translateY(-2px);
+ border-color:rgba(59,130,246,.4);
+}
+
+/* HEADER */
+.plan-top{
+ display:flex;
+ justify-content:space-between;
+ font-size:13px;
+ font-weight:600;
+}
+
+/* INFO */
+.plan-info{
+ font-size:12px;
+ opacity:.6;
+ margin-top:4px;
+}
+
+/* PREÇO */
+.price{
+ opacity:.8;
+ font-weight:500;
+}
+
+/* PRO DESTAQUE */
+.plan.featured{
+ border:1px solid rgba(59,130,246,.6);
+ box-shadow:0 10px 25px rgba(59,130,246,.12);
+}
+
+/* BADGE */
+.badge-plan{
+ position:absolute;
+ top:-7px;
+ right:10px;
+ background:#3b82f6;
+ color:#fff;
+ font-size:10px;
+ padding:3px 8px;
+ border-radius:999px;
+}
+
+/* VIP SUTIL */
+.plan.vip{
+ border-color:rgba(168,85,247,.3);
+}
+
+.plan.vip:hover{
+ box-shadow:0 10px 30px rgba(168,85,247,.15);
+}
+
+/* SELEÇÃO */
+.plan.selected{
+ border-color:#3b82f6;
+ background:linear-gradient(145deg,rgba(59,130,246,.15),rgba(255,255,255,.02));
+}
+
 </style>
 
 </head>
@@ -882,35 +960,53 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 
 <button onclick="salvarTokenModal()">Entrar</button>
 
-    <div style="margin-top:15px;font-size:12px;opacity:.6;">
-      Planos disponíveis:
-    </div>
+<div style="margin-top:15px;font-size:12px;opacity:.6;">
+  Planos disponíveis:
+</div>
 
-    <div class="plan">
-      <b>FREE</b><br>
-      100 consultas<br>
-      <span style="opacity:.6;">Grátis</span>
-    </div>
+<div class="plans">
 
-    <div class="plan">
-      <b>PRO</b><br>
-      1000 consultas<br>
-      <span style="opacity:.6;">R$30 mensal</span>
+  <div class="plan" data-plan="FREE">
+    <div class="plan-top">
+      <span>FREE</span>
+      <span class="price">Grátis</span>
     </div>
-
-    <div class="plan">
-      <b>VIP</b><br>
-      Ilimitado<br>
-      <span style="opacity:.6;">R$50 vitalício</span>
+    <div class="plan-info">
+      100 consultas
     </div>
-
-    <div class="plan">
-      <b>DIÁRIO</b><br>
-      Acesso 24h<br>
-      <span style="opacity:.6;">R$5</span>
-    </div>
-
   </div>
+
+  <div class="plan featured" data-plan="PRO">
+    <div class="badge-plan">Mais usado</div>
+    <div class="plan-top">
+      <span>PRO</span>
+      <span class="price">R$30/mês</span>
+    </div>
+    <div class="plan-info">
+      1000 consultas
+    </div>
+  </div>
+
+  <div class="plan vip" data-plan="VIP">
+    <div class="plan-top">
+      <span>VIP</span>
+      <span class="price">R$50 vitalício</span>
+    </div>
+    <div class="plan-info">
+      Ilimitado
+    </div>
+  </div>
+
+  <div class="plan" data-plan="DIARIO">
+    <div class="plan-top">
+      <span>DIÁRIO</span>
+      <span class="price">R$5</span>
+    </div>
+    <div class="plan-info">
+      Acesso 24h
+    </div>
+  </div>
+
 </div>
 
 <canvas id="bg"></canvas>
@@ -1097,6 +1193,19 @@ document.querySelectorAll("button").forEach(btn=>{
     btn.appendChild(ripple);
 
     setTimeout(()=>ripple.remove(),600);
+  });
+});
+
+document.querySelectorAll(".plan").forEach(plan=>{
+  plan.addEventListener("click", ()=>{
+
+    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
+    plan.classList.add("selected");
+
+    // micro feedback
+    plan.style.transform = "scale(.97)";
+    setTimeout(()=>plan.style.transform="",100);
+
   });
 });
 
