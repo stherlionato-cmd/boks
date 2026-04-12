@@ -453,8 +453,8 @@ return new Response(`
 
 body{
  background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
- color:#e2e8f0;
- padding:20px;
+ position:relative;
+ z-index:1;
 }
 
 /* HEADER */
@@ -746,7 +746,8 @@ pre{
 #bg{
  position:fixed;
  inset:0;
- z-index:-1;
+ z-index:0;
+ pointer-events:none;
 }
 
 /* BADGE */
