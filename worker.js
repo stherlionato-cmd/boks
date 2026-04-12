@@ -1080,104 +1080,41 @@ setTimeout(()=>{
   btn.innerText = "Consultar";
 }
 
-document.querySelectorAll("button").forEach(btn=>{
-  btn.addEventListener("click", e=>{
-    const ripple = document.createElement("span");
-    ripple.style.position="absolute";
-    ripple.style.borderRadius="50%";
-    ripple.style.background="rgba(255,255,255,.4)";
-    ripple.style.transform="scale(0)";
-    ripple.style.animation="ripple .6s linear";
-
-    const rect = btn.getBoundingClientRect();
-    ripple.style.width = ripple.style.height = rect.width + "px";
-    ripple.style.left = e.clientX - rect.left - rect.width/2 + "px";
-    ripple.style.top = e.clientY - rect.top - rect.width/2 + "px";
-
-    btn.appendChild(ripple);
-
-    setTimeout(()=>ripple.remove(),600);
-  });
-});
-
 /* ===== PARTICULAS DE FUNDO ===== */
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 let particles = [];
-let mouse = {x: null, y: null};
 
 function resizeCanvas(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 
-window.addEventListener("mousemove", e=>{
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
-
-function createParticles(qtd=80){
+function createParticles(qtd=60){
   particles = [];
   for(let i=0;i<qtd;i++){
     particles.push({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
-      vx: (Math.random()-.5)*0.5,
-      vy: (Math.random()-.5)*0.5,
-      r: Math.random()*1.5 + .5
+      r: Math.random()*1.5,
+      speed: Math.random()*0.5 + 0.2
     });
   }
 }
 
 function drawParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  for(let i=0;i<particles.length;i++){
-    const p = particles[i];
-
-    // movimento
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // bounce
-    if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
-    if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-    // interação com mouse
-    if(mouse.x){
-      const dx = mouse.x - p.x;
-      const dy = mouse.y - p.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-
-      if(dist < 120){
-        p.x -= dx * 0.01;
-        p.y -= dy * 0.01;
-      }
+  particles.forEach(p=>{
+    p.y += p.speed;
+    if(p.y > canvas.height){
+      p.y = 0;
+      p.x = Math.random()*canvas.width;
     }
-
-    // draw
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.7)";
+    ctx.fillStyle="rgba(255,255,255,0.6)";
     ctx.fill();
-
-    // conexões
-    for(let j=i+1;j<particles.length;j++){
-      const p2 = particles[j];
-      const dx = p.x - p2.x;
-      const dy = p.y - p2.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-
-      if(dist < 100){
-        ctx.beginPath();
-        ctx.moveTo(p.x,p.y);
-        ctx.lineTo(p2.x,p2.y);
-        ctx.strokeStyle="rgba(255,255,255,"+(1-dist/100)*0.2+")";
-        ctx.stroke();
-      }
-    }
-  }
-
+  });
   requestAnimationFrame(drawParticles);
 }
 
