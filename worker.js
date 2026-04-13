@@ -826,11 +826,17 @@ button:hover::after{
  box-shadow:0 10px 25px rgba(59,130,246,.12);
 }
 
+.plan.featured .price{
+ margin-right:60px; /* espaço pro badge */
+}
+
 /* BADGE */
 .badge-plan{
- position:absolute;
- top:10px;
- right:10px;
+ top:8px;
+ right:8px;
+ font-size:9px;
+ padding:3px 8px;
+}
 
  background:linear-gradient(135deg,#3b82f6,#2563eb);
  color:#fff;
@@ -887,25 +893,26 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
-.plan-list{
- margin-top:8px;
- padding-left:14px;
- font-size:11px;
- opacity:.75;
- line-height:1.6;
-}
-
 .plan-list li{
  list-style:none;
  position:relative;
- padding-left:14px;
+ padding-left:20px;
 }
 
 .plan-list li::before{
- content:"•";
  position:absolute;
  left:0;
- opacity:.5;
+ top:0;
+}
+
+.plan-list li:has(span.ok)::before{
+ content:"✔";
+ color:#22c55e;
+}
+
+.plan-list li:has(span.no)::before{
+ content:"✖";
+ color:#ef4444;
 }
 
 /* animação ao selecionar */
@@ -1035,9 +1042,9 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
     </div>
 
     <ul class="plan-list">
-      <li>✔ Consultas básicas</li>
-      <li>✔ CPF e Nome</li>
-      <li>✖ Sem dados avançados</li>
+<li><span class="ok"></span> Consultas básicas</li>
+<li><span class="ok"></span> CPF e Nome</li>
+<li><span class="no"></span> Sem dados avançados</li>
     </ul>
   </div>
 
@@ -1052,12 +1059,12 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       Até 1000 consultas
     </div>
 
-    <ul class="plan-list">
-      <li>✔ Todos endpoints</li>
-      <li>✔ Dados completos</li>
-      <li>✔ Telefone, CPF, CNPJ</li>
-      <li>✔ Score e renda</li>
-    </ul>
+<ul class="plan-list">
+  <li><span class="ok"></span> Todos endpoints</li>
+  <li><span class="ok"></span> Dados completos</li>
+  <li><span class="ok"></span> Telefone, CPF, CNPJ</li>
+  <li><span class="ok"></span> Score e renda</li>
+</ul>
   </div>
 
   <div class="plan vip" data-plan="VITALICIO">
@@ -1069,12 +1076,12 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       Acesso ilimitado
     </div>
 
-    <ul class="plan-list">
-      <li>✔ Tudo liberado</li>
-      <li>✔ Consultas ilimitadas</li>
-      <li>✔ Prioridade máxima</li>
-      <li>✔ Futuras atualizações</li>
-    </ul>
+<ul class="plan-list">
+  <li><span class="ok"></span> Tudo liberado</li>
+  <li><span class="ok"></span> Consultas ilimitadas</li>
+  <li><span class="ok"></span> Prioridade máxima</li>
+  <li><span class="ok"></span> Futuras atualizações</li>
+</ul>
   </div>
 
 </div>
@@ -1152,8 +1159,8 @@ function salvarTokenModal(){
   if(!TOKENS[token]){
 
     // ❌ ERRO VISUAL
-    input.style.border = "1px solid #ef4444";
-    input.style.boxShadow = "0 0 12px rgba(239,68,68,.5)";
+input.style.border = "1px solid #ef4444";
+input.style.boxShadow = "0 0 20px rgba(239,68,68,.25)";
     efeitoErro();
 
     mostrarToast("Token inválido ❌");
@@ -1162,8 +1169,8 @@ function salvarTokenModal(){
   }
 
   // ✅ SUCESSO VISUAL
-  input.style.border = "1px solid #22c55e";
-  input.style.boxShadow = "0 0 15px rgba(34,197,94,.6)";
+input.style.border = "1px solid #22c55e";
+input.style.boxShadow = "0 0 20px rgba(34,197,94,.25)";
 
   mostrarToast("Token validado com sucesso 🚀");
 
@@ -1192,6 +1199,18 @@ document.getElementById("tokenInput").addEventListener("input", e=>{
     e.target.style.boxShadow = "0 0 10px rgba(239,68,68,.4)";
   }
 });
+
+function efeitoSucesso(){
+  const modal = document.querySelector(".modal-box");
+
+  modal.style.transform = "scale(1.05)";
+  modal.style.boxShadow = "0 0 40px rgba(34,197,94,.3)";
+
+  setTimeout(()=>{
+    modal.style.transform = "";
+    modal.style.boxShadow = "";
+  },400);
+}
 
 /* ===== TOAST ===== */
 function mostrarToast(msg){
@@ -1275,7 +1294,8 @@ setTimeout(()=>{
   el.style.opacity="1";
   el.style.transform="translateY(0)";
 },50);
-    mostrarToast("Consulta feita com sucesso 🚀");
+mostrarToast("Token validado com sucesso 🚀");
+efeitoSucesso();
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
