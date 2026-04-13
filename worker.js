@@ -64,7 +64,7 @@ const TOKENS = {
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
 
   // 🧪 PLANO DE TESTE (3 BUSCAS)
-  testesantana:{ 
+    santanateste:{ 
     plano:"TESTE",
     credits:3,
     endpoints:null
@@ -1050,7 +1050,7 @@ const TOKENS = {
   fxckbuscas: "VITALICIO",
   douglasvip: "VITALICIO",
   astropro: "VITALICIO",
-  testesantana: "TESTE"
+  santanateste: "TESTE"
 };
 
 /* ===== MODAIS ===== */
