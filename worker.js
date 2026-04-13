@@ -55,13 +55,20 @@ const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 /* ================= TOKENS (SEM KV) ================= */
 
 const TOKENS = {
- ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
+  ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
   astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   douglasvip:{plano:"VITALICIO",credits:1000,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
-  astropro:{plano:"VITALICIO",credits:1000,endpoints:null}
+  astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
+
+  // 🧪 PLANO DE TESTE (3 BUSCAS)
+  testesantana:{ 
+    plano:"TESTE",
+    credits:3,
+    endpoints:null
+  }
 }
 
 /* ================= ENDPOINTS ================= */
@@ -887,33 +894,6 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
-
-.result-section{
- margin-bottom:10px;
- padding:10px;
- border-radius:10px;
- background:rgba(255,255,255,0.03);
- border:1px solid rgba(255,255,255,0.05);
- animation:fadeUp .4s ease;
-}
-
-.result-title{
- font-size:11px;
- opacity:.6;
- margin-bottom:6px;
-}
-
-@keyframes fadeUp{
- from{
-   opacity:0;
-   transform:translateY(10px);
- }
- to{
-   opacity:1;
-   transform:translateY(0);
- }
-}
-
 `
 }
 
@@ -1136,20 +1116,6 @@ function salvarTokenModal(){
   fecharModal();
 }
 
-const PLACEHOLDERS = {
-  cpf: "Digite um CPF (ex: 12345678900)",
-  nome: "Digite um nome completo",
-  telefone: "Digite um telefone (DDD + número)",
-  placa: "Digite a placa (ex: ABC1234)",
-  cep: "Digite o CEP",
-  email: "Digite um email"
-};
-
-document.getElementById("endpoint").addEventListener("change", e=>{
-  const val = e.target.value;
-  document.getElementById("valor").placeholder = PLACEHOLDERS[val] || "valor da consulta";
-});
-
 /* ===== TOAST ===== */
 function mostrarToast(msg){
   const t = document.getElementById("toast");
@@ -1158,30 +1124,11 @@ function mostrarToast(msg){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-function renderResultado(json){
-  if(!json.dados?.resultado){
-    return "<pre>"+JSON.stringify(json,null,2)+"</pre>";
-  }
-
-  const sections = json.dados.resultado;
-
-  if(Array.isArray(sections)){
-    return sections.map(sec => 
-      '<div class="result-section">' +
-        '<div class="result-title">' + sec.titulo + '</div>' +
-        '<pre>' + sec.conteudo + '</pre>' +
-      '</div>'
-    ).join("");
-  }
-
-  return "<pre>"+JSON.stringify(json,null,2)+"</pre>";
-}
-
 /* ===== CONSULTAR ===== */
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
   btn.disabled = true;
-  btn.innerHTML = "⏳ Consultando...";
+  btn.innerText = "Consultando...";
 
   const token = document.getElementById("token").value.trim();
   const endpoint = document.getElementById("endpoint").value;
@@ -1190,8 +1137,7 @@ async function consultar(){
   if(!token){
     abrirModal();
     btn.disabled = false;
-btn.innerHTML = "✅ Consultar";
-setTimeout(()=>btn.innerHTML="Consultar",1500);
+    btn.innerText = "Consultar";
     return;
   }
 
@@ -1239,16 +1185,12 @@ const param = PARAMS[endpoint];
 
   document.getElementById("url").innerText = url;
   const resBox = document.getElementById("resBox");
-  resBox.innerHTML = `
-  <div class="loader"></div>
-  <div class="loader" style="margin-top:8px;width:90%"></div>
-  <div class="loader" style="margin-top:8px;width:70%"></div>
-`;
+  resBox.innerHTML = '<div class="loader"></div>';
 
   try{
     const r = await fetch(url);
     const j = await r.json();
-resBox.innerHTML = "<div id='resposta' style='opacity:0;transform:translateY(10px)'>" + renderResultado(j) + "</div>";
+resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
 
 setTimeout(()=>{
   const el = document.getElementById("resposta");
@@ -1284,12 +1226,6 @@ document.querySelectorAll("button").forEach(btn=>{
 
     setTimeout(()=>ripple.remove(),600);
   });
-});
-
-document.getElementById("valor").addEventListener("keypress", e=>{
-  if(e.key === "Enter"){
-    consultar();
-  }
 });
 
 document.querySelectorAll(".plan").forEach(plan=>{
@@ -1789,9 +1725,7 @@ function drawParticles(){
     }
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-ctx.fillStyle="rgba(255,255,255,0.4)";
-ctx.shadowBlur = 10;
-ctx.shadowColor = "rgba(59,130,246,0.5)";
+    ctx.fillStyle="rgba(255,255,255,0.6)";
     ctx.fill();
   });
   requestAnimationFrame(drawParticles);
