@@ -59,6 +59,8 @@ const TOKENS = {
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
   astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
+  douglasvip:{plano:"VITALICIO",credits:1000,endpoints:null},
+  Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null}
 }
 
@@ -885,6 +887,32 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
+.plan-list{
+ margin-top:8px;
+ padding-left:14px;
+ font-size:11px;
+ opacity:.75;
+ line-height:1.6;
+}
+
+.plan-list li{
+ list-style:none;
+ position:relative;
+ padding-left:14px;
+}
+
+.plan-list li::before{
+ content:"•";
+ position:absolute;
+ left:0;
+ opacity:.5;
+}
+
+/* animação ao selecionar */
+.plan.selected{
+ transform:scale(1.03);
+ box-shadow:0 10px 30px rgba(59,130,246,.2);
+}
 `
 }
 
@@ -1003,29 +1031,51 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       <span class="price">R$5</span>
     </div>
     <div class="plan-info">
-      Acesso 24h
+      Acesso por 24h
     </div>
+
+    <ul class="plan-list">
+      <li>✔ Consultas básicas</li>
+      <li>✔ CPF e Nome</li>
+      <li>✖ Sem dados avançados</li>
+    </ul>
   </div>
 
   <div class="plan featured" data-plan="PRO">
+    <div class="badge-plan">POPULAR</div>
+
     <div class="plan-top">
       <span>PRO</span>
       <span class="price">R$30/mês</span>
     </div>
     <div class="plan-info">
-      1000 consultas
+      Até 1000 consultas
     </div>
+
+    <ul class="plan-list">
+      <li>✔ Todos endpoints</li>
+      <li>✔ Dados completos</li>
+      <li>✔ Telefone, CPF, CNPJ</li>
+      <li>✔ Score e renda</li>
+    </ul>
   </div>
 
-<div class="plan" data-plan="VITALICIO">
-  <div class="plan-top">
-    <span>VITALÍCIO</span>
-    <span class="price">R$50 único</span>
+  <div class="plan vip" data-plan="VITALICIO">
+    <div class="plan-top">
+      <span>VITALÍCIO</span>
+      <span class="price">R$50 único</span>
+    </div>
+    <div class="plan-info">
+      Acesso ilimitado
+    </div>
+
+    <ul class="plan-list">
+      <li>✔ Tudo liberado</li>
+      <li>✔ Consultas ilimitadas</li>
+      <li>✔ Prioridade máxima</li>
+      <li>✔ Futuras atualizações</li>
+    </ul>
   </div>
-  <div class="plan-info">
-    Ilimitado
-  </div>
-</div>
 
 </div>
 
@@ -1037,6 +1087,9 @@ const TOKENS = {
   omaigd: "VITALICIO",
   italoedu7: "VITALICIO",
   IFNastro: "VITALICIO",
+  Zontra88: "VITALICIO",
+  fxckbuscas: "VITALICIO",
+  douglasvip: "VITALICIO",
   astropro: "VITALICIO"
 };
 
@@ -1092,17 +1145,53 @@ function salvarTokenModal(){
   const input = document.getElementById("tokenInput");
   const token = input.value.trim();
 
+  // RESET
+  input.style.border = "none";
+  input.style.boxShadow = "none";
+
   if(!TOKENS[token]){
-    input.style.border = "1px solid red";
+
+    // ❌ ERRO VISUAL
+    input.style.border = "1px solid #ef4444";
+    input.style.boxShadow = "0 0 12px rgba(239,68,68,.5)";
     efeitoErro();
+
+    mostrarToast("Token inválido ❌");
+
     return;
   }
 
-  document.getElementById("token").value = token;
-  salvarToken(token);
-  efeitoPremium(token);
-  fecharModal();
+  // ✅ SUCESSO VISUAL
+  input.style.border = "1px solid #22c55e";
+  input.style.boxShadow = "0 0 15px rgba(34,197,94,.6)";
+
+  mostrarToast("Token validado com sucesso 🚀");
+
+  setTimeout(()=>{
+    document.getElementById("token").value = token;
+    salvarToken(token);
+    efeitoPremium(token);
+    fecharModal();
+  }, 600);
 }
+
+document.getElementById("tokenInput").addEventListener("input", e=>{
+  const val = e.target.value.trim();
+
+  if(!val){
+    e.target.style.border = "none";
+    e.target.style.boxShadow = "none";
+    return;
+  }
+
+  if(TOKENS[val]){
+    e.target.style.border = "1px solid #22c55e";
+    e.target.style.boxShadow = "0 0 10px rgba(34,197,94,.4)";
+  } else {
+    e.target.style.border = "1px solid #ef4444";
+    e.target.style.boxShadow = "0 0 10px rgba(239,68,68,.4)";
+  }
+});
 
 /* ===== TOAST ===== */
 function mostrarToast(msg){
