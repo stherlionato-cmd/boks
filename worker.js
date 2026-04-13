@@ -1049,7 +1049,8 @@ const TOKENS = {
   Zontra88: "VITALICIO",
   fxckbuscas: "VITALICIO",
   douglasvip: "VITALICIO",
-  astropro: "VITALICIO"
+  astropro: "VITALICIO",
+  testesantana: "TESTE"
 };
 
 /* ===== MODAIS ===== */
