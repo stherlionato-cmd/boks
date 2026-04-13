@@ -440,9 +440,15 @@ return `
 }
 
 body{
- background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
- color:#e2e8f0;
- padding:20px;
+ background: linear-gradient(270deg, #02030a, #0a0f2a, #02030a);
+ background-size: 600% 600%;
+ animation: gradientMove 15s ease infinite;
+}
+
+@keyframes gradientMove{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
 }
 
 /* HEADER */
@@ -482,6 +488,32 @@ body{
  box-shadow:
    inset 0 1px 0 rgba(255,255,255,.08),
    0 20px 60px rgba(59,130,246,.15);
+}
+
+.card{
+ position:relative;
+ overflow:hidden;
+}
+
+.card::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:inherit;
+ padding:1px;
+ background:linear-gradient(120deg,#3b82f6,#a855f7,#3b82f6);
+ -webkit-mask:
+   linear-gradient(#fff 0 0) content-box,
+   linear-gradient(#fff 0 0);
+ -webkit-mask-composite:xor;
+ mask-composite:exclude;
+ opacity:.3;
+ animation:borderGlow 4s linear infinite;
+}
+
+@keyframes borderGlow{
+ 0%{filter:hue-rotate(0deg)}
+ 100%{filter:hue-rotate(360deg)}
 }
 
 /* INPUT */
@@ -559,11 +591,11 @@ pre{
 
 /* LOADING */
 .loader{
- height:40px;
- border-radius:10px;
- background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
+ height:60px;
+ border-radius:12px;
+ background:linear-gradient(90deg,#111 25%,#1f2937 50%,#111 75%);
  background-size:200%;
- animation:load 1s infinite;
+ animation:load 1.2s infinite;
 }
 
 @keyframes load{
@@ -826,17 +858,11 @@ button:hover::after{
  box-shadow:0 10px 25px rgba(59,130,246,.12);
 }
 
-.plan.featured .price{
- margin-right:60px; /* espaço pro badge */
-}
-
 /* BADGE */
 .badge-plan{
- top:8px;
- right:8px;
- font-size:9px;
- padding:3px 8px;
-}
+ position:absolute;
+ top:10px;
+ right:10px;
 
  background:linear-gradient(135deg,#3b82f6,#2563eb);
  color:#fff;
@@ -893,33 +919,6 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
-.plan-list li{
- list-style:none;
- position:relative;
- padding-left:20px;
-}
-
-.plan-list li::before{
- position:absolute;
- left:0;
- top:0;
-}
-
-.plan-list li:has(span.ok)::before{
- content:"✔";
- color:#22c55e;
-}
-
-.plan-list li:has(span.no)::before{
- content:"✖";
- color:#ef4444;
-}
-
-/* animação ao selecionar */
-.plan.selected{
- transform:scale(1.03);
- box-shadow:0 10px 30px rgba(59,130,246,.2);
-}
 `
 }
 
@@ -951,6 +950,17 @@ return new Response(`
 </head>
 
 <body>
+
+<div style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:2px;
+background:linear-gradient(90deg,#3b82f6,#a855f7,#3b82f6);
+opacity:.7;
+z-index:9999;
+"></div>
 
 <canvas id="bg"></canvas>
 
@@ -1038,51 +1048,29 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
       <span class="price">R$5</span>
     </div>
     <div class="plan-info">
-      Acesso por 24h
+      Acesso 24h
     </div>
-
-    <ul class="plan-list">
-<li><span class="ok"></span> Consultas básicas</li>
-<li><span class="ok"></span> CPF e Nome</li>
-<li><span class="no"></span> Sem dados avançados</li>
-    </ul>
   </div>
 
   <div class="plan featured" data-plan="PRO">
-    <div class="badge-plan">POPULAR</div>
-
     <div class="plan-top">
       <span>PRO</span>
       <span class="price">R$30/mês</span>
     </div>
     <div class="plan-info">
-      Até 1000 consultas
+      1000 consultas
     </div>
-
-<ul class="plan-list">
-  <li><span class="ok"></span> Todos endpoints</li>
-  <li><span class="ok"></span> Dados completos</li>
-  <li><span class="ok"></span> Telefone, CPF, CNPJ</li>
-  <li><span class="ok"></span> Score e renda</li>
-</ul>
   </div>
 
-  <div class="plan vip" data-plan="VITALICIO">
-    <div class="plan-top">
-      <span>VITALÍCIO</span>
-      <span class="price">R$50 único</span>
-    </div>
-    <div class="plan-info">
-      Acesso ilimitado
-    </div>
-
-<ul class="plan-list">
-  <li><span class="ok"></span> Tudo liberado</li>
-  <li><span class="ok"></span> Consultas ilimitadas</li>
-  <li><span class="ok"></span> Prioridade máxima</li>
-  <li><span class="ok"></span> Futuras atualizações</li>
-</ul>
+<div class="plan" data-plan="VITALICIO">
+  <div class="plan-top">
+    <span>VITALÍCIO</span>
+    <span class="price">R$50 único</span>
   </div>
+  <div class="plan-info">
+    Ilimitado
+  </div>
+</div>
 
 </div>
 
@@ -1152,64 +1140,16 @@ function salvarTokenModal(){
   const input = document.getElementById("tokenInput");
   const token = input.value.trim();
 
-  // RESET
-  input.style.border = "none";
-  input.style.boxShadow = "none";
-
   if(!TOKENS[token]){
-
-    // ❌ ERRO VISUAL
-input.style.border = "1px solid #ef4444";
-input.style.boxShadow = "0 0 20px rgba(239,68,68,.25)";
+    input.style.border = "1px solid red";
     efeitoErro();
-
-    mostrarToast("Token inválido ❌");
-
     return;
   }
 
-  // ✅ SUCESSO VISUAL
-input.style.border = "1px solid #22c55e";
-input.style.boxShadow = "0 0 20px rgba(34,197,94,.25)";
-
-  mostrarToast("Token validado com sucesso 🚀");
-
-  setTimeout(()=>{
-    document.getElementById("token").value = token;
-    salvarToken(token);
-    efeitoPremium(token);
-    fecharModal();
-  }, 600);
-}
-
-document.getElementById("tokenInput").addEventListener("input", e=>{
-  const val = e.target.value.trim();
-
-  if(!val){
-    e.target.style.border = "none";
-    e.target.style.boxShadow = "none";
-    return;
-  }
-
-  if(TOKENS[val]){
-    e.target.style.border = "1px solid #22c55e";
-    e.target.style.boxShadow = "0 0 10px rgba(34,197,94,.4)";
-  } else {
-    e.target.style.border = "1px solid #ef4444";
-    e.target.style.boxShadow = "0 0 10px rgba(239,68,68,.4)";
-  }
-});
-
-function efeitoSucesso(){
-  const modal = document.querySelector(".modal-box");
-
-  modal.style.transform = "scale(1.05)";
-  modal.style.boxShadow = "0 0 40px rgba(34,197,94,.3)";
-
-  setTimeout(()=>{
-    modal.style.transform = "";
-    modal.style.boxShadow = "";
-  },400);
+  document.getElementById("token").value = token;
+  salvarToken(token);
+  efeitoPremium(token);
+  fecharModal();
 }
 
 /* ===== TOAST ===== */
@@ -1218,6 +1158,21 @@ function mostrarToast(msg){
   t.innerText = msg;
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+function typeWriter(text, el, speed=3){
+  let i = 0;
+  el.innerHTML = "";
+
+  function type(){
+    if(i < text.length){
+      el.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+
+  type();
 }
 
 /* ===== CONSULTAR ===== */
@@ -1280,13 +1235,22 @@ const param = PARAMS[endpoint];
               "?token=" + token + "&" + param + "=" + valor;
 
   document.getElementById("url").innerText = url;
-  const resBox = document.getElementById("resBox");
-  resBox.innerHTML = '<div class="loader"></div>';
+const resBox = document.getElementById("resBox");
+resBox.innerHTML = `
+  <div class="loader"></div>
+  <div class="loader" style="margin-top:8px"></div>
+  <div class="loader" style="margin-top:8px;width:80%"></div>
+`;
 
   try{
     const r = await fetch(url);
     const j = await r.json();
-resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
+resBox.innerHTML = "<pre id='resposta'></pre>";
+
+const el = document.getElementById("resposta");
+const texto = JSON.stringify(j,null,2);
+
+typeWriter(texto, el, 2); // velocidade menor = mais rápido (mobile)
 
 setTimeout(()=>{
   const el = document.getElementById("resposta");
@@ -1294,8 +1258,11 @@ setTimeout(()=>{
   el.style.opacity="1";
   el.style.transform="translateY(0)";
 },50);
-mostrarToast("Token validado com sucesso 🚀");
-efeitoSucesso();
+    mostrarToast("Consulta feita com sucesso 🚀");
+    document.body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
+setTimeout(()=>{
+  document.body.style.boxShadow = "";
+},400);
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
@@ -1350,15 +1317,38 @@ function resizeCanvas(){
 
 function createParticles(qtd=60){
   particles = [];
+
+  const token = localStorage.getItem("astro_token");
+  const plano = TOKENS[token];
+
   for(let i=0;i<qtd;i++){
     particles.push({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
-      r: Math.random()*1.5,
-      speed: Math.random()*0.5 + 0.2
+      r: Math.random()*2,
+      speed: plano === "VITALICIO"
+        ? Math.random()*1 + 0.5
+        : Math.random()*0.5 + 0.2,
+      color: plano === "VITALICIO"
+        ? (Math.random() > 0.5 ? "#a855f7" : "#3b82f6")
+        : "rgba(255,255,255,0.6)"
     });
   }
 }
+
+const placeholders = {
+  cpf:"Digite um CPF",
+  nome:"Digite um nome",
+  telefone:"Digite um telefone",
+  placa:"ABC1234",
+  email:"email@email.com",
+  cep:"00000-000"
+};
+
+document.getElementById("endpoint").addEventListener("change", e=>{
+  document.getElementById("valor").placeholder =
+    placeholders[e.target.value] || "valor da consulta";
+});
 
 function drawParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -1370,7 +1360,7 @@ function drawParticles(){
     }
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.6)";
+    ctx.fillStyle = p.color;
     ctx.fill();
   });
   requestAnimationFrame(drawParticles);
