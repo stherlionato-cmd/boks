@@ -440,15 +440,9 @@ return `
 }
 
 body{
- background: linear-gradient(270deg, #02030a, #0a0f2a, #02030a);
- background-size: 600% 600%;
- animation: gradientMove 15s ease infinite;
-}
-
-@keyframes gradientMove{
- 0%{background-position:0% 50%}
- 50%{background-position:100% 50%}
- 100%{background-position:0% 50%}
+ background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
+ color:#e2e8f0;
+ padding:20px;
 }
 
 /* HEADER */
@@ -488,32 +482,6 @@ body{
  box-shadow:
    inset 0 1px 0 rgba(255,255,255,.08),
    0 20px 60px rgba(59,130,246,.15);
-}
-
-.card{
- position:relative;
- overflow:hidden;
-}
-
-.card::before{
- content:"";
- position:absolute;
- inset:0;
- border-radius:inherit;
- padding:1px;
- background:linear-gradient(120deg,#3b82f6,#a855f7,#3b82f6);
- -webkit-mask:
-   linear-gradient(#fff 0 0) content-box,
-   linear-gradient(#fff 0 0);
- -webkit-mask-composite:xor;
- mask-composite:exclude;
- opacity:.3;
- animation:borderGlow 4s linear infinite;
-}
-
-@keyframes borderGlow{
- 0%{filter:hue-rotate(0deg)}
- 100%{filter:hue-rotate(360deg)}
 }
 
 /* INPUT */
@@ -591,11 +559,11 @@ pre{
 
 /* LOADING */
 .loader{
- height:60px;
- border-radius:12px;
- background:linear-gradient(90deg,#111 25%,#1f2937 50%,#111 75%);
+ height:40px;
+ border-radius:10px;
+ background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);
  background-size:200%;
- animation:load 1.2s infinite;
+ animation:load 1s infinite;
 }
 
 @keyframes load{
@@ -919,6 +887,33 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
+
+.result-section{
+ margin-bottom:10px;
+ padding:10px;
+ border-radius:10px;
+ background:rgba(255,255,255,0.03);
+ border:1px solid rgba(255,255,255,0.05);
+ animation:fadeUp .4s ease;
+}
+
+.result-title{
+ font-size:11px;
+ opacity:.6;
+ margin-bottom:6px;
+}
+
+@keyframes fadeUp{
+ from{
+   opacity:0;
+   transform:translateY(10px);
+ }
+ to{
+   opacity:1;
+   transform:translateY(0);
+ }
+}
+
 `
 }
 
@@ -950,17 +945,6 @@ return new Response(`
 </head>
 
 <body>
-
-<div style="
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:2px;
-background:linear-gradient(90deg,#3b82f6,#a855f7,#3b82f6);
-opacity:.7;
-z-index:9999;
-"></div>
 
 <canvas id="bg"></canvas>
 
@@ -1152,6 +1136,20 @@ function salvarTokenModal(){
   fecharModal();
 }
 
+const PLACEHOLDERS = {
+  cpf: "Digite um CPF (ex: 12345678900)",
+  nome: "Digite um nome completo",
+  telefone: "Digite um telefone (DDD + número)",
+  placa: "Digite a placa (ex: ABC1234)",
+  cep: "Digite o CEP",
+  email: "Digite um email"
+};
+
+document.getElementById("endpoint").addEventListener("change", e=>{
+  const val = e.target.value;
+  document.getElementById("valor").placeholder = PLACEHOLDERS[val] || "valor da consulta";
+});
+
 /* ===== TOAST ===== */
 function mostrarToast(msg){
   const t = document.getElementById("toast");
@@ -1160,26 +1158,30 @@ function mostrarToast(msg){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-function typeWriter(text, el, speed=3){
-  let i = 0;
-  el.innerHTML = "";
-
-  function type(){
-    if(i < text.length){
-      el.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(type, speed);
-    }
+function renderResultado(json){
+  if(!json.dados?.resultado){
+    return "<pre>"+JSON.stringify(json,null,2)+"</pre>";
   }
 
-  type();
+  const sections = json.dados.resultado;
+
+  if(Array.isArray(sections)){
+    return sections.map(sec => `
+      <div class="result-section">
+        <div class="result-title">${sec.titulo}</div>
+        <pre>${sec.conteudo}</pre>
+      </div>
+    `).join("");
+  }
+
+  return "<pre>"+JSON.stringify(json,null,2)+"</pre>";
 }
 
 /* ===== CONSULTAR ===== */
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
   btn.disabled = true;
-  btn.innerText = "Consultando...";
+  btn.innerHTML = "⏳ Consultando...";
 
   const token = document.getElementById("token").value.trim();
   const endpoint = document.getElementById("endpoint").value;
@@ -1188,7 +1190,8 @@ async function consultar(){
   if(!token){
     abrirModal();
     btn.disabled = false;
-    btn.innerText = "Consultar";
+btn.innerHTML = "✅ Consultar";
+setTimeout(()=>btn.innerHTML="Consultar",1500);
     return;
   }
 
@@ -1235,22 +1238,17 @@ const param = PARAMS[endpoint];
               "?token=" + token + "&" + param + "=" + valor;
 
   document.getElementById("url").innerText = url;
-const resBox = document.getElementById("resBox");
-resBox.innerHTML = `
+  const resBox = document.getElementById("resBox");
+  resBox.innerHTML = `
   <div class="loader"></div>
-  <div class="loader" style="margin-top:8px"></div>
-  <div class="loader" style="margin-top:8px;width:80%"></div>
+  <div class="loader" style="margin-top:8px;width:90%"></div>
+  <div class="loader" style="margin-top:8px;width:70%"></div>
 `;
 
   try{
     const r = await fetch(url);
     const j = await r.json();
-resBox.innerHTML = "<pre id='resposta'></pre>";
-
-const el = document.getElementById("resposta");
-const texto = JSON.stringify(j,null,2);
-
-typeWriter(texto, el, 2); // velocidade menor = mais rápido (mobile)
+resBox.innerHTML = "<div id='resposta' style='opacity:0;transform:translateY(10px)'>" + renderResultado(j) + "</div>";
 
 setTimeout(()=>{
   const el = document.getElementById("resposta");
@@ -1259,10 +1257,6 @@ setTimeout(()=>{
   el.style.transform="translateY(0)";
 },50);
     mostrarToast("Consulta feita com sucesso 🚀");
-    document.body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
-setTimeout(()=>{
-  document.body.style.boxShadow = "";
-},400);
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
@@ -1292,6 +1286,12 @@ document.querySelectorAll("button").forEach(btn=>{
   });
 });
 
+document.getElementById("valor").addEventListener("keypress", e=>{
+  if(e.key === "Enter"){
+    consultar();
+  }
+});
+
 document.querySelectorAll(".plan").forEach(plan=>{
   plan.addEventListener("click", ()=>{
 
@@ -1317,38 +1317,15 @@ function resizeCanvas(){
 
 function createParticles(qtd=60){
   particles = [];
-
-  const token = localStorage.getItem("astro_token");
-  const plano = TOKENS[token];
-
   for(let i=0;i<qtd;i++){
     particles.push({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
-      r: Math.random()*2,
-      speed: plano === "VITALICIO"
-        ? Math.random()*1 + 0.5
-        : Math.random()*0.5 + 0.2,
-      color: plano === "VITALICIO"
-        ? (Math.random() > 0.5 ? "#a855f7" : "#3b82f6")
-        : "rgba(255,255,255,0.6)"
+      r: Math.random()*1.5,
+      speed: Math.random()*0.5 + 0.2
     });
   }
 }
-
-const placeholders = {
-  cpf:"Digite um CPF",
-  nome:"Digite um nome",
-  telefone:"Digite um telefone",
-  placa:"ABC1234",
-  email:"email@email.com",
-  cep:"00000-000"
-};
-
-document.getElementById("endpoint").addEventListener("change", e=>{
-  document.getElementById("valor").placeholder =
-    placeholders[e.target.value] || "valor da consulta";
-});
 
 function drawParticles(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -1360,7 +1337,7 @@ function drawParticles(){
     }
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle = p.color;
+    ctx.fillStyle="rgba(255,255,255,0.6)";
     ctx.fill();
   });
   requestAnimationFrame(drawParticles);
@@ -1812,7 +1789,9 @@ function drawParticles(){
     }
     ctx.beginPath();
     ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.6)";
+ctx.fillStyle="rgba(255,255,255,0.4)";
+ctx.shadowBlur = 10;
+ctx.shadowColor = "rgba(59,130,246,0.5)";
     ctx.fill();
   });
   requestAnimationFrame(drawParticles);
