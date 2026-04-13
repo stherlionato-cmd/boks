@@ -1166,12 +1166,12 @@ function renderResultado(json){
   const sections = json.dados.resultado;
 
   if(Array.isArray(sections)){
-    return sections.map(sec => `
-      <div class="result-section">
-        <div class="result-title">${sec.titulo}</div>
-        <pre>${sec.conteudo}</pre>
-      </div>
-    `).join("");
+    return sections.map(sec => 
+      '<div class="result-section">' +
+        '<div class="result-title">' + sec.titulo + '</div>' +
+        '<pre>' + sec.conteudo + '</pre>' +
+      '</div>'
+    ).join("");
   }
 
   return "<pre>"+JSON.stringify(json,null,2)+"</pre>";
