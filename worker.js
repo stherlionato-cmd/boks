@@ -1097,28 +1097,34 @@ let paymentID = null;
 document.getElementById("btnComprar").addEventListener("click", async ()=>{
 
   const selected = document.querySelector(".plan.selected");
-  if(!selected){
-    alert("Selecione um plano");
-    return;
-  }
+ if(!selected){
+  mostrarToast("Selecione um plano primeiro ⚠️");
+  return;
+}
 
-  const priceMap = {
-    DIARIO: 5,
-    PRO: 30,
-    VITALICIO: 50
-  };
-
- const valor = priceMap[plano].toFixed(2);
   const plano = selected.dataset.plan;
+
+const priceMap = {
+  DIARIO: 5,
+  PRO: 30,
+  VITALICIO: 50
+};
+
+const valor = priceMap[plano].toFixed(2);
 
 const user_id = 8751158979;
 
+try {
   const res = await fetch(
     "https://promstpagamentos.discloud.app/create_payment?user_id=" 
     + user_id + "&valor=" + valor
   );
 
   const data = await res.json();
+
+  if(!data || !data.qrcode_base64){
+    throw new Error("Erro ao gerar pagamento");
+  }
 
   paymentID = data.txid;
 
@@ -1127,7 +1133,11 @@ const user_id = 8751158979;
   document.getElementById("pixCode").value = data.pixCopiaECola;
 
   verificarPagamento();
-});
+
+} catch(e){
+  alert("Erro ao gerar pagamento ❌");
+  console.error(e);
+}
 
 async function verificarPagamento(){
 
