@@ -1108,8 +1108,8 @@ document.getElementById("btnComprar").addEventListener("click", async ()=>{
     VITALICIO: 50
   };
 
+ const valor = priceMap[plano].toFixed(2);
   const plano = selected.dataset.plan;
-  const valor = priceMap[plano];
 
 const user_id = 8751158979;
 
