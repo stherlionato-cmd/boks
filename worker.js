@@ -894,29 +894,23 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
-.plan-details{
- max-height:0;
- overflow:hidden;
- opacity:0;
- transition:.35s ease;
+
+#pixBox{
+ animation: fadeIn .4s ease;
 }
 
-.plan.open .plan-details{
- max-height:300px;
- opacity:1;
- margin-top:10px;
+@keyframes fadeIn{
+ from{opacity:0;transform:translateY(10px)}
+ to{opacity:1;transform:translateY(0)}
 }
 
-.plan-details ul{
- list-style:none;
- padding:0;
- font-size:12px;
- opacity:.75;
+/* glow no botão comprar */
+#btnComprar{
+ box-shadow:0 0 20px rgba(34,197,94,.3);
 }
 
-.plan-details li{
- padding:4px 0;
- border-bottom:1px solid rgba(255,255,255,.05);
+#btnComprar:hover{
+ box-shadow:0 0 40px rgba(34,197,94,.5);
 }
 `
 }
@@ -1028,10 +1022,56 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
   Planos disponíveis:
 </div>
 
-<div class="plans" id="plansContainer"></div>
+<div class="plans">
 
-  <button id="btnPlano">Continuar</button>
-  
+  <div class="plan" data-plan="DIARIO">
+    <div class="plan-top">
+      <span>DIÁRIO</span>
+      <span class="price">R$5</span>
+    </div>
+    <div class="plan-info">
+      Acesso 24h
+    </div>
+  </div>
+
+  <div class="plan featured" data-plan="PRO">
+    <div class="plan-top">
+      <span>PRO</span>
+      <span class="price">R$30/mês</span>
+    </div>
+    <div class="plan-info">
+      1000 consultas
+    </div>
+  </div>
+
+<div class="plan" data-plan="VITALICIO">
+  <div class="plan-top">
+    <span>VITALÍCIO</span>
+    <span class="price">R$50 único</span>
+  </div>
+  <div class="plan-info">
+    Ilimitado
+  </div>
+</div>
+
+<div id="consultasBox" style="margin-top:15px;display:none;">
+  <div style="font-size:12px;opacity:.7;margin-bottom:8px;">
+    🔎 Consultas disponíveis:
+  </div>
+  <div id="consultasList" style="font-size:11px;line-height:1.6;"></div>
+</div>
+
+<button id="btnComprar" style="margin-top:15px;background:linear-gradient(90deg,#22c55e,#16a34a)">
+  💳 Comprar com Pix
+</button>
+
+<div id="pixBox" style="display:none;margin-top:15px;">
+  <img id="qrPix" style="width:100%;border-radius:12px;margin-bottom:10px;">
+  <textarea id="pixCode" style="width:100%;height:80px;"></textarea>
+  <button onclick="copiarPix()">Copiar código Pix</button>
+  <div id="statusPix" style="margin-top:10px;font-size:12px;opacity:.7;">
+    Aguardando pagamento...
+  </div>
 </div>
 
 </div>
@@ -1052,133 +1092,90 @@ const TOKENS = {
   santanateste: "TESTE"
 };
 
-/* ===== MAPA DINÂMICO DE CONSULTAS ===== */
-const CONSULTAS = Object.keys(${JSON.stringify(Object.keys(ENDPOINTS))})
-  .reduce((acc, key)=>{
-    acc[key] = key.replace(/_/g," ").toUpperCase();
-    return acc;
-  },{});
-  
-  const ORDEM = [
-  "cpf","nome","telefone","telefone_full","telefone_cpf",
-  "placa","email","score","renda","parentes","vizinhos"
-];
+let paymentID = null;
 
-const CONSULTAS_ORDENADAS = [
-  ...ORDEM,
-  ...Object.keys(CONSULTAS).filter(k=>!ORDEM.includes(k))
-];
-
-/* ===== PERMISSÕES POR PLANO ===== */
-const PLAN_PERMISSIONS = {
-  DIARIO: Object.keys(CONSULTAS).slice(0, 5), // limitado
-  PRO: Object.keys(CONSULTAS), // tudo
-  VITALICIO: Object.keys(CONSULTAS) // tudo
-};
-
-function renderPlanos(){
-
-  const planos = [
-    {
-      nome:"DIARIO",
-      preco:"R$5",
-      info:"Acesso por 24h"
-    },
-    {
-      nome:"PRO",
-      preco:"R$30/mês",
-      info:"Acesso completo",
-      destaque:true
-    },
-    {
-      nome:"VITALICIO",
-      preco:"R$50 único",
-      info:"Acesso ilimitado"
-    }
-  ];
-
-  const container = document.getElementById("plansContainer");
-
-  container.innerHTML = planos.map(p=>{
-
-    const consultas = PLAN_PERMISSIONS[p.nome];
-
-const lista = CONSULTAS_ORDENADAS.filter(c=>consultas.includes(c));
-
-    return `
-  <div class="plan ${p.destaque ? 'featured' : ''}" data-plan="${p.nome}">
-        
-        ${p.destaque ? '<div class="badge-plan">MAIS ESCOLHIDO</div>' : ""}
-
-        <div class="plan-top">
-          <span>${p.nome}</span>
-          <span class="price">${p.preco}</span>
-        </div>
-
-        <div class="plan-info">${p.info}</div>
-
-        <div class="plan-details">
-          <ul>
-            ${consultas.map(c=>`
-              <li>✔ ${CONSULTAS[c] || c}</li>
-            `).join("")}
-          </ul>
-        </div>
-
-      </div>
-    `;
-
-  }).join("");
-
-  ativarEventosPlanos();
-}
-
-document.getElementById("btnPlano").onclick = ()=>{
+document.getElementById("btnComprar").addEventListener("click", async ()=>{
 
   const selected = document.querySelector(".plan.selected");
-
   if(!selected){
-    mostrarToast("Selecione um plano ⚡");
+    alert("Selecione um plano");
     return;
   }
 
+  const priceMap = {
+    DIARIO: 5,
+    PRO: 30,
+    VITALICIO: 50
+  };
+
   const plano = selected.dataset.plan;
+  const valor = priceMap[plano];
 
-  mostrarToast("Plano " + plano + " selecionado 🚀");
+const user_id = 8751158979;
 
-  // aqui você conecta com pagamento
-};
+  const res = await fetch(
+    "https://promstpagamentos.discloud.app/create_payment?user_id=" 
+    + user_id + "&valor=" + valor
+  );
 
-function ativarEventosPlanos(){
+  const data = await res.json();
 
-  document.querySelectorAll(".plan").forEach(plan=>{
+  paymentID = data.txid;
 
-    plan.addEventListener("click", ()=>{
+  document.getElementById("pixBox").style.display = "block";
+  document.getElementById("qrPix").src = "data:image/png;base64," + data.qrcode_base64;
+  document.getElementById("pixCode").value = data.pixCopiaECola;
 
-      document.querySelectorAll(".plan").forEach(p=>{
-        if(p !== plan) p.classList.remove("open","selected");
-      });
+  verificarPagamento();
+});
 
-      plan.classList.toggle("open");
-      plan.classList.add("selected");
+async function verificarPagamento(){
 
-      // micro animação premium
-      plan.style.transform = "scale(.96)";
-      setTimeout(()=>plan.style.transform="",120);
+  if(!paymentID) return;
 
-    });
+  const interval = setInterval(async ()=>{
 
-  });
+    const res = await fetch(
+      "https://promstpagamentos.discloud.app/verify_payment?payment_id=" + paymentID
+    );
 
+    const data = await res.json();
+
+    if(data.status_pagamento === "CONCLUIDA"){
+      clearInterval(interval);
+
+      document.getElementById("statusPix").innerHTML = 
+        "✅ Pagamento aprovado! Liberando acesso...";
+
+      liberarPlano();
+    }
+
+  }, 4000); // verifica a cada 4s
+}
+
+function liberarPlano(){
+  const token = "user_" + Math.random().toString(36).slice(2,10);
+
+  localStorage.setItem("astro_token", token);
+
+  document.getElementById("statusPix").innerHTML += "<br>🔓 Token ativado!";
+
+  setTimeout(()=>{
+    location.reload();
+  }, 2000);
+}
+
+function copiarPix(){
+  const el = document.getElementById("pixCode");
+  el.select();
+  document.execCommand("copy");
+  mostrarToast("Pix copiado!");
 }
 
 /* ===== MODAIS ===== */
 function abrirModal(){
   document.getElementById("modal").classList.add("show");
-  renderPlanos();
 }
-
-
 
 function fecharModal(){
   document.getElementById("modal").classList.remove("show");
@@ -1187,6 +1184,27 @@ function fecharModal(){
 function fecharMaintenanceModal(){
   document.getElementById("maintenanceModal").classList.remove("show");
 }
+
+const ENDPOINTS_LIST = ${JSON.stringify(Object.keys(ENDPOINTS))};
+
+document.querySelectorAll(".plan").forEach(plan=>{
+  plan.addEventListener("click", ()=>{
+
+    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
+    plan.classList.add("selected");
+
+    // mostrar consultas
+    const box = document.getElementById("consultasBox");
+    const list = document.getElementById("consultasList");
+
+    box.style.display = "block";
+
+    list.innerHTML = ENDPOINTS_LIST.map(e => 
+      "• " + e.toUpperCase()
+    ).join("<br>");
+
+  });
+});
 
 /* ===== BADGE ===== */
 function renderBadge(plano){
@@ -1348,6 +1366,19 @@ document.querySelectorAll("button").forEach(btn=>{
     btn.appendChild(ripple);
 
     setTimeout(()=>ripple.remove(),600);
+  });
+});
+
+document.querySelectorAll(".plan").forEach(plan=>{
+  plan.addEventListener("click", ()=>{
+
+    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
+    plan.classList.add("selected");
+
+    // micro feedback
+    plan.style.transform = "scale(.97)";
+    setTimeout(()=>plan.style.transform="",100);
+
   });
 });
 
