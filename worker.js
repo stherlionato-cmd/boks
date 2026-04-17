@@ -62,11 +62,11 @@ const TOKENS = {
   douglasvip:{plano:"VITALICIO",credits:1000,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
-
+  santanavip:{plano:"VITALICIO",credits:1000,endpoints:null},
   // 🧪 PLANO DE TESTE (3 BUSCAS)
     santanateste:{ 
     plano:"TESTE",
-    credits:3,
+    credits:5,
     endpoints:null
   }
 }
@@ -284,7 +284,7 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "bigmouth" : "bigmouthh";
+const apikey = config.tipo === "sara" ? "artigo%23171_b" : "bigmouthh";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
@@ -894,6 +894,30 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
+.plan-details{
+ max-height:0;
+ overflow:hidden;
+ opacity:0;
+ transition:.35s ease;
+}
+
+.plan.open .plan-details{
+ max-height:300px;
+ opacity:1;
+ margin-top:10px;
+}
+
+.plan-details ul{
+ list-style:none;
+ padding:0;
+ font-size:12px;
+ opacity:.75;
+}
+
+.plan-details li{
+ padding:4px 0;
+ border-bottom:1px solid rgba(255,255,255,.05);
+}
 `
 }
 
@@ -1004,36 +1028,10 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
   Planos disponíveis:
 </div>
 
-<div class="plans">
+<div class="plans" id="plansContainer"></div>
 
-  <div class="plan" data-plan="DIARIO">
-    <div class="plan-top">
-      <span>DIÁRIO</span>
-      <span class="price">R$5</span>
-    </div>
-    <div class="plan-info">
-      Acesso 24h
-    </div>
-  </div>
-
-  <div class="plan featured" data-plan="PRO">
-    <div class="plan-top">
-      <span>PRO</span>
-      <span class="price">R$30/mês</span>
-    </div>
-    <div class="plan-info">
-      1000 consultas
-    </div>
-  </div>
-
-<div class="plan" data-plan="VITALICIO">
-  <div class="plan-top">
-    <span>VITALÍCIO</span>
-    <span class="price">R$50 único</span>
-  </div>
-  <div class="plan-info">
-    Ilimitado
-  </div>
+  <button id="btnPlano">Continuar</button>
+  
 </div>
 
 </div>
@@ -1050,13 +1048,137 @@ const TOKENS = {
   fxckbuscas: "VITALICIO",
   douglasvip: "VITALICIO",
   astropro: "VITALICIO",
+  santanavip: "VITALICIO",
   santanateste: "TESTE"
 };
+
+/* ===== MAPA DINÂMICO DE CONSULTAS ===== */
+const CONSULTAS = Object.keys(${JSON.stringify(Object.keys(ENDPOINTS))})
+  .reduce((acc, key)=>{
+    acc[key] = key.replace(/_/g," ").toUpperCase();
+    return acc;
+  },{});
+  
+  const ORDEM = [
+  "cpf","nome","telefone","telefone_full","telefone_cpf",
+  "placa","email","score","renda","parentes","vizinhos"
+];
+
+const CONSULTAS_ORDENADAS = [
+  ...ORDEM,
+  ...Object.keys(CONSULTAS).filter(k=>!ORDEM.includes(k))
+];
+
+/* ===== PERMISSÕES POR PLANO ===== */
+const PLAN_PERMISSIONS = {
+  DIARIO: Object.keys(CONSULTAS).slice(0, 5), // limitado
+  PRO: Object.keys(CONSULTAS), // tudo
+  VITALICIO: Object.keys(CONSULTAS) // tudo
+};
+
+function renderPlanos(){
+
+  const planos = [
+    {
+      nome:"DIARIO",
+      preco:"R$5",
+      info:"Acesso por 24h"
+    },
+    {
+      nome:"PRO",
+      preco:"R$30/mês",
+      info:"Acesso completo",
+      destaque:true
+    },
+    {
+      nome:"VITALICIO",
+      preco:"R$50 único",
+      info:"Acesso ilimitado"
+    }
+  ];
+
+  const container = document.getElementById("plansContainer");
+
+  container.innerHTML = planos.map(p=>{
+
+    const consultas = PLAN_PERMISSIONS[p.nome];
+
+const lista = CONSULTAS_ORDENADAS.filter(c=>consultas.includes(c));
+
+    return `
+      <div class="plan ${p.destaque ? "featured" : ""}" data-plan="${p.nome}">
+        
+        ${p.destaque ? '<div class="badge-plan">MAIS ESCOLHIDO</div>' : ""}
+
+        <div class="plan-top">
+          <span>${p.nome}</span>
+          <span class="price">${p.preco}</span>
+        </div>
+
+        <div class="plan-info">${p.info}</div>
+
+        <div class="plan-details">
+          <ul>
+            ${consultas.map(c=>`
+              <li>✔ ${CONSULTAS[c] || c}</li>
+            `).join("")}
+          </ul>
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+
+  ativarEventosPlanos();
+}
+
+document.getElementById("btnPlano").onclick = ()=>{
+
+  const selected = document.querySelector(".plan.selected");
+
+  if(!selected){
+    mostrarToast("Selecione um plano ⚡");
+    return;
+  }
+
+  const plano = selected.dataset.plan;
+
+  mostrarToast("Plano " + plano + " selecionado 🚀");
+
+  // aqui você conecta com pagamento
+};
+
+function ativarEventosPlanos(){
+
+  document.querySelectorAll(".plan").forEach(plan=>{
+
+    plan.addEventListener("click", ()=>{
+
+      document.querySelectorAll(".plan").forEach(p=>{
+        if(p !== plan) p.classList.remove("open","selected");
+      });
+
+      plan.classList.toggle("open");
+      plan.classList.add("selected");
+
+      // micro animação premium
+      plan.style.transform = "scale(.96)";
+      setTimeout(()=>plan.style.transform="",120);
+
+    });
+
+  });
+
+}
 
 /* ===== MODAIS ===== */
 function abrirModal(){
   document.getElementById("modal").classList.add("show");
+  renderPlanos();
 }
+
+
 
 function fecharModal(){
   document.getElementById("modal").classList.remove("show");
@@ -1226,19 +1348,6 @@ document.querySelectorAll("button").forEach(btn=>{
     btn.appendChild(ripple);
 
     setTimeout(()=>ripple.remove(),600);
-  });
-});
-
-document.querySelectorAll(".plan").forEach(plan=>{
-  plan.addEventListener("click", ()=>{
-
-    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
-    plan.classList.add("selected");
-
-    // micro feedback
-    plan.style.transform = "scale(.97)";
-    setTimeout(()=>plan.style.transform="",100);
-
   });
 });
 
