@@ -1106,7 +1106,7 @@ function renderPlanos(){
 const lista = CONSULTAS_ORDENADAS.filter(c=>consultas.includes(c));
 
     return `
-      <div class="plan ${p.destaque ? "featured" : ""}" data-plan="${p.nome}">
+  <div class="plan ${p.destaque ? 'featured' : ''}" data-plan="${p.nome}">
         
         ${p.destaque ? '<div class="badge-plan">MAIS ESCOLHIDO</div>' : ""}
 
