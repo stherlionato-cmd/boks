@@ -284,7 +284,7 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "artigo%23171_b" : "bigmouthh";
+const apikey = config.tipo === "sara" ? "artigo%23171_b" : "Teste";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
@@ -895,22 +895,32 @@ button:hover::after{
  color:#a855f7;
 }
 
-#pixBox{
- animation: fadeIn .4s ease;
+.resultado-card{
+  animation: fadeUp .4s ease;
 }
 
-@keyframes fadeIn{
- from{opacity:0;transform:translateY(10px)}
- to{opacity:1;transform:translateY(0)}
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(10px)}
+  to{opacity:1; transform:translateY(0)}
 }
 
-/* glow no botão comprar */
-#btnComprar{
- box-shadow:0 0 20px rgba(34,197,94,.3);
+.res-title{
+  font-weight:700;
+  margin-bottom:6px;
+  color:#3b82f6;
 }
 
-#btnComprar:hover{
- box-shadow:0 0 40px rgba(34,197,94,.5);
+.res-content{
+  font-size:12px;
+  opacity:.85;
+  margin-bottom:8px;
+}
+
+.fav-item{
+  background:#020617;
+  padding:8px;
+  border-radius:10px;
+  margin-top:6px;
 }
 `
 }
@@ -998,8 +1008,14 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <div class="card">
 
 <div class="label">Resposta</div>
+<input id="buscaResultado" placeholder="🔎 Buscar no resultado..." oninput="filtrarResultado()" style="margin-top:10px;">
 <div class="box" id="resBox">
 <pre id="resposta"></pre>
+</div>
+
+<div class="card">
+  <div class="label">⭐ Favoritos</div>
+  <div id="favoritos"></div>
 </div>
 
 <button class="copy" onclick="copiar('resposta')">Copiar resposta</button>
@@ -1054,26 +1070,6 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
   </div>
 </div>
 
-<div id="consultasBox" style="margin-top:15px;display:none;">
-  <div style="font-size:12px;opacity:.7;margin-bottom:8px;">
-    🔎 Consultas disponíveis:
-  </div>
-  <div id="consultasList" style="font-size:11px;line-height:1.6;"></div>
-</div>
-
-<button id="btnComprar" style="margin-top:15px;background:linear-gradient(90deg,#22c55e,#16a34a)">
-  💳 Comprar com Pix
-</button>
-
-<div id="pixBox" style="display:none;margin-top:15px;">
-  <img id="qrPix" style="width:100%;border-radius:12px;margin-bottom:10px;">
-  <textarea id="pixCode" style="width:100%;height:80px;"></textarea>
-  <button onclick="copiarPix()">Copiar código Pix</button>
-  <div id="statusPix" style="margin-top:10px;font-size:12px;opacity:.7;">
-    Aguardando pagamento...
-  </div>
-</div>
-
 </div>
 
 <canvas id="bg"></canvas>
@@ -1092,96 +1088,6 @@ const TOKENS = {
   santanateste: "TESTE"
 };
 
-let paymentID = null;
-
-document.getElementById("btnComprar").addEventListener("click", async ()=>{
-
-  const selected = document.querySelector(".plan.selected");
- if(!selected){
-  mostrarToast("Selecione um plano primeiro ⚠️");
-  return;
-}
-
-  const plano = selected.dataset.plan;
-
-const priceMap = {
-  DIARIO: 5,
-  PRO: 30,
-  VITALICIO: 50
-};
-
-const valor = priceMap[plano].toFixed(2);
-
-const user_id = 8751158979;
-
-try {
-  const res = await fetch(
-    "https://promstpagamentos.discloud.app/create_payment?user_id=" 
-    + user_id + "&valor=" + valor
-  );
-
-  const data = await res.json();
-
-  if(!data || !data.qrcode_base64){
-    throw new Error("Erro ao gerar pagamento");
-  }
-
-  paymentID = data.txid;
-
-  document.getElementById("pixBox").style.display = "block";
-  document.getElementById("qrPix").src = "data:image/png;base64," + data.qrcode_base64;
-  document.getElementById("pixCode").value = data.pixCopiaECola;
-
-  verificarPagamento();
-
-} catch(e){
-  alert("Erro ao gerar pagamento ❌");
-  console.error(e);
-}
-
-async function verificarPagamento(){
-
-  if(!paymentID) return;
-
-  const interval = setInterval(async ()=>{
-
-    const res = await fetch(
-      "https://promstpagamentos.discloud.app/verify_payment?payment_id=" + paymentID
-    );
-
-    const data = await res.json();
-
-    if(data.status_pagamento === "CONCLUIDA"){
-      clearInterval(interval);
-
-      document.getElementById("statusPix").innerHTML = 
-        "✅ Pagamento aprovado! Liberando acesso...";
-
-      liberarPlano();
-    }
-
-  }, 4000); // verifica a cada 4s
-}
-
-function liberarPlano(){
-  const token = "user_" + Math.random().toString(36).slice(2,10);
-
-  localStorage.setItem("astro_token", token);
-
-  document.getElementById("statusPix").innerHTML += "<br>🔓 Token ativado!";
-
-  setTimeout(()=>{
-    location.reload();
-  }, 2000);
-}
-
-function copiarPix(){
-  const el = document.getElementById("pixCode");
-  el.select();
-  document.execCommand("copy");
-  mostrarToast("Pix copiado!");
-}
-
 /* ===== MODAIS ===== */
 function abrirModal(){
   document.getElementById("modal").classList.add("show");
@@ -1194,27 +1100,6 @@ function fecharModal(){
 function fecharMaintenanceModal(){
   document.getElementById("maintenanceModal").classList.remove("show");
 }
-
-const ENDPOINTS_LIST = ${JSON.stringify(Object.keys(ENDPOINTS))};
-
-document.querySelectorAll(".plan").forEach(plan=>{
-  plan.addEventListener("click", ()=>{
-
-    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
-    plan.classList.add("selected");
-
-    // mostrar consultas
-    const box = document.getElementById("consultasBox");
-    const list = document.getElementById("consultasList");
-
-    box.style.display = "block";
-
-    list.innerHTML = ENDPOINTS_LIST.map(e => 
-      "• " + e.toUpperCase()
-    ).join("<br>");
-
-  });
-});
 
 /* ===== BADGE ===== */
 function renderBadge(plano){
@@ -1279,7 +1164,7 @@ function mostrarToast(msg){
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
   btn.disabled = true;
-  btn.innerText = "Consultando...";
+  btn.innerText = "🔍 Buscando...";
 
   const token = document.getElementById("token").value.trim();
   const endpoint = document.getElementById("endpoint").value;
@@ -1341,15 +1226,18 @@ const param = PARAMS[endpoint];
   try{
     const r = await fetch(url);
     const j = await r.json();
-resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
+    if(j.meta){
+  atualizarDashboard(j.meta);
+}
+resBox.innerHTML = "<div id='resultadoCards' style='opacity:0;transform:translateY(10px)'>" + renderizarCards(j) + "</div>";
 
 setTimeout(()=>{
-  const el = document.getElementById("resposta");
+  const el = document.getElementById("resultadoCards");
   el.style.transition=".4s";
   el.style.opacity="1";
   el.style.transform="translateY(0)";
 },50);
-    mostrarToast("Consulta feita com sucesso 🚀");
+    mostrarToast("✔ Consulta finalizada");
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
@@ -1400,6 +1288,91 @@ let particles = [];
 function resizeCanvas(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+}
+
+function renderizarCards(data){
+  if(!data || !data.dados || !data.dados.resultado){
+    return "<pre>"+JSON.stringify(data,null,2)+"</pre>";
+  }
+
+  const resultado = data.dados.resultado;
+  let html = "";
+
+  function criarCard(titulo, conteudo){
+    return `
+      <div class="card resultado-card">
+        <div class="res-title">${titulo}</div>
+        <div class="res-content">${formatarConteudo(conteudo)}</div>
+        <button class="copy" onclick="favoritar('${titulo}','${String(conteudo).replace(/'/g,"")}')">⭐ Favoritar</button>
+      </div>
+    `;
+  }
+
+  if(Array.isArray(resultado)){
+    resultado.forEach(sec=>{
+      html += criarCard(sec.titulo, sec.conteudo);
+    });
+  } else if(typeof resultado === "object"){
+    for(const k in resultado){
+      html += criarCard(k.toUpperCase(), resultado[k]);
+    }
+  }
+
+  return html;
+}
+
+function formatarConteudo(conteudo){
+  if(typeof conteudo === "object"){
+    return Object.entries(conteudo)
+      .map(([k,v])=>`<div><b>${k}:</b> ${v}</div>`)
+      .join("");
+  }
+  return conteudo;
+}
+
+function favoritar(titulo, conteudo){
+  const favs = JSON.parse(localStorage.getItem("favoritos") || "[]");
+
+  favs.push({titulo, conteudo});
+  localStorage.setItem("favoritos", JSON.stringify(favs));
+
+  mostrarToast("Salvo nos favoritos ⭐");
+}
+
+function carregarFavoritos(){
+  const favs = JSON.parse(localStorage.getItem("favoritos") || "[]");
+  const div = document.getElementById("favoritos");
+
+  if(!div) return;
+
+  div.innerHTML = favs.map(f=>`
+    <div class="fav-item">
+      <b>${f.titulo}</b><br>
+      ${f.conteudo}
+    </div>
+  `).join("");
+}
+
+function filtrarResultado(){
+  const termo = document.getElementById("buscaResultado").value.toLowerCase();
+
+  document.querySelectorAll(".resultado-card").forEach(card=>{
+    const texto = card.innerText.toLowerCase();
+    card.style.display = texto.includes(termo) ? "block" : "none";
+  });
+}
+
+function atualizarDashboard(meta){
+  const el = document.getElementById("badgeContainer");
+
+  el.innerHTML = `
+    <div class="badge ${meta.plano.toLowerCase()}">
+      💎 ${meta.plano}
+    </div>
+    <div class="badge">
+      💰 ${meta.creditos_restantes}
+    </div>
+  `;
 }
 
 function createParticles(qtd=60){
@@ -1886,6 +1859,7 @@ window.addEventListener("load", ()=>{
   resizeCanvas();
   createParticles();
   drawParticles();
+  carregarFavoritos();
 });
 
 window.addEventListener("resize", resizeCanvas);
