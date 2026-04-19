@@ -1208,12 +1208,16 @@ document.getElementById("btnComprar").addEventListener("click", async ()=>{
     const res = await fetch(url);
     const data = await res.json();
 
-    const codigoPix = data.pixCopiaECola.replace(/'/g, "");
+    if(!data.pixCopiaECola || !data.qrcode_base64){
+  throw new Error("Resposta inválida da API");
+}
+
+const codigoPix = data.pixCopiaECola.replace(/'/g, "");
 
 pixBox.innerHTML =
   '<div style="font-size:12px;opacity:.7;">Pagamento gerado</div>' +
 
-  '<img class="pix-img" src="data:image/png;base64,' + data.qrcode_base64 + '" />' +
+'<img class="pix-img" src="' + data.qrcode_base64 + '" />'
 
   '<div class="box" style="margin-top:10px;">' +
     '<pre>' + codigoPix + '</pre>' +
@@ -1228,9 +1232,10 @@ pixBox.innerHTML =
 document.getElementById("btnPixCopy")
   .addEventListener("click", () => copiarPix(codigoPix));
 
-  }catch(e){
-    pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
-  }
+}catch(e){
+  console.error(e);
+  pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
+}
 
 });
 
