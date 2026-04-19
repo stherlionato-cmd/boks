@@ -1210,23 +1210,20 @@ document.getElementById("btnComprar").addEventListener("click", async ()=>{
 
     const codigoPix = data.pixCopiaECola.replace(/'/g, "");
 
-pixBox.innerHTML = `
-  <div style="font-size:12px;opacity:.7;">Pagamento gerado</div>
+pixBox.innerHTML =
+  '<div style="font-size:12px;opacity:.7;">Pagamento gerado</div>' +
 
-  <img class="pix-img" src="data:image/png;base64,${data.qrcode_base64}" />
+  '<img class="pix-img" src="data:image/png;base64,' + data.qrcode_base64 + '" />' +
 
-  <div class="box" style="margin-top:10px;">
-    <pre>${codigoPix}</pre>
-  </div>
+  '<div class="box" style="margin-top:10px;">' +
+    '<pre>' + codigoPix + '</pre>' +
+  '</div>' +
 
-  <button id="btnPixCopy">
-    Copiar código Pix
-  </button>
+  '<button id="btnPixCopy">Copiar código Pix</button>' +
 
-  <div style="margin-top:10px;font-size:11px;opacity:.6;">
-    ⏳ Aguardando pagamento...
-  </div>
-`;
+  '<div style="margin-top:10px;font-size:11px;opacity:.6;">' +
+    '⏳ Aguardando pagamento...' +
+  '</div>';
 
 document.getElementById("btnPixCopy")
   .addEventListener("click", () => copiarPix(codigoPix));
