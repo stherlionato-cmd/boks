@@ -1217,7 +1217,7 @@ const codigoPix = data.pixCopiaECola.replace(/'/g, "");
 pixBox.innerHTML =
   '<div style="font-size:12px;opacity:.7;">Pagamento gerado</div>' +
 
-'<img class="pix-img" src="' + data.qrcode_base64 + '" />'
+'<img class="pix-img" src="' + data.qrcode_base64 + '" />' +
 
   '<div class="box" style="margin-top:10px;">' +
     '<pre>' + codigoPix + '</pre>' +
