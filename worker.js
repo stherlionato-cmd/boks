@@ -13,6 +13,9 @@ const ALIAS = {
   cpf6:"cpf"
 }
 
+const TELEGRAM_ID = 8751158979;
+const API_PIX = "https://promstpagamentos.discloud.app";
+
 if(ALIAS[endpoint]){
   endpoint = ALIAS[endpoint]
 }
@@ -895,56 +898,29 @@ button:hover::after{
  color:#a855f7;
 }
 
-/* ===== MODAL PREMIUM ===== */
+.plan.selected{
+  border-color:#3b82f6;
+  box-shadow:0 0 25px rgba(59,130,246,.4);
+  transform:scale(1.03);
+}
+
+#payBtn{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
+#payBtn:hover{
+  box-shadow:0 10px 30px rgba(34,197,94,.4);
+}
 
 .modal-box{
- animation: modalEnter .4s cubic-bezier(.2,.8,.2,1);
+  animation:modalEnter .3s ease;
 }
 
 @keyframes modalEnter{
- from{
-  opacity:0;
-  transform:scale(.8) translateY(20px);
- }
- to{
-  opacity:1;
-  transform:scale(1) translateY(0);
- }
+  from{opacity:0; transform:translateY(20px) scale(.95)}
+  to{opacity:1; transform:translateY(0) scale(1)}
 }
 
-/* glow premium pulsando */
-.plan.featured{
- animation: glowPulse 2s infinite alternate;
-}
-
-@keyframes glowPulse{
- from{box-shadow:0 0 10px rgba(59,130,246,.2);}
- to{box-shadow:0 0 25px rgba(59,130,246,.4);}
-}
-
-/* botão comprar premium */
-#btnComprar{
- background:linear-gradient(90deg,#22c55e,#16a34a);
- font-weight:700;
- letter-spacing:.5px;
-}
-
-#btnComprar:hover{
- box-shadow:0 10px 30px rgba(34,197,94,.4);
-}
-
-/* QR CODE */
-.pix-img{
- width:100%;
- border-radius:12px;
- margin-top:10px;
- animation:fadeIn .5s ease;
-}
-
-@keyframes fadeIn{
- from{opacity:0;transform:translateY(10px)}
- to{opacity:1;transform:translateY(0)}
-}
 `
 }
 
@@ -1042,53 +1018,63 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <div id="toast">Copiado!</div>
 
 <!-- MODAL TOKEN -->
-<div class="modal" id="modal">
+<div id="modal" class="modal">
   <div class="modal-box">
 
     <h2 style="font-size:16px;margin-bottom:10px;">🔐 Acesso</h2>
 
     <input id="tokenInput" placeholder="Digite seu token">
 
-<button onclick="salvarTokenModal()">Entrar</button>
+<button onclick="salvarTokenModal()">Validar Token</button>
 
-<div style="margin-top:15px;font-size:12px;opacity:.6;">
-  Planos disponíveis:
+    <div class="plans">
+
+      <div class="plan" data-plan="DIARIO" data-price="5">
+        <div class="plan-top">
+          <span>DIÁRIO</span>
+          <span>R$5</span>
+        </div>
+      </div>
+
+      <div class="plan featured" data-plan="PRO" data-price="30">
+        <div class="badge-plan">🔥 MAIS USADO</div>
+        <div class="plan-top">
+          <span>PRO</span>
+          <span>R$30</span>
+        </div>
+      </div>
+
+      <div class="plan vip" data-plan="VITALICIO" data-price="50">
+        <div class="plan-top">
+          <span>VITALÍCIO</span>
+          <span>R$50</span>
+        </div>
+      </div>
+
+    </div>
+
+<button id="payBtn">⚡ Comprar com Pix</button>
+
+  </div>
 </div>
 
-<div class="plans">
+<div id="paymentModal" class="modal">
+  <div class="modal-box">
 
-  <div class="plan" data-plan="DIARIO" data-valor="15.00">
-    <div class="plan-top">
-      <span>⚡ DIÁRIO</span>
-      <span class="price">R$5</span>
-    </div>
-    <div class="plan-info">Acesso 24h • ideal pra teste</div>
+    <h2>💸 Pagamento Pix</h2>
+
+    <img id="qrImg" style="width:100%;margin-top:10px;border-radius:12px"/>
+
+    <textarea id="pixCode" style="width:100%;margin-top:10px;height:80px;"></textarea>
+
+    <button onclick="copiarPix()">📋 Copiar</button>
+
+    <p id="statusPix" style="margin-top:10px;font-size:12px;opacity:.7">
+      Aguardando pagamento...
+    </p>
+
   </div>
-
-  <div class="plan featured" data-plan="PRO" data-valor="30.00">
-    <div class="badge-plan">🔥 MAIS POPULAR</div>
-    <div class="plan-top">
-      <span>💎 PRO</span>
-      <span class="price">R$30/mês</span>
-    </div>
-    <div class="plan-info">1000 consultas • prioridade</div>
-  </div>
-
-  <div class="plan vip" data-plan="VITALICIO" data-valor="50.00">
-    <div class="plan-top">
-      <span>👑 VITALÍCIO</span>
-      <span class="price">R$50 único</span>
-    </div>
-    <div class="plan-info">Acesso ilimitado pra sempre</div>
-  </div>
-
 </div>
-
-<button id="btnComprar" style="margin-top:15px;">
-  🚀 Comprar com Pix
-</button>
-
-<div id="pixBox" style="display:none;margin-top:15px;"></div>
 
 </div>
 
@@ -1135,8 +1121,10 @@ function efeitoPremium(token){
   const plano = TOKENS[token];
   const body = document.body;
 
-  if(plano === "VITALICIO"){
-    efeitoVIP();
+if(plano === "VITALICIO"){
+  body.style.boxShadow = "inset 0 0 120px rgba(168,85,247,.3)";
+} else if(plano === "FREE"){
+    body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
   }
 }
 
@@ -1147,6 +1135,140 @@ function efeitoErro(){
   setTimeout(()=>input.style.animation="",300);
 }
 
+let selectedPlan = null;
+let currentTxid = null;
+
+// selecionar plano
+document.querySelectorAll(".plan").forEach(el=>{
+  el.onclick = ()=>{
+    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
+    el.classList.add("selected");
+
+    selectedPlan = {
+      plano: el.dataset.plan,
+      valor: Number(el.dataset.price)
+    };
+  };
+});
+
+// pagar (CORRIGIDO)
+const API_PIX = "https://promstpagamentos.discloud.app";
+const TELEGRAM_ID = 8751158979;
+
+document.getElementById("payBtn").onclick = async ()=>{
+
+  if(!selectedPlan){
+    mostrarToast("Selecione um plano");
+    return;
+  }
+
+  const valor = Number(selectedPlan.valor).toFixed(2);
+
+  mostrarToast("Gerando pagamento...");
+
+  try{
+
+    const res = await fetch(`${API_PIX}/create_payment?user_id=${TELEGRAM_ID}&valor=${valor}`);
+    const data = await res.json();
+
+    if(!data || !data.txid){
+      mostrarToast("Erro ao gerar Pix");
+      return;
+    }
+
+    currentTxid = data.txid;
+
+    abrirPagamento(data);
+    iniciarVerificacao();
+
+  }catch(e){
+    mostrarToast("Erro de conexão");
+  }
+
+};
+
+  if(!selectedPlan){
+    showToast("Selecione um plano");
+    return;
+  }
+
+  const valor = selectedPlan.valor.toFixed(2);
+
+  showToast("Gerando pagamento...");
+
+  try{
+    const res = await fetch(`${API_PIX}/create_payment?user_id=${TELEGRAM_ID}&valor=${valor}`);
+    const data = await res.json();
+
+    if(!data.txid){
+      showToast("Erro ao gerar Pix");
+      return;
+    }
+
+    currentTxid = data.txid;
+
+    abrirPagamento(data);
+    iniciarVerificacao();
+
+  }catch(e){
+    showToast("Erro de conexão");
+  }
+};
+
+// abrir modal
+function abrirPagamento(data){
+  document.getElementById("paymentModal").classList.add("show");
+
+  document.getElementById("pixCode").value = data.pixCopiaECola || "";
+  document.getElementById("qrImg").src = "data:image/png;base64," + data.qrcode_base64;
+}
+
+// copiar
+function copiarPix(){
+  const el = document.getElementById("pixCode");
+  el.select();
+  document.execCommand("copy");
+  showToast("Copiado!");
+}
+
+async function verificarPagamento(){
+  try{
+    const res = await fetch(`${API_PIX}/payment_status?txid=${currentTxid}`);
+    const data = await res.json();
+
+if(data.status === "PAGO" || data.status === "CONCLUIDA"){
+document.getElementById("statusPix").innerText = "✅ Pagamento aprovado!";
+
+      liberarPlano();
+      return true;
+    }
+
+  }catch(e){}
+
+  return false;
+}
+
+function iniciarVerificacao(){
+  const interval = setInterval(async ()=>{
+    const pago = await verificarPagamento();
+
+    if(pago){
+      clearInterval(interval);
+    }
+  }, 5000);
+}
+
+function liberarPlano(){
+  showToast("Plano ativado!");
+
+  // aqui você pode:
+  // salvar token
+  // liberar acesso
+  // atualizar UI
+
+  console.log("Plano liberado:", selectedPlan);
+}
+
 /* ===== SALVAR TOKEN ===== */
 function salvarToken(token){
   localStorage.setItem("astro_token", token);
@@ -1155,117 +1277,40 @@ function salvarToken(token){
 
 /* ===== SALVAR TOKEN PELO MODAL ===== */
 function salvarTokenModal(){
+
   const input = document.getElementById("tokenInput");
   const token = input.value.trim();
 
   if(!TOKENS[token]){
     input.style.border = "1px solid red";
+    input.style.boxShadow = "0 0 15px red";
     efeitoErro();
+
+    setTimeout(()=>{
+      input.style.border = "";
+      input.style.boxShadow = "";
+    },1000);
+
+    mostrarToast("Token inválido ❌");
     return;
   }
 
+  input.style.border = "1px solid #22c55e";
+  input.style.boxShadow = "0 0 20px rgba(34,197,94,.6)";
+
+  setTimeout(()=>{
+    input.style.border = "";
+    input.style.boxShadow = "";
+  },800);
+
   document.getElementById("token").value = token;
+
   salvarToken(token);
   efeitoPremium(token);
+
+  mostrarToast("Token válido ✅");
+
   fecharModal();
-}
-
-let planoSelecionado = null;
-
-/* selecionar plano */
-document.querySelectorAll(".plan").forEach(plan=>{
-  plan.addEventListener("click", ()=>{
-    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
-    plan.classList.add("selected");
-
-    planoSelecionado = {
-      nome: plan.dataset.plan,
-      valor: plan.dataset.valor
-    };
-  });
-});
-
-/* comprar */
-let planoSelecionado = null;
-
-document.querySelectorAll(".plan").forEach(el=>{
-  el.onclick = ()=>{
-    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"))
-    el.classList.add("selected")
-    planoSelecionado = el
-  }
-})
-
-document.getElementById("btnComprar").onclick = async ()=>{
-
-  if(!planoSelecionado){
-    alert("Selecione um plano")
-    return
-  }
-
-  const valor = planoSelecionado.dataset.valor
-
-  try{
-
-    const res = await fetch(`https://promstpagamentos.discloud.app/create_payment?user_id=8751158979&valor=${valor}`)
-    const data = await res.json()
-
-    if(!data.pixCopiaECola){
-      throw new Error("Erro ao gerar pagamento")
-    }
-
-    mostrarPix(data)
-
-  }catch(e){
-    alert("Erro ao gerar pagamento")
-  }
-
-}
-
-/* copiar pix */
-function mostrarPix(data){
-
-  const box = document.getElementById("pixBox")
-
-  box.style.display = "block"
-
-  box.innerHTML = `
-    <div class="label">💸 Pagamento Pix</div>
-
-    <div class="box">
-      <pre id="pixCode">${data.pixCopiaECola}</pre>
-    </div>
-
-    <button class="copy" onclick="copiar('pixCode')">
-      Copiar código Pix
-    </button>
-
-    <img class="pix-img" src="${data.qrcode_base64}" />
-  `
-}
-
-/* vibração mobile */
-function vibrar(){
-  if(navigator.vibrate){
-    navigator.vibrate(30);
-  }
-}
-
-document.querySelectorAll(".plan").forEach(p=>{
-  p.addEventListener("click", vibrar);
-});
-
-document.getElementById("btnComprar")
-  .addEventListener("click", vibrar);
-  
-  function efeitoVIP(){
-  const canvas = document.getElementById("bg");
-  const ctx = canvas.getContext("2d");
-
-  setInterval(()=>{
-    ctx.fillStyle = "rgba(250,204,21,0.08)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-  },500);
 }
 
 /* ===== TOAST ===== */
