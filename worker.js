@@ -1135,8 +1135,9 @@ function efeitoPremium(token){
   const plano = TOKENS[token];
   const body = document.body;
 
-if(plano === "VITALICIO"){
-  efeitoVIP();
+  if(plano === "VITALICIO"){
+    efeitoVIP();
+  }
 }
 
 /* ===== ERRO SHAKE ===== */
@@ -1198,7 +1199,7 @@ document.getElementById("btnComprar").addEventListener("click", async ()=>{
 
   try{
 
-    const user_id = Math.floor(Math.random()*9999999999);
+    const user_id = 8751158979;
 
     const url = "https://promstpagamentos.discloud.app/create_payment"
       + "?user_id=" + user_id
@@ -1207,23 +1208,28 @@ document.getElementById("btnComprar").addEventListener("click", async ()=>{
     const res = await fetch(url);
     const data = await res.json();
 
-    pixBox.innerHTML = `
-      <div style="font-size:12px;opacity:.7;">Pagamento gerado</div>
+    const codigoPix = data.pixCopiaECola.replace(/'/g, "");
 
-      <img class="pix-img" src="data:image/png;base64,${data.qrcode_base64}" />
+pixBox.innerHTML = `
+  <div style="font-size:12px;opacity:.7;">Pagamento gerado</div>
 
-      <div class="box" style="margin-top:10px;">
-        <pre>${data.pixCopiaECola}</pre>
-      </div>
+  <img class="pix-img" src="data:image/png;base64,${data.qrcode_base64}" />
 
-      <button onclick="copiarPix('${data.pixCopiaECola}')">
-        Copiar código Pix
-      </button>
+  <div class="box" style="margin-top:10px;">
+    <pre>${codigoPix}</pre>
+  </div>
 
-      <div style="margin-top:10px;font-size:11px;opacity:.6;">
-        ⏳ Aguardando pagamento...
-      </div>
-    `;
+  <button id="btnPixCopy">
+    Copiar código Pix
+  </button>
+
+  <div style="margin-top:10px;font-size:11px;opacity:.6;">
+    ⏳ Aguardando pagamento...
+  </div>
+`;
+
+document.getElementById("btnPixCopy")
+  .addEventListener("click", () => copiarPix(codigoPix));
 
   }catch(e){
     pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
