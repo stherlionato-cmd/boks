@@ -895,32 +895,55 @@ button:hover::after{
  color:#a855f7;
 }
 
-.resultado-card{
-  animation: fadeUp .4s ease;
+/* ===== MODAL PREMIUM ===== */
+
+.modal-box{
+ animation: modalEnter .4s cubic-bezier(.2,.8,.2,1);
 }
 
-@keyframes fadeUp{
-  from{opacity:0; transform:translateY(10px)}
-  to{opacity:1; transform:translateY(0)}
+@keyframes modalEnter{
+ from{
+  opacity:0;
+  transform:scale(.8) translateY(20px);
+ }
+ to{
+  opacity:1;
+  transform:scale(1) translateY(0);
+ }
 }
 
-.res-title{
-  font-weight:700;
-  margin-bottom:6px;
-  color:#3b82f6;
+/* glow premium pulsando */
+.plan.featured{
+ animation: glowPulse 2s infinite alternate;
 }
 
-.res-content{
-  font-size:12px;
-  opacity:.85;
-  margin-bottom:8px;
+@keyframes glowPulse{
+ from{box-shadow:0 0 10px rgba(59,130,246,.2);}
+ to{box-shadow:0 0 25px rgba(59,130,246,.4);}
 }
 
-.fav-item{
-  background:#020617;
-  padding:8px;
-  border-radius:10px;
-  margin-top:6px;
+/* botão comprar premium */
+#btnComprar{
+ background:linear-gradient(90deg,#22c55e,#16a34a);
+ font-weight:700;
+ letter-spacing:.5px;
+}
+
+#btnComprar:hover{
+ box-shadow:0 10px 30px rgba(34,197,94,.4);
+}
+
+/* QR CODE */
+.pix-img{
+ width:100%;
+ border-radius:12px;
+ margin-top:10px;
+ animation:fadeIn .5s ease;
+}
+
+@keyframes fadeIn{
+ from{opacity:0;transform:translateY(10px)}
+ to{opacity:1;transform:translateY(0)}
 }
 `
 }
@@ -1008,14 +1031,8 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <div class="card">
 
 <div class="label">Resposta</div>
-<input id="buscaResultado" placeholder="🔎 Buscar no resultado..." oninput="filtrarResultado()" style="margin-top:10px;">
 <div class="box" id="resBox">
 <pre id="resposta"></pre>
-</div>
-
-<div class="card">
-  <div class="label">⭐ Favoritos</div>
-  <div id="favoritos"></div>
 </div>
 
 <button class="copy" onclick="copiar('resposta')">Copiar resposta</button>
@@ -1040,35 +1057,38 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 
 <div class="plans">
 
-  <div class="plan" data-plan="DIARIO">
+  <div class="plan" data-plan="DIARIO" data-valor="5">
     <div class="plan-top">
-      <span>DIÁRIO</span>
+      <span>⚡ DIÁRIO</span>
       <span class="price">R$5</span>
     </div>
-    <div class="plan-info">
-      Acesso 24h
-    </div>
+    <div class="plan-info">Acesso 24h • ideal pra teste</div>
   </div>
 
-  <div class="plan featured" data-plan="PRO">
+  <div class="plan featured" data-plan="PRO" data-valor="30">
+    <div class="badge-plan">🔥 MAIS POPULAR</div>
     <div class="plan-top">
-      <span>PRO</span>
+      <span>💎 PRO</span>
       <span class="price">R$30/mês</span>
     </div>
-    <div class="plan-info">
-      1000 consultas
-    </div>
+    <div class="plan-info">1000 consultas • prioridade</div>
   </div>
 
-<div class="plan" data-plan="VITALICIO">
-  <div class="plan-top">
-    <span>VITALÍCIO</span>
-    <span class="price">R$50 único</span>
+  <div class="plan vip" data-plan="VITALICIO" data-valor="50">
+    <div class="plan-top">
+      <span>👑 VITALÍCIO</span>
+      <span class="price">R$50 único</span>
+    </div>
+    <div class="plan-info">Acesso ilimitado pra sempre</div>
   </div>
-  <div class="plan-info">
-    Ilimitado
-  </div>
+
 </div>
+
+<button id="btnComprar" style="margin-top:15px;">
+  🚀 Comprar com Pix
+</button>
+
+<div id="pixBox" style="display:none;margin-top:15px;"></div>
 
 </div>
 
@@ -1116,10 +1136,7 @@ function efeitoPremium(token){
   const body = document.body;
 
 if(plano === "VITALICIO"){
-  body.style.boxShadow = "inset 0 0 120px rgba(168,85,247,.3)";
-} else if(plano === "FREE"){
-    body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
-  }
+  efeitoVIP();
 }
 
 /* ===== ERRO SHAKE ===== */
@@ -1152,6 +1169,98 @@ function salvarTokenModal(){
   fecharModal();
 }
 
+let planoSelecionado = null;
+
+/* selecionar plano */
+document.querySelectorAll(".plan").forEach(plan=>{
+  plan.addEventListener("click", ()=>{
+    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
+    plan.classList.add("selected");
+
+    planoSelecionado = {
+      nome: plan.dataset.plan,
+      valor: plan.dataset.valor
+    };
+  });
+});
+
+/* comprar */
+document.getElementById("btnComprar").addEventListener("click", async ()=>{
+
+  if(!planoSelecionado){
+    mostrarToast("Selecione um plano primeiro ⚠️");
+    return;
+  }
+
+  const pixBox = document.getElementById("pixBox");
+  pixBox.style.display = "block";
+  pixBox.innerHTML = "<div class='loader'></div>";
+
+  try{
+
+    const user_id = Math.floor(Math.random()*9999999999);
+
+    const url = "https://promstpagamentos.discloud.app/create_payment"
+      + "?user_id=" + user_id
+      + "&valor=" + planoSelecionado.valor;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    pixBox.innerHTML = `
+      <div style="font-size:12px;opacity:.7;">Pagamento gerado</div>
+
+      <img class="pix-img" src="data:image/png;base64,${data.qrcode_base64}" />
+
+      <div class="box" style="margin-top:10px;">
+        <pre>${data.pixCopiaECola}</pre>
+      </div>
+
+      <button onclick="copiarPix('${data.pixCopiaECola}')">
+        Copiar código Pix
+      </button>
+
+      <div style="margin-top:10px;font-size:11px;opacity:.6;">
+        ⏳ Aguardando pagamento...
+      </div>
+    `;
+
+  }catch(e){
+    pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
+  }
+
+});
+
+/* copiar pix */
+function copiarPix(text){
+  navigator.clipboard.writeText(text);
+  mostrarToast("Pix copiado 🚀");
+}
+
+/* vibração mobile */
+function vibrar(){
+  if(navigator.vibrate){
+    navigator.vibrate(30);
+  }
+}
+
+document.querySelectorAll(".plan").forEach(p=>{
+  p.addEventListener("click", vibrar);
+});
+
+document.getElementById("btnComprar")
+  .addEventListener("click", vibrar);
+  
+  function efeitoVIP(){
+  const canvas = document.getElementById("bg");
+  const ctx = canvas.getContext("2d");
+
+  setInterval(()=>{
+    ctx.fillStyle = "rgba(250,204,21,0.08)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  },500);
+}
+
 /* ===== TOAST ===== */
 function mostrarToast(msg){
   const t = document.getElementById("toast");
@@ -1164,7 +1273,7 @@ function mostrarToast(msg){
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
   btn.disabled = true;
-  btn.innerText = "🔍 Buscando...";
+  btn.innerText = "Consultando...";
 
   const token = document.getElementById("token").value.trim();
   const endpoint = document.getElementById("endpoint").value;
@@ -1226,18 +1335,15 @@ const param = PARAMS[endpoint];
   try{
     const r = await fetch(url);
     const j = await r.json();
-    if(j.meta){
-  atualizarDashboard(j.meta);
-}
-resBox.innerHTML = "<div id='resultadoCards' style='opacity:0;transform:translateY(10px)'>" + renderizarCards(j) + "</div>";
+resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
 
 setTimeout(()=>{
-  const el = document.getElementById("resultadoCards");
+  const el = document.getElementById("resposta");
   el.style.transition=".4s";
   el.style.opacity="1";
   el.style.transform="translateY(0)";
 },50);
-    mostrarToast("✔ Consulta finalizada");
+    mostrarToast("Consulta feita com sucesso 🚀");
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
@@ -1288,91 +1394,6 @@ let particles = [];
 function resizeCanvas(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-}
-
-function renderizarCards(data){
-  if(!data || !data.dados || !data.dados.resultado){
-    return "<pre>"+JSON.stringify(data,null,2)+"</pre>";
-  }
-
-  const resultado = data.dados.resultado;
-  let html = "";
-
-  function criarCard(titulo, conteudo){
-    return `
-      <div class="card resultado-card">
-        <div class="res-title">${titulo}</div>
-        <div class="res-content">${formatarConteudo(conteudo)}</div>
-        <button class="copy" onclick="favoritar('${titulo}','${String(conteudo).replace(/'/g,"")}')">⭐ Favoritar</button>
-      </div>
-    `;
-  }
-
-  if(Array.isArray(resultado)){
-    resultado.forEach(sec=>{
-      html += criarCard(sec.titulo, sec.conteudo);
-    });
-  } else if(typeof resultado === "object"){
-    for(const k in resultado){
-      html += criarCard(k.toUpperCase(), resultado[k]);
-    }
-  }
-
-  return html;
-}
-
-function formatarConteudo(conteudo){
-  if(typeof conteudo === "object"){
-    return Object.entries(conteudo)
-      .map(([k,v])=>`<div><b>${k}:</b> ${v}</div>`)
-      .join("");
-  }
-  return conteudo;
-}
-
-function favoritar(titulo, conteudo){
-  const favs = JSON.parse(localStorage.getItem("favoritos") || "[]");
-
-  favs.push({titulo, conteudo});
-  localStorage.setItem("favoritos", JSON.stringify(favs));
-
-  mostrarToast("Salvo nos favoritos ⭐");
-}
-
-function carregarFavoritos(){
-  const favs = JSON.parse(localStorage.getItem("favoritos") || "[]");
-  const div = document.getElementById("favoritos");
-
-  if(!div) return;
-
-  div.innerHTML = favs.map(f=>`
-    <div class="fav-item">
-      <b>${f.titulo}</b><br>
-      ${f.conteudo}
-    </div>
-  `).join("");
-}
-
-function filtrarResultado(){
-  const termo = document.getElementById("buscaResultado").value.toLowerCase();
-
-  document.querySelectorAll(".resultado-card").forEach(card=>{
-    const texto = card.innerText.toLowerCase();
-    card.style.display = texto.includes(termo) ? "block" : "none";
-  });
-}
-
-function atualizarDashboard(meta){
-  const el = document.getElementById("badgeContainer");
-
-  el.innerHTML = `
-    <div class="badge ${meta.plano.toLowerCase()}">
-      💎 ${meta.plano}
-    </div>
-    <div class="badge">
-      💰 ${meta.creditos_restantes}
-    </div>
-  `;
 }
 
 function createParticles(qtd=60){
@@ -1859,7 +1880,6 @@ window.addEventListener("load", ()=>{
   resizeCanvas();
   createParticles();
   drawParticles();
-  carregarFavoritos();
 });
 
 window.addEventListener("resize", resizeCanvas);
