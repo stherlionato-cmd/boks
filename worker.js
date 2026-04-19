@@ -1057,7 +1057,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 
 <div class="plans">
 
-  <div class="plan" data-plan="DIARIO" data-valor="5">
+  <div class="plan" data-plan="DIARIO" data-valor="15.00">
     <div class="plan-top">
       <span>⚡ DIÁRIO</span>
       <span class="price">R$5</span>
@@ -1065,7 +1065,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
     <div class="plan-info">Acesso 24h • ideal pra teste</div>
   </div>
 
-  <div class="plan featured" data-plan="PRO" data-valor="30">
+  <div class="plan featured" data-plan="PRO" data-valor="30.00">
     <div class="badge-plan">🔥 MAIS POPULAR</div>
     <div class="plan-top">
       <span>💎 PRO</span>
@@ -1074,7 +1074,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
     <div class="plan-info">1000 consultas • prioridade</div>
   </div>
 
-  <div class="plan vip" data-plan="VITALICIO" data-valor="50">
+  <div class="plan vip" data-plan="VITALICIO" data-valor="50.00">
     <div class="plan-top">
       <span>👑 VITALÍCIO</span>
       <span class="price">R$50 único</span>
