@@ -1186,65 +1186,62 @@ document.querySelectorAll(".plan").forEach(plan=>{
 });
 
 /* comprar */
-document.getElementById("btnComprar").addEventListener("click", async ()=>{
+let planoSelecionado = null;
+
+document.querySelectorAll(".plan").forEach(el=>{
+  el.onclick = ()=>{
+    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"))
+    el.classList.add("selected")
+    planoSelecionado = el
+  }
+})
+
+document.getElementById("btnComprar").onclick = async ()=>{
 
   if(!planoSelecionado){
-    mostrarToast("Selecione um plano primeiro ⚠️");
-    return;
+    alert("Selecione um plano")
+    return
   }
 
-  const pixBox = document.getElementById("pixBox");
-  pixBox.style.display = "block";
-  pixBox.innerHTML = "<div class='loader'></div>";
+  const valor = planoSelecionado.dataset.valor
 
   try{
 
-    const user_id = 8751158979;
+    const res = await fetch(`https://promstpagamentos.discloud.app/create_payment?user_id=8751158979&valor=${valor}`)
+    const data = await res.json()
 
-    const url = "https://promstpagamentos.discloud.app/create_payment"
-      + "?user_id=" + user_id
-      + "&valor=" + parseFloat(planoSelecionado.valor);
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if(!data || data.status !== "ATIVA"){
-      console.error("API ERROR:", data);
-      throw new Error("Pagamento não foi criado");
+    if(!data.pixCopiaECola){
+      throw new Error("Erro ao gerar pagamento")
     }
 
-    const codigoPix = data.pixCopiaECola.replace(/'/g, "");
-
-    pixBox.innerHTML =
-      '<div style="font-size:12px;opacity:.7;">Pagamento gerado</div>' +
-
-      '<img class="pix-img" src="data:image/png;base64,' + data.qrcode_base64 + '" />' +
-
-      '<div class="box" style="margin-top:10px;">' +
-        '<pre>' + codigoPix + '</pre>' +
-      '</div>' +
-
-      '<button id="btnPixCopy">Copiar código Pix</button>' +
-
-      '<div style="margin-top:10px;font-size:11px;opacity:.6;">' +
-        '⏳ Aguardando pagamento...' +
-      '</div>';
-
-    document.getElementById("btnPixCopy")
-      .addEventListener("click", () => copiarPix(codigoPix));
+    mostrarPix(data)
 
   }catch(e){
-    console.error(e);
-    pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
-    mostrarToast("Erro no pagamento ❌");
+    alert("Erro ao gerar pagamento")
   }
 
-});
+}
 
 /* copiar pix */
-function copiarPix(text){
-  navigator.clipboard.writeText(text);
-  mostrarToast("Pix copiado 🚀");
+function mostrarPix(data){
+
+  const box = document.getElementById("pixBox")
+
+  box.style.display = "block"
+
+  box.innerHTML = `
+    <div class="label">💸 Pagamento Pix</div>
+
+    <div class="box">
+      <pre id="pixCode">${data.pixCopiaECola}</pre>
+    </div>
+
+    <button class="copy" onclick="copiar('pixCode')">
+      Copiar código Pix
+    </button>
+
+    <img class="pix-img" src="${data.qrcode_base64}" />
+  `
 }
 
 /* vibração mobile */
