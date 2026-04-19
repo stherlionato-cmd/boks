@@ -1203,39 +1203,41 @@ document.getElementById("btnComprar").addEventListener("click", async ()=>{
 
     const url = "https://promstpagamentos.discloud.app/create_payment"
       + "?user_id=" + user_id
-      + "&valor=" + planoSelecionado.valor;
+      + "&valor=" + parseFloat(planoSelecionado.valor);
 
     const res = await fetch(url);
     const data = await res.json();
 
-    if(!data.pixCopiaECola || !data.qrcode_base64){
-  throw new Error("Resposta inválida da API");
-}
+    if(!data || data.status !== "ATIVA"){
+      console.error("API ERROR:", data);
+      throw new Error("Pagamento não foi criado");
+    }
 
-const codigoPix = data.pixCopiaECola.replace(/'/g, "");
+    const codigoPix = data.pixCopiaECola.replace(/'/g, "");
 
-pixBox.innerHTML =
-  '<div style="font-size:12px;opacity:.7;">Pagamento gerado</div>' +
+    pixBox.innerHTML =
+      '<div style="font-size:12px;opacity:.7;">Pagamento gerado</div>' +
 
-'<img class="pix-img" src="' + data.qrcode_base64 + '" />' +
+      '<img class="pix-img" src="data:image/png;base64,' + data.qrcode_base64 + '" />' +
 
-  '<div class="box" style="margin-top:10px;">' +
-    '<pre>' + codigoPix + '</pre>' +
-  '</div>' +
+      '<div class="box" style="margin-top:10px;">' +
+        '<pre>' + codigoPix + '</pre>' +
+      '</div>' +
 
-  '<button id="btnPixCopy">Copiar código Pix</button>' +
+      '<button id="btnPixCopy">Copiar código Pix</button>' +
 
-  '<div style="margin-top:10px;font-size:11px;opacity:.6;">' +
-    '⏳ Aguardando pagamento...' +
-  '</div>';
+      '<div style="margin-top:10px;font-size:11px;opacity:.6;">' +
+        '⏳ Aguardando pagamento...' +
+      '</div>';
 
-document.getElementById("btnPixCopy")
-  .addEventListener("click", () => copiarPix(codigoPix));
+    document.getElementById("btnPixCopy")
+      .addEventListener("click", () => copiarPix(codigoPix));
 
-}catch(e){
-  console.error(e);
-  pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
-}
+  }catch(e){
+    console.error(e);
+    pixBox.innerHTML = "<pre>Erro ao gerar pagamento</pre>";
+    mostrarToast("Erro no pagamento ❌");
+  }
 
 });
 
