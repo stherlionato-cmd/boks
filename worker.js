@@ -35,6 +35,10 @@ if(endpoint === "style.css"){
 }
 
 if(endpoint === ""){
+  return landing(request)
+}
+
+if(endpoint === "app"){
   return home(request)
 }
 
@@ -941,63 +945,6 @@ return new Response(`
 </div>
 
 <div class="header">
-<!-- DASHBOARD -->
-<div class="card" id="dashboard">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    
-    <div>
-      <div style="font-size:12px;opacity:.6;">Plano</div>
-      <div id="dashPlano" style="font-weight:700;">-</div>
-    </div>
-
-    <div>
-      <div style="font-size:12px;opacity:.6;">Consultas</div>
-      <div id="dashTotal" style="font-weight:700;">0</div>
-    </div>
-
-    <div>
-      <div style="font-size:12px;opacity:.6;">Créditos</div>
-      <div id="dashCreditos" style="font-weight:700;">-</div>
-    </div>
-
-  </div>
-</div>
-
-<div class="card">
-  <div style="font-size:12px;opacity:.6;">Uso de créditos</div>
-
-  <div style="
-    margin-top:8px;
-    height:10px;
-    background:#111;
-    border-radius:999px;
-    overflow:hidden;
-  ">
-    <div id="barraCreditos" style="
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#22c55e,#3b82f6);
-      transition:.4s;
-    "></div>
-  </div>
-
-  <div id="textoCreditos" style="font-size:11px;margin-top:6px;opacity:.6;"></div>
-</div>
-
-<div class="card" id="statusAPI" style="display:flex;justify-content:space-between;align-items:center;">
-
-  <div>
-    <div style="font-size:12px;opacity:.6;">Status</div>
-    <div id="apiStatus">🟡 Verificando...</div>
-  </div>
-
-  <div>
-    <div style="font-size:12px;opacity:.6;">Latência</div>
-    <div id="apiLatency">-</div>
-  </div>
-
-</div>
-
   <h1>🚀 Astro <span>Search</span></h1>
   <div id="badgeContainer" style="margin-top:8px;"></div>
 </div>
@@ -1097,84 +1044,228 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 
 <canvas id="bg"></canvas>
 
-<script>
+function landing(request){
 
-const STATE = {
-  totalConsultas: 0,
-  creditos: null,
-  plano: null
-};
+const base = new URL(request.url).origin
 
-function atualizarDashboard(){
-  document.getElementById("dashPlano").innerText = STATE.plano || "-";
-  document.getElementById("dashTotal").innerText = STATE.totalConsultas;
-  document.getElementById("dashCreditos").innerText = 
-    STATE.creditos === -1 ? "∞" : STATE.creditos ?? "-";
+return new Response(`
 
-  atualizarBarra();
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Astro Ultra</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+
+<style>
+
+/* HERO */
+.hero{
+ text-align:center;
+ padding:60px 20px;
 }
 
-function atualizarBarra(){
-  if(STATE.creditos === -1){
-    document.getElementById("barraCreditos").style.width = "100%";
-    document.getElementById("textoCreditos").innerText = "Plano ilimitado";
+.hero h1{
+ font-size:28px;
+ font-weight:800;
+}
+
+.hero p{
+ opacity:.7;
+ margin-top:10px;
+}
+
+/* CTA */
+.cta{
+ margin-top:20px;
+ display:flex;
+ gap:10px;
+ justify-content:center;
+ flex-wrap:wrap;
+}
+
+/* GRID */
+.grid{
+ display:grid;
+ grid-template-columns:1fr;
+ gap:15px;
+ margin-top:20px;
+}
+
+/* RESPONSIVO */
+@media(min-width:700px){
+ .grid{
+  grid-template-columns:1fr 1fr 1fr;
+ }
+}
+
+/* CARD DESTACADO */
+.glow{
+ border:1px solid rgba(59,130,246,.5);
+ box-shadow:0 0 40px rgba(59,130,246,.2);
+}
+
+/* PIX BOX */
+.pix-box{
+ text-align:center;
+}
+
+.qr{
+ margin-top:10px;
+}
+
+/* BADGE TOP */
+.top-badge{
+ position:fixed;
+ top:10px;
+ right:10px;
+ background:#111;
+ padding:6px 12px;
+ border-radius:999px;
+ font-size:11px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="top-badge">🔥 Astro Ultra</div>
+
+<div class="hero">
+  <h1>🚀 API de Consultas <span style="color:#3b82f6">Premium</span></h1>
+  <p>CPF, Nome, Telefone, Score, Parentes e muito mais em milissegundos.</p>
+
+  <div class="cta">
+    <button onclick="entrar()">Entrar no Sistema</button>
+    <button onclick="scrollPlanos()">Ver Planos</button>
+  </div>
+</div>
+
+<!-- PLANOS -->
+<div class="card" id="planos">
+  <h2>💎 Planos</h2>
+
+  <div class="grid">
+
+    <div class="plan">
+      <div class="plan-top">
+        <span>FREE</span>
+        <span>R$0</span>
+      </div>
+      <div class="plan-info">100 consultas</div>
+    </div>
+
+    <div class="plan featured glow">
+      <div class="plan-top">
+        <span>PRO</span>
+        <span>R$30</span>
+      </div>
+      <div class="plan-info">1000 consultas</div>
+    </div>
+
+    <div class="plan vip">
+      <div class="plan-top">
+        <span>VITALÍCIO</span>
+        <span>R$50</span>
+      </div>
+      <div class="plan-info">Acesso ilimitado</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONSULTAS -->
+<div class="card">
+  <h2>🔎 Consultas disponíveis</h2>
+
+  <div class="grid">
+    ${Object.keys(ENDPOINTS).map(e=>`
+      <div class="plan">
+        <div class="plan-top">
+          <span>${e}</span>
+          <span>API</span>
+        </div>
+        <div class="plan-info">Consulta ${e}</div>
+      </div>
+    `).join("")}
+  </div>
+</div>
+
+<!-- PIX -->
+<div class="card pix-box">
+  <h2>💰 Gerar Pagamento Pix</h2>
+
+  <input id="valorPix" placeholder="Valor (ex: 10.50)">
+  <button onclick="gerarPix()">Gerar Pix</button>
+
+  <div id="pixResult"></div>
+</div>
+
+<script>
+
+function entrar(){
+  window.location.href = "/app";
+}
+
+function scrollPlanos(){
+  document.getElementById("planos").scrollIntoView({behavior:"smooth"});
+}
+
+async function gerarPix(){
+
+  const valor = document.getElementById("valorPix").value;
+
+  if(!valor){
+    alert("Digite um valor");
     return;
   }
 
-  const total = 100;
-  const usados = total - STATE.creditos;
-  const percent = (usados / total) * 100;
+  const url = "https://promstpagamentos.discloud.app/create_payment?user_id=8751158979&valor=" + valor;
 
-  document.getElementById("barraCreditos").style.width = percent + "%";
-  document.getElementById("textoCreditos").innerText =
-    usados + " usados de " + total;
-}
-
-function mostrarPaywall(){
-  const resBox = document.getElementById("resBox");
-
-  resBox.innerHTML = `
-  <div style="text-align:center;padding:20px;">
-    <h3 style="margin-bottom:10px;">⚠️ Créditos esgotados</h3>
-    <p style="font-size:13px;opacity:.7;">
-      Você atingiu o limite do seu plano.
-    </p>
-
-    <button onclick="abrirModal()" style="margin-top:15px;">
-      💎 Ver planos
-    </button>
-
-    <button onclick="comprarCreditos()" 
-      style="margin-top:8px;background:linear-gradient(90deg,#22c55e,#16a34a);">
-      ⚡ Comprar agora
-    </button>
-  </div>
-`;
-}
-
-function comprarCreditos(){
-  alert("Aqui entra o PIX depois 💳");
-}
-
-async function checarStatus(){
-  const start = performance.now();
+  const box = document.getElementById("pixResult");
+  box.innerHTML = "Gerando...";
 
   try{
-    await fetch(window.location.origin + "/cpf?token=astrofree&cpf=123");
 
-    const tempo = (performance.now() - start).toFixed(0);
+    const res = await fetch(url);
+    const json = await res.json();
 
-    document.getElementById("apiStatus").innerText = "🟢 Online";
-    document.getElementById("apiLatency").innerText = tempo + " ms";
+    box.innerHTML = \`
+      <div class="box">
+        <b>PIX Copia e Cola:</b>
+        <pre>\${json.pixCopiaECola}</pre>
 
-  } catch {
-    document.getElementById("apiStatus").innerText = "🔴 Offline";
-    document.getElementById("apiLatency").innerText = "-";
+        <img class="qr" width="200" src="data:image/png;base64,\${json.qrcode_base64}">
+      </div>
+    \`;
+
+  }catch{
+    box.innerHTML = "Erro ao gerar Pix";
   }
+
 }
 
+</script>
 
+</body>
+</html>
 
+`,{
+  headers:{
+    "content-type":"text/html"
+  }
+})
+
+}
+
+<script>
 /* ===== TOKENS ===== */
 const TOKENS = {
   omaigd: "VITALICIO",
@@ -1326,12 +1417,6 @@ const param = PARAMS[endpoint];
   try{
     const r = await fetch(url);
     const j = await r.json();
-    if(!j.status && j.erro?.code === "LIMIT_001"){
-  mostrarPaywall();
-  btn.disabled = false;
-  btn.innerText = "Consultar";
-  return;
-}
 resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
 
 setTimeout(()=>{
@@ -1341,16 +1426,6 @@ setTimeout(()=>{
   el.style.transform="translateY(0)";
 },50);
     mostrarToast("Consulta feita com sucesso 🚀");
-    STATE.totalConsultas++;
-
-if(j.meta){
-  STATE.plano = j.meta.plano;
-  STATE.creditos = j.meta.creditos_restantes === "ilimitado"
-    ? -1
-    : j.meta.creditos_restantes;
-}
-
-atualizarDashboard();
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
@@ -1433,8 +1508,6 @@ function drawParticles(){
 
 /* ===== LOAD ===== */
 window.addEventListener("load", ()=>{
-checarStatus();
-setInterval(checarStatus, 30000);
   // Primeiro: mostrar modal de manutenção
   const maintenanceModal = document.getElementById("maintenanceModal");
   maintenanceModal.classList.add("show");
