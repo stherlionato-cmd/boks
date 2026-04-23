@@ -1134,22 +1134,22 @@ function mostrarPaywall(){
   const resBox = document.getElementById("resBox");
 
   resBox.innerHTML = `
-    <div style="text-align:center;padding:20px;">
-      <h3 style="margin-bottom:10px;">⚠️ Créditos esgotados</h3>
-      <p style="font-size:13px;opacity:.7;">
-        Você atingiu o limite do seu plano.
-      </p>
+  <div style="text-align:center;padding:20px;">
+    <h3 style="margin-bottom:10px;">⚠️ Créditos esgotados</h3>
+    <p style="font-size:13px;opacity:.7;">
+      Você atingiu o limite do seu plano.
+    </p>
 
-      <button onclick="abrirModal()" style="margin-top:15px;">
-        💎 Ver planos
-      </button>
+    <button onclick="abrirModal()" style="margin-top:15px;">
+      💎 Ver planos
+    </button>
 
-      <button onclick="comprarCreditos()" 
-        style="margin-top:8px;background:linear-gradient(90deg,#22c55e,#16a34a);">
-        ⚡ Comprar agora
-      </button>
-    </div>
-  `;
+    <button onclick="comprarCreditos()" 
+      style="margin-top:8px;background:linear-gradient(90deg,#22c55e,#16a34a);">
+      ⚡ Comprar agora
+    </button>
+  </div>
+`;
 }
 
 function comprarCreditos(){
