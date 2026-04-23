@@ -35,10 +35,6 @@ if(endpoint === "style.css"){
 }
 
 if(endpoint === ""){
-  return landing(request)
-}
-
-if(endpoint === "app"){
   return home(request)
 }
 
@@ -1044,227 +1040,6 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 
 <canvas id="bg"></canvas>
 
-function landing(request){
-
-const base = new URL(request.url).origin
-
-return new Response(`
-
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Astro Ultra</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">
-
-<style>
-
-/* HERO */
-.hero{
- text-align:center;
- padding:60px 20px;
-}
-
-.hero h1{
- font-size:28px;
- font-weight:800;
-}
-
-.hero p{
- opacity:.7;
- margin-top:10px;
-}
-
-/* CTA */
-.cta{
- margin-top:20px;
- display:flex;
- gap:10px;
- justify-content:center;
- flex-wrap:wrap;
-}
-
-/* GRID */
-.grid{
- display:grid;
- grid-template-columns:1fr;
- gap:15px;
- margin-top:20px;
-}
-
-/* RESPONSIVO */
-@media(min-width:700px){
- .grid{
-  grid-template-columns:1fr 1fr 1fr;
- }
-}
-
-/* CARD DESTACADO */
-.glow{
- border:1px solid rgba(59,130,246,.5);
- box-shadow:0 0 40px rgba(59,130,246,.2);
-}
-
-/* PIX BOX */
-.pix-box{
- text-align:center;
-}
-
-.qr{
- margin-top:10px;
-}
-
-/* BADGE TOP */
-.top-badge{
- position:fixed;
- top:10px;
- right:10px;
- background:#111;
- padding:6px 12px;
- border-radius:999px;
- font-size:11px;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="top-badge">🔥 Astro Ultra</div>
-
-<div class="hero">
-  <h1>🚀 API de Consultas <span style="color:#3b82f6">Premium</span></h1>
-  <p>CPF, Nome, Telefone, Score, Parentes e muito mais em milissegundos.</p>
-
-  <div class="cta">
-    <button onclick="entrar()">Entrar no Sistema</button>
-    <button onclick="scrollPlanos()">Ver Planos</button>
-  </div>
-</div>
-
-<!-- PLANOS -->
-<div class="card" id="planos">
-  <h2>💎 Planos</h2>
-
-  <div class="grid">
-
-    <div class="plan">
-      <div class="plan-top">
-        <span>FREE</span>
-        <span>R$0</span>
-      </div>
-      <div class="plan-info">100 consultas</div>
-    </div>
-
-    <div class="plan featured glow">
-      <div class="plan-top">
-        <span>PRO</span>
-        <span>R$30</span>
-      </div>
-      <div class="plan-info">1000 consultas</div>
-    </div>
-
-    <div class="plan vip">
-      <div class="plan-top">
-        <span>VITALÍCIO</span>
-        <span>R$50</span>
-      </div>
-      <div class="plan-info">Acesso ilimitado</div>
-    </div>
-
-  </div>
-</div>
-
-<!-- CONSULTAS -->
-<div class="card">
-  <h2>🔎 Consultas disponíveis</h2>
-
-  <div class="grid">
-    ${Object.keys(ENDPOINTS).map(e=>`
-      <div class="plan">
-        <div class="plan-top">
-          <span>${e}</span>
-          <span>API</span>
-        </div>
-        <div class="plan-info">Consulta ${e}</div>
-      </div>
-    `).join("")}
-  </div>
-</div>
-
-<!-- PIX -->
-<div class="card pix-box">
-  <h2>💰 Gerar Pagamento Pix</h2>
-
-  <input id="valorPix" placeholder="Valor (ex: 10.50)">
-  <button onclick="gerarPix()">Gerar Pix</button>
-
-  <div id="pixResult"></div>
-</div>
-
-<script>
-
-function entrar(){
-  window.location.href = "/app";
-}
-
-function scrollPlanos(){
-  document.getElementById("planos").scrollIntoView({behavior:"smooth"});
-}
-
-async function gerarPix(){
-
-  const valor = document.getElementById("valorPix").value;
-
-  if(!valor){
-    alert("Digite um valor");
-    return;
-  }
-
-  const url = "https://promstpagamentos.discloud.app/create_payment?user_id=8751158979&valor=" + valor;
-
-  const box = document.getElementById("pixResult");
-  box.innerHTML = "Gerando...";
-
-  try{
-
-    const res = await fetch(url);
-    const json = await res.json();
-
-    box.innerHTML = \`
-      <div class="box">
-        <b>PIX Copia e Cola:</b>
-        <pre>\${json.pixCopiaECola}</pre>
-
-        <img class="qr" width="200" src="data:image/png;base64,\${json.qrcode_base64}">
-      </div>
-    \`;
-
-  }catch{
-    box.innerHTML = "Erro ao gerar Pix";
-  }
-
-}
-
-</script>
-
-</body>
-</html>
-
-`,{
-  headers:{
-    "content-type":"text/html"
-  }
-})
-
-}
-
 <script>
 /* ===== TOKENS ===== */
 const TOKENS = {
@@ -1351,6 +1126,68 @@ function mostrarToast(msg){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
+function renderResultadoUI(data){
+  if(!data || !data.dados){
+    return "<pre>Sem dados</pre>";
+  }
+
+  const resultado = data.dados.resultado;
+
+  if(!resultado) return "<pre>Sem resultado</pre>";
+
+  let html = "";
+
+  // 🔥 CASO SEJA ARRAY DE SEÇÕES
+  if(Array.isArray(resultado)){
+    resultado.forEach(sec=>{
+      html += `
+        <div class="card">
+          <div class="label" style="font-weight:600;margin-bottom:8px;">
+            ${sec.titulo}
+          </div>
+          ${sec.conteudo.split("\n").map(linha=>{
+            if(!linha.includes(":")) return "";
+            const [k,v] = linha.split(":");
+            return `
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="opacity:.6">${k}</span>
+                <span onclick="copiarTexto('${v.trim()}')" style="cursor:pointer">
+                  ${v.trim()} 📋
+                </span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    });
+  }
+
+  // 🔥 CASO SEJA OBJETO
+  else if(typeof resultado === "object"){
+    html += `<div class="card">`;
+
+    Object.entries(resultado).forEach(([k,v])=>{
+      html += `
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="opacity:.6">${k}</span>
+          <span onclick="copiarTexto('${v}')" style="cursor:pointer">
+            ${v} 📋
+          </span>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  return html;
+}
+
+function copiarTexto(txt){
+  navigator.clipboard.writeText(txt);
+  mostrarToast("Copiado!");
+}
+
 /* ===== CONSULTAR ===== */
 async function consultar(){
   const btn = document.getElementById("btnConsultar");
@@ -1417,7 +1254,7 @@ const param = PARAMS[endpoint];
   try{
     const r = await fetch(url);
     const j = await r.json();
-resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
+resBox.innerHTML = renderResultadoUI(j);
 
 setTimeout(()=>{
   const el = document.getElementById("resposta");
