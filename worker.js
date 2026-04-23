@@ -13,9 +13,6 @@ const ALIAS = {
   cpf6:"cpf"
 }
 
-const TELEGRAM_ID = 8751158979;
-const API_PIX = "https://promstpagamentos.discloud.app";
-
 if(ALIAS[endpoint]){
   endpoint = ALIAS[endpoint]
 }
@@ -897,30 +894,6 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
-
-.plan.selected{
-  border-color:#3b82f6;
-  box-shadow:0 0 25px rgba(59,130,246,.4);
-  transform:scale(1.03);
-}
-
-#payBtn{
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-}
-
-#payBtn:hover{
-  box-shadow:0 10px 30px rgba(34,197,94,.4);
-}
-
-.modal-box{
-  animation:modalEnter .3s ease;
-}
-
-@keyframes modalEnter{
-  from{opacity:0; transform:translateY(20px) scale(.95)}
-  to{opacity:1; transform:translateY(0) scale(1)}
-}
-
 `
 }
 
@@ -968,6 +941,63 @@ return new Response(`
 </div>
 
 <div class="header">
+<!-- DASHBOARD -->
+<div class="card" id="dashboard">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    
+    <div>
+      <div style="font-size:12px;opacity:.6;">Plano</div>
+      <div id="dashPlano" style="font-weight:700;">-</div>
+    </div>
+
+    <div>
+      <div style="font-size:12px;opacity:.6;">Consultas</div>
+      <div id="dashTotal" style="font-weight:700;">0</div>
+    </div>
+
+    <div>
+      <div style="font-size:12px;opacity:.6;">Créditos</div>
+      <div id="dashCreditos" style="font-weight:700;">-</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="card">
+  <div style="font-size:12px;opacity:.6;">Uso de créditos</div>
+
+  <div style="
+    margin-top:8px;
+    height:10px;
+    background:#111;
+    border-radius:999px;
+    overflow:hidden;
+  ">
+    <div id="barraCreditos" style="
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#22c55e,#3b82f6);
+      transition:.4s;
+    "></div>
+  </div>
+
+  <div id="textoCreditos" style="font-size:11px;margin-top:6px;opacity:.6;"></div>
+</div>
+
+<div class="card" id="statusAPI" style="display:flex;justify-content:space-between;align-items:center;">
+
+  <div>
+    <div style="font-size:12px;opacity:.6;">Status</div>
+    <div id="apiStatus">🟡 Verificando...</div>
+  </div>
+
+  <div>
+    <div style="font-size:12px;opacity:.6;">Latência</div>
+    <div id="apiLatency">-</div>
+  </div>
+
+</div>
+
   <h1>🚀 Astro <span>Search</span></h1>
   <div id="badgeContainer" style="margin-top:8px;"></div>
 </div>
@@ -1018,61 +1048,48 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <div id="toast">Copiado!</div>
 
 <!-- MODAL TOKEN -->
-<div id="modal" class="modal">
+<div class="modal" id="modal">
   <div class="modal-box">
 
     <h2 style="font-size:16px;margin-bottom:10px;">🔐 Acesso</h2>
 
     <input id="tokenInput" placeholder="Digite seu token">
 
-<button onclick="salvarTokenModal()">Validar Token</button>
+<button onclick="salvarTokenModal()">Entrar</button>
 
-    <div class="plans">
-
-      <div class="plan" data-plan="DIARIO" data-price="5">
-        <div class="plan-top">
-          <span>DIÁRIO</span>
-          <span>R$5</span>
-        </div>
-      </div>
-
-      <div class="plan featured" data-plan="PRO" data-price="30">
-        <div class="badge-plan">🔥 MAIS USADO</div>
-        <div class="plan-top">
-          <span>PRO</span>
-          <span>R$30</span>
-        </div>
-      </div>
-
-      <div class="plan vip" data-plan="VITALICIO" data-price="50">
-        <div class="plan-top">
-          <span>VITALÍCIO</span>
-          <span>R$50</span>
-        </div>
-      </div>
-
-    </div>
-
-<button id="payBtn">⚡ Comprar com Pix</button>
-
-  </div>
+<div style="margin-top:15px;font-size:12px;opacity:.6;">
+  Planos disponíveis:
 </div>
 
-<div id="paymentModal" class="modal">
-  <div class="modal-box">
+<div class="plans">
 
-    <h2>💸 Pagamento Pix</h2>
+  <div class="plan" data-plan="DIARIO">
+    <div class="plan-top">
+      <span>DIÁRIO</span>
+      <span class="price">R$5</span>
+    </div>
+    <div class="plan-info">
+      Acesso 24h
+    </div>
+  </div>
 
-    <img id="qrImg" style="width:100%;margin-top:10px;border-radius:12px"/>
+  <div class="plan featured" data-plan="PRO">
+    <div class="plan-top">
+      <span>PRO</span>
+      <span class="price">R$30/mês</span>
+    </div>
+    <div class="plan-info">
+      1000 consultas
+    </div>
+  </div>
 
-    <textarea id="pixCode" style="width:100%;margin-top:10px;height:80px;"></textarea>
-
-    <button onclick="copiarPix()">📋 Copiar</button>
-
-    <p id="statusPix" style="margin-top:10px;font-size:12px;opacity:.7">
-      Aguardando pagamento...
-    </p>
-
+<div class="plan" data-plan="VITALICIO">
+  <div class="plan-top">
+    <span>VITALÍCIO</span>
+    <span class="price">R$50 único</span>
+  </div>
+  <div class="plan-info">
+    Ilimitado
   </div>
 </div>
 
@@ -1081,6 +1098,83 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <canvas id="bg"></canvas>
 
 <script>
+
+const STATE = {
+  totalConsultas: 0,
+  creditos: null,
+  plano: null
+};
+
+function atualizarDashboard(){
+  document.getElementById("dashPlano").innerText = STATE.plano || "-";
+  document.getElementById("dashTotal").innerText = STATE.totalConsultas;
+  document.getElementById("dashCreditos").innerText = 
+    STATE.creditos === -1 ? "∞" : STATE.creditos ?? "-";
+
+  atualizarBarra();
+}
+
+function atualizarBarra(){
+  if(STATE.creditos === -1){
+    document.getElementById("barraCreditos").style.width = "100%";
+    document.getElementById("textoCreditos").innerText = "Plano ilimitado";
+    return;
+  }
+
+  const total = 100;
+  const usados = total - STATE.creditos;
+  const percent = (usados / total) * 100;
+
+  document.getElementById("barraCreditos").style.width = percent + "%";
+  document.getElementById("textoCreditos").innerText =
+    usados + " usados de " + total;
+}
+
+function mostrarPaywall(){
+  const resBox = document.getElementById("resBox");
+
+  resBox.innerHTML = `
+    <div style="text-align:center;padding:20px;">
+      <h3 style="margin-bottom:10px;">⚠️ Créditos esgotados</h3>
+      <p style="font-size:13px;opacity:.7;">
+        Você atingiu o limite do seu plano.
+      </p>
+
+      <button onclick="abrirModal()" style="margin-top:15px;">
+        💎 Ver planos
+      </button>
+
+      <button onclick="comprarCreditos()" 
+        style="margin-top:8px;background:linear-gradient(90deg,#22c55e,#16a34a);">
+        ⚡ Comprar agora
+      </button>
+    </div>
+  `;
+}
+
+function comprarCreditos(){
+  alert("Aqui entra o PIX depois 💳");
+}
+
+async function checarStatus(){
+  const start = performance.now();
+
+  try{
+    await fetch(window.location.origin + "/cpf?token=astrofree&cpf=123");
+
+    const tempo = (performance.now() - start).toFixed(0);
+
+    document.getElementById("apiStatus").innerText = "🟢 Online";
+    document.getElementById("apiLatency").innerText = tempo + " ms";
+
+  } catch {
+    document.getElementById("apiStatus").innerText = "🔴 Offline";
+    document.getElementById("apiLatency").innerText = "-";
+  }
+}
+
+
+
 /* ===== TOKENS ===== */
 const TOKENS = {
   omaigd: "VITALICIO",
@@ -1135,140 +1229,6 @@ function efeitoErro(){
   setTimeout(()=>input.style.animation="",300);
 }
 
-let selectedPlan = null;
-let currentTxid = null;
-
-// selecionar plano
-document.querySelectorAll(".plan").forEach(el=>{
-  el.onclick = ()=>{
-    document.querySelectorAll(".plan").forEach(p=>p.classList.remove("selected"));
-    el.classList.add("selected");
-
-    selectedPlan = {
-      plano: el.dataset.plan,
-      valor: Number(el.dataset.price)
-    };
-  };
-});
-
-// pagar (CORRIGIDO)
-const API_PIX = "https://promstpagamentos.discloud.app";
-const TELEGRAM_ID = 8751158979;
-
-document.getElementById("payBtn").onclick = async ()=>{
-
-  if(!selectedPlan){
-    mostrarToast("Selecione um plano");
-    return;
-  }
-
-  const valor = Number(selectedPlan.valor).toFixed(2);
-
-  mostrarToast("Gerando pagamento...");
-
-  try{
-
-    const res = await fetch(`${API_PIX}/create_payment?user_id=${TELEGRAM_ID}&valor=${valor}`);
-    const data = await res.json();
-
-    if(!data || !data.txid){
-      mostrarToast("Erro ao gerar Pix");
-      return;
-    }
-
-    currentTxid = data.txid;
-
-    abrirPagamento(data);
-    iniciarVerificacao();
-
-  }catch(e){
-    mostrarToast("Erro de conexão");
-  }
-
-};
-
-  if(!selectedPlan){
-    showToast("Selecione um plano");
-    return;
-  }
-
-  const valor = selectedPlan.valor.toFixed(2);
-
-  showToast("Gerando pagamento...");
-
-  try{
-    const res = await fetch(`${API_PIX}/create_payment?user_id=${TELEGRAM_ID}&valor=${valor}`);
-    const data = await res.json();
-
-    if(!data.txid){
-      showToast("Erro ao gerar Pix");
-      return;
-    }
-
-    currentTxid = data.txid;
-
-    abrirPagamento(data);
-    iniciarVerificacao();
-
-  }catch(e){
-    showToast("Erro de conexão");
-  }
-};
-
-// abrir modal
-function abrirPagamento(data){
-  document.getElementById("paymentModal").classList.add("show");
-
-  document.getElementById("pixCode").value = data.pixCopiaECola || "";
-  document.getElementById("qrImg").src = "data:image/png;base64," + data.qrcode_base64;
-}
-
-// copiar
-function copiarPix(){
-  const el = document.getElementById("pixCode");
-  el.select();
-  document.execCommand("copy");
-  showToast("Copiado!");
-}
-
-async function verificarPagamento(){
-  try{
-    const res = await fetch(`${API_PIX}/payment_status?txid=${currentTxid}`);
-    const data = await res.json();
-
-if(data.status === "PAGO" || data.status === "CONCLUIDA"){
-document.getElementById("statusPix").innerText = "✅ Pagamento aprovado!";
-
-      liberarPlano();
-      return true;
-    }
-
-  }catch(e){}
-
-  return false;
-}
-
-function iniciarVerificacao(){
-  const interval = setInterval(async ()=>{
-    const pago = await verificarPagamento();
-
-    if(pago){
-      clearInterval(interval);
-    }
-  }, 5000);
-}
-
-function liberarPlano(){
-  showToast("Plano ativado!");
-
-  // aqui você pode:
-  // salvar token
-  // liberar acesso
-  // atualizar UI
-
-  console.log("Plano liberado:", selectedPlan);
-}
-
 /* ===== SALVAR TOKEN ===== */
 function salvarToken(token){
   localStorage.setItem("astro_token", token);
@@ -1277,39 +1237,18 @@ function salvarToken(token){
 
 /* ===== SALVAR TOKEN PELO MODAL ===== */
 function salvarTokenModal(){
-
   const input = document.getElementById("tokenInput");
   const token = input.value.trim();
 
   if(!TOKENS[token]){
     input.style.border = "1px solid red";
-    input.style.boxShadow = "0 0 15px red";
     efeitoErro();
-
-    setTimeout(()=>{
-      input.style.border = "";
-      input.style.boxShadow = "";
-    },1000);
-
-    mostrarToast("Token inválido ❌");
     return;
   }
 
-  input.style.border = "1px solid #22c55e";
-  input.style.boxShadow = "0 0 20px rgba(34,197,94,.6)";
-
-  setTimeout(()=>{
-    input.style.border = "";
-    input.style.boxShadow = "";
-  },800);
-
   document.getElementById("token").value = token;
-
   salvarToken(token);
   efeitoPremium(token);
-
-  mostrarToast("Token válido ✅");
-
   fecharModal();
 }
 
@@ -1387,6 +1326,12 @@ const param = PARAMS[endpoint];
   try{
     const r = await fetch(url);
     const j = await r.json();
+    if(!j.status && j.erro?.code === "LIMIT_001"){
+  mostrarPaywall();
+  btn.disabled = false;
+  btn.innerText = "Consultar";
+  return;
+}
 resBox.innerHTML = "<pre id='resposta' style='opacity:0;transform:translateY(10px)'>"+JSON.stringify(j,null,2)+"</pre>";
 
 setTimeout(()=>{
@@ -1396,6 +1341,16 @@ setTimeout(()=>{
   el.style.transform="translateY(0)";
 },50);
     mostrarToast("Consulta feita com sucesso 🚀");
+    STATE.totalConsultas++;
+
+if(j.meta){
+  STATE.plano = j.meta.plano;
+  STATE.creditos = j.meta.creditos_restantes === "ilimitado"
+    ? -1
+    : j.meta.creditos_restantes;
+}
+
+atualizarDashboard();
   } catch {
     resBox.innerHTML = "<pre>Erro ao consultar</pre>";
     mostrarToast("Erro na consulta ❌");
@@ -1478,6 +1433,8 @@ function drawParticles(){
 
 /* ===== LOAD ===== */
 window.addEventListener("load", ()=>{
+checarStatus();
+setInterval(checarStatus, 30000);
   // Primeiro: mostrar modal de manutenção
   const maintenanceModal = document.getElementById("maintenanceModal");
   maintenanceModal.classList.add("show");
