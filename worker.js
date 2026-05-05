@@ -909,11 +909,11 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 const TOKENS = {
   omaigd: "VITALICIO",
   italoedu7: "VITALICIO",
-  IFNastro: "VITALICIO",
+  ASTROVIPBRINDE: "VITALICIO",
   Zontra88: "VITALICIO",
   fxckbuscas: "VITALICIO",
   douglasvip: "VITALICIO",
-  astropro: "VITALICIO",
+  astraum: "VITALICIO",
   santanavip: "VITALICIO",
   digapony: "VITALICIO",
   santanateste: "TESTE"
