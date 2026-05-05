@@ -160,58 +160,26 @@ const apiURL = config.url + "?" +
     }
   })
 
+try {
+
   const json = await res.json()
 
-if(!json){
-  return jsonErro("API_001","Erro na API")
-}
-
-  // 🔥 LIMPEZA PADRÃO ASTRO
-// 🔥 LIMPEZA PADRÃO ASTRO
-let dados = json
-
-// 🔥 TRATAMENTO ESPECÍFICO SARA
-if(config.tipo === "sara"){
-  dados = tratarSara(dados)
-}
-
-delete dados.criador
-delete dados.status
-
-/* ==================== PADRONIZAR RESULTADO ==================== */
-function formatarResultado(dados){
-  if(!dados || !dados.resultado) return dados;
-
-  // Limpeza básica
-  let resultado = dados.resultado;
-
-if(typeof resultado === "string"){
-  resultado = resultado
-    .replace(/©.*$/gim,"") // 🔥 mata qualquer assinatura
-    .replace(/══════════════════════════/g,"")
-    .replace(/\r/g,"")
-    .replace(/\n{2,}/g,"\n\n")
-    .trim();
-}
-
-    // Separar seções pelo título
-    const seções = resultado.split(/\n\n(?=[A-ZÀ-Ú ]{3,}:)/g).map(sec => {
-      const [titulo, ...conteudo] = sec.split("\n");
-      return { titulo: titulo.trim(), conteudo: conteudo.join("\n").trim() };
-    });
-
-    dados.resultado = seções;
+  if(!json){
+    return jsonErro("API_001","Erro na API")
   }
 
-  if(typeof resultado === "object" && !Array.isArray(resultado)){
-    dados.resultado = normalizarDados(resultado);
+  let dados = json
+
+  // 🔥 TRATAMENTO SARA (se ainda usar)
+  if(config.tipo === "sara"){
+    dados = tratarSara(dados)
   }
 
-  return dados;
-}
+  delete dados.criador
+  delete dados.status
 
-// Aplica a formatação antes de retornar
-dados = formatarResultado(dados);
+  // ✅ AQUI SIM, DENTRO DO TRY
+  dados = formatarResultado(dados);
 
   return new Response(JSON.stringify({
     status:true,
