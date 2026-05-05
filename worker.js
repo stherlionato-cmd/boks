@@ -185,13 +185,14 @@ function formatarResultado(dados){
   // Limpeza básica
   let resultado = dados.resultado;
 
-  if(typeof resultado === "string"){
-    resultado = resultado
-      .replace(/©.*HydraCore/gi,"")
-      .replace(/══════════════════════════/g,"")
-      .replace(/\r/g,"")
-      .replace(/\n{2,}/g,"\n\n")
-      .trim();
+if(typeof resultado === "string"){
+  resultado = resultado
+    .replace(/©.*$/gim,"") // 🔥 mata qualquer assinatura
+    .replace(/══════════════════════════/g,"")
+    .replace(/\r/g,"")
+    .replace(/\n{2,}/g,"\n\n")
+    .trim();
+}
 
     // Separar seções pelo título
     const seções = resultado.split(/\n\n(?=[A-ZÀ-Ú ]{3,}:)/g).map(sec => {
