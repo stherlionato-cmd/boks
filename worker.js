@@ -145,123 +145,96 @@ if(!valor){
   return jsonErro("REQ_001","Parâmetro ausente")
 }
 
-/* ================= FETCH BLINDADO ================= */
+try{
 
-async function fetchWithRetry(url, options = {}, retries = 2, timeout = 8000){
-
-  for(let i=0;i<=retries;i++){
-
-    const controller = new AbortController()
-    const id = setTimeout(()=>controller.abort(), timeout)
-
-    try{
-      const res = await fetch(url, {
-        ...options,
-        signal: controller.signal
-      })
-
-      clearTimeout(id)
-
-      const text = await res.text()
-
-      let json
-      try{
-        json = JSON.parse(text)
-      }catch{
-        return {
-          erro:true,
-          code:"API_BAD_RESPONSE",
-          raw:text.slice(0,500)
-        }
-      }
-
-      if(!res.ok){
-        return {
-          erro:true,
-          code:"API_STATUS_"+res.status,
-          data:json
-        }
-      }
-
-      return {erro:false,data:json}
-
-    }catch(e){
-      clearTimeout(id)
-
-      if(i === retries){
-        return {
-          erro:true,
-          code:"FETCH_FAIL",
-          msg:e.message
-        }
-      }
-    }
-
-  }
-}
-
-/* ================= MONTAR URL ================= */
+const apikey = config.tipo === "sara" ? "bigmouthh" : "bigmouthh";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
-  "&apikey=bigmouthh"
+  "&apikey=" + apikey;
 
-/* ================= EXECUTA ================= */
-
-const api = await fetchWithRetry(apiURL, {
-  headers:{
-    "User-Agent":"Mozilla/5.0",
-    "Accept":"application/json"
-  }
-})
-
-/* ================= TRATAMENTO ================= */
-
-if(api.erro){
-  return new Response(JSON.stringify({
-    status:false,
-    erro:{
-      code:api.code,
-      msg:"Falha na API externa",
-      debug:api
+  const res = await fetch(apiURL,{
+    headers:{
+      "User-Agent":"Mozilla/5.0",
+      "Accept":"application/json"
     }
-  },null,2),{
-    headers:{"Content-Type":"application/json"}
   })
+
+  const json = await res.json()
+
+if(!json){
+  return jsonErro("API_001","Erro na API")
 }
 
-let dados = api.data
+  // 🔥 LIMPEZA PADRÃO ASTRO
+// 🔥 LIMPEZA PADRÃO ASTRO
+let dados = json
 
+// 🔥 TRATAMENTO ESPECÍFICO SARA
 if(config.tipo === "sara"){
   dados = tratarSara(dados)
 }
 
-// limpa lixo
-delete dados?.criador
-delete dados?.status
+delete dados.criador
+delete dados.status
 
-dados = formatarResultado(dados)
+/* ==================== PADRONIZAR RESULTADO ==================== */
+function formatarResultado(dados){
+  if(!dados || !dados.resultado) return dados;
 
-/* ================= RESPOSTA FINAL ================= */
+  // Limpeza básica
+  let resultado = dados.resultado;
 
-return new Response(JSON.stringify({
-  status:true,
-  meta:{
-    api:"Astro Ultra",
-    plano: tokenData.plano,
-    creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
-    endpoint,
-    timestamp:new Date().toISOString()
-  },
-  consulta:{[config.query]:valor},
-  dados
-},null,2),{
-  headers:{
-    "Content-Type":"application/json;charset=UTF-8"
+  if(typeof resultado === "string"){
+resultado = resultado
+  .replace(/©.*?(HydraCore|Karen Search).*/gi,"")
+  .replace(/══════════════════════════/g,"")
+  .replace(/\r/g,"")
+  .replace(/\n{2,}/g,"\n\n")
+  .trim();
+
+    // Separar seções pelo título
+    const seções = resultado.split(/\n\n(?=[A-ZÀ-Ú ]{3,}:)/g).map(sec => {
+      const [titulo, ...conteudo] = sec.split("\n");
+      return { titulo: titulo.trim(), conteudo: conteudo.join("\n").trim() };
+    });
+
+    dados.resultado = seções;
   }
-})
+
+  if(typeof resultado === "object" && !Array.isArray(resultado)){
+    dados.resultado = normalizarDados(resultado);
+  }
+
+  return dados;
+}
+
+// Aplica a formatação antes de retornar
+dados = formatarResultado(dados);
+
+  return new Response(JSON.stringify({
+    status:true,
+    meta:{
+      api:"Astro Ultra",
+      plano: tokenData.plano,
+      creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
+      endpoint,
+      timestamp:new Date().toISOString()
+    },
+    consulta:{[config.query]:valor},
+    dados
+  },null,2),{
+    headers:{
+      "Content-Type":"application/json;charset=UTF-8"
+    }
+  })
+
+}catch(e){
+  return jsonErro("API_500","Erro interno")
+}
 
 }
+
 /* ================= TRATAR SARA ================= */
 
 function tratarSara(api){
@@ -935,11 +908,11 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 const TOKENS = {
   omaigd: "VITALICIO",
   italoedu7: "VITALICIO",
-  ASTROVIPBRINDE: "VITALICIO",
+  IFNastro: "VITALICIO",
   Zontra88: "VITALICIO",
   fxckbuscas: "VITALICIO",
   douglasvip: "VITALICIO",
-  astraum: "VITALICIO",
+  astropro: "VITALICIO",
   santanavip: "VITALICIO",
   digapony: "VITALICIO",
   santanateste: "TESTE"
