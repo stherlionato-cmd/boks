@@ -145,67 +145,123 @@ if(!valor){
   return jsonErro("REQ_001","Parâmetro ausente")
 }
 
-try{
+/* ================= FETCH BLINDADO ================= */
 
-  const apikey = config.tipo === "sara" ? "bigmouthh" : "bigmouthh";
+async function fetchWithRetry(url, options = {}, retries = 2, timeout = 8000){
 
-  const apiURL = config.url + "?" +
-    config.param + "=" + encodeURIComponent(valor) +
-    "&apikey=" + apikey;
+  for(let i=0;i<=retries;i++){
 
-  const res = await fetch(apiURL,{
-    headers:{
-      "User-Agent":"Mozilla/5.0",
-      "Accept":"application/json"
-    }
-  })
+    const controller = new AbortController()
+    const id = setTimeout(()=>controller.abort(), timeout)
 
-  try {
+    try{
+      const res = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
 
-    const json = await res.json()
+      clearTimeout(id)
 
-    if(!json){
-      return jsonErro("API_001","Erro na API")
-    }
+      const text = await res.text()
 
-    let dados = json
-
-    if(config.tipo === "sara"){
-      dados = tratarSara(dados)
-    }
-
-    delete dados.criador
-    delete dados.status
-
-    dados = formatarResultado(dados);
-
-    return new Response(JSON.stringify({
-      status:true,
-      meta:{
-        api:"Astro Ultra",
-        plano: tokenData.plano,
-        creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
-        endpoint,
-        timestamp:new Date().toISOString()
-      },
-      consulta:{[config.query]:valor},
-      dados
-    },null,2),{
-      headers:{
-        "Content-Type":"application/json;charset=UTF-8"
+      let json
+      try{
+        json = JSON.parse(text)
+      }catch{
+        return {
+          erro:true,
+          code:"API_BAD_RESPONSE",
+          raw:text.slice(0,500)
+        }
       }
-    })
 
-  } catch(e){
-    return jsonErro("API_500","Erro interno")
+      if(!res.ok){
+        return {
+          erro:true,
+          code:"API_STATUS_"+res.status,
+          data:json
+        }
+      }
+
+      return {erro:false,data:json}
+
+    }catch(e){
+      clearTimeout(id)
+
+      if(i === retries){
+        return {
+          erro:true,
+          code:"FETCH_FAIL",
+          msg:e.message
+        }
+      }
+    }
+
   }
-
-} catch(e){
-  return jsonErro("FETCH_500","Erro ao buscar API externa")
 }
 
+/* ================= MONTAR URL ================= */
+
+const apiURL = config.url + "?" +
+  config.param + "=" + encodeURIComponent(valor) +
+  "&apikey=bigmouthh"
+
+/* ================= EXECUTA ================= */
+
+const api = await fetchWithRetry(apiURL, {
+  headers:{
+    "User-Agent":"Mozilla/5.0",
+    "Accept":"application/json"
+  }
+})
+
+/* ================= TRATAMENTO ================= */
+
+if(api.erro){
+  return new Response(JSON.stringify({
+    status:false,
+    erro:{
+      code:api.code,
+      msg:"Falha na API externa",
+      debug:api
+    }
+  },null,2),{
+    headers:{"Content-Type":"application/json"}
+  })
 }
 
+let dados = api.data
+
+if(config.tipo === "sara"){
+  dados = tratarSara(dados)
+}
+
+// limpa lixo
+delete dados?.criador
+delete dados?.status
+
+dados = formatarResultado(dados)
+
+/* ================= RESPOSTA FINAL ================= */
+
+return new Response(JSON.stringify({
+  status:true,
+  meta:{
+    api:"Astro Ultra",
+    plano: tokenData.plano,
+    creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
+    endpoint,
+    timestamp:new Date().toISOString()
+  },
+  consulta:{[config.query]:valor},
+  dados
+},null,2),{
+  headers:{
+    "Content-Type":"application/json;charset=UTF-8"
+  }
+})
+
+}
 /* ================= TRATAR SARA ================= */
 
 function tratarSara(api){
