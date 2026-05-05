@@ -147,11 +147,11 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "bigmouthh" : "bigmouthh";
+  const apikey = config.tipo === "sara" ? "bigmouthh" : "bigmouthh";
 
-const apiURL = config.url + "?" +
-  config.param + "=" + encodeURIComponent(valor) +
-  "&apikey=" + apikey;
+  const apiURL = config.url + "?" +
+    config.param + "=" + encodeURIComponent(valor) +
+    "&apikey=" + apikey;
 
   const res = await fetch(apiURL,{
     headers:{
@@ -160,46 +160,48 @@ const apiURL = config.url + "?" +
     }
   })
 
-try {
+  try {
 
-  const json = await res.json()
+    const json = await res.json()
 
-  if(!json){
-    return jsonErro("API_001","Erro na API")
-  }
-
-  let dados = json
-
-  // 🔥 TRATAMENTO SARA (se ainda usar)
-  if(config.tipo === "sara"){
-    dados = tratarSara(dados)
-  }
-
-  delete dados.criador
-  delete dados.status
-
-  // ✅ AQUI SIM, DENTRO DO TRY
-  dados = formatarResultado(dados);
-
-  return new Response(JSON.stringify({
-    status:true,
-    meta:{
-      api:"Astro Ultra",
-      plano: tokenData.plano,
-      creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
-      endpoint,
-      timestamp:new Date().toISOString()
-    },
-    consulta:{[config.query]:valor},
-    dados
-  },null,2),{
-    headers:{
-      "Content-Type":"application/json;charset=UTF-8"
+    if(!json){
+      return jsonErro("API_001","Erro na API")
     }
-  })
 
-}catch(e){
-  return jsonErro("API_500","Erro interno")
+    let dados = json
+
+    if(config.tipo === "sara"){
+      dados = tratarSara(dados)
+    }
+
+    delete dados.criador
+    delete dados.status
+
+    dados = formatarResultado(dados);
+
+    return new Response(JSON.stringify({
+      status:true,
+      meta:{
+        api:"Astro Ultra",
+        plano: tokenData.plano,
+        creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
+        endpoint,
+        timestamp:new Date().toISOString()
+      },
+      consulta:{[config.query]:valor},
+      dados
+    },null,2),{
+      headers:{
+        "Content-Type":"application/json;charset=UTF-8"
+      }
+    })
+
+  } catch(e){
+    return jsonErro("API_500","Erro interno")
+  }
+
+} catch(e){
+  return jsonErro("FETCH_500","Erro ao buscar API externa")
 }
 
 }
