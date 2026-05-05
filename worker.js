@@ -1263,7 +1263,7 @@ async function verificarPagamento(url){
     return jsonErro("REQ_001","payment_id obrigatório")
   }
 
-  const api = `https://promstpagamentos.discloud.app/verify_payment?payment_id=${payment_id}`
+const api = "https://promstpagamentos.discloud.app/verify_payment?payment_id=" + payment_id
 
   try{
     const res = await fetch(api)
