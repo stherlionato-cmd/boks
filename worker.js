@@ -1253,7 +1253,9 @@ let particles = [];
 function resizeCanvas(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-}async function verificarPagamento(url){
+}
+
+async function verificarPagamento(url){
 
   const payment_id = url.searchParams.get("payment_id")
 
