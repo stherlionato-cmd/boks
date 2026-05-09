@@ -77,37 +77,37 @@ const TOKENS = {
 const ENDPOINTS = {
   placa: {
     query: "placa",
-    url: "https://obitostore.shop/api/consulta/placa2",
+    url: "https://makima.online/api/consulta/placa2",
     param: "placa"
   },
 
   cpf: {
     query: "cpf",
-    url: "https://obitostore.shop/api/consulta/cpf",
+    url: "https://makima.online/api/consulta/cpf",
     param: "cpf"
   },
 
   telefone: {
     query: "telefone",
-    url: "https://obitostore.shop/api/consulta/telefone",
+    url: "https://makima.online/api/consulta/telefone",
     param: "telefone"
   },
 
   cnpj: {
     query: "query",
-    url: "https://obitostore.shop/api/consulta/cnpj",
+    url: "https://makima.online/api/consulta/cnpj",
     param: "query"
   },
 
   nome: {
     query: "nome",
-    url: "https://obitostore.shop/api/consulta/nome3",
+    url: "https://makima.online/api/consulta/nome3",
     param: "nome"
   },
 
   cep: {
     query: "cep",
-    url: "https://obitostore.shop/api/consulta/cep",
+    url: "https://makima.online/api/consulta/cep",
     param: "cep"
   }
 }
