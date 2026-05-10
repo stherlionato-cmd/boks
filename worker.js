@@ -871,7 +871,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
   <div class="plan" data-plan="DIARIO">
     <div class="plan-top">
       <span>DIÁRIO</span>
-      <span class="price">R$5</span>
+      <span class="price">R$20</span>
     </div>
     <div class="plan-info">
       Acesso 24h
@@ -881,10 +881,10 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
   <div class="plan featured" data-plan="PRO">
     <div class="plan-top">
       <span>PRO</span>
-      <span class="price">R$30/mês</span>
+      <span class="price">R$40/mês</span>
     </div>
     <div class="plan-info">
-      1000 consultas
+      +5000 consultas
     </div>
   </div>
 
