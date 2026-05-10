@@ -922,7 +922,7 @@ const TOKENS = {
   santanavip: "VITALICIO",
   digapony: "VITALICIO",
   santanateste: "TESTE",
-  vermute: "TESTE"
+  vermuteteste: "TESTE"
 };
 
 /* ===== MODAIS ===== */
