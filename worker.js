@@ -71,7 +71,7 @@ const TOKENS = {
     endpoints:null
   },
   
-    vermuteteste:{ 
+    vermute7:{ 
     plano:"TESTE",
     credits:5,
     endpoints:null
@@ -922,7 +922,7 @@ const TOKENS = {
   santanavip: "VITALICIO",
   digapony: "VITALICIO",
   santanateste: "TESTE",
-  vermuteteste: "TESTE"
+  vermute7: "TESTE"
 };
 
 /* ===== MODAIS ===== */
