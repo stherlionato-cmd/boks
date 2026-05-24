@@ -76,6 +76,12 @@ const TOKENS = {
     credits:5,
     endpoints:null
   }
+
+    felix:{ 
+    plano:"TESTE",
+    credits:5,
+    endpoints:["cpf]
+  }
   
 }
 
@@ -922,6 +928,7 @@ const TOKENS = {
   santanavip: "VITALICIO",
   digapony: "VITALICIO",
   santanateste: "TESTE",
+  felix: "TESTE",
   vermute7: "TESTE"
 };
 
