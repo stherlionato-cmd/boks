@@ -75,12 +75,12 @@ const TOKENS = {
     plano:"TESTE",
     credits:5,
     endpoints:null
-  }
+  },
 
     felix:{ 
     plano:"TESTE",
     credits:5,
-    endpoints:["cpf]
+    endpoints:["cpf"]
   }
   
 }
