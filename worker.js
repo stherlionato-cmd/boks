@@ -96,7 +96,7 @@ const ENDPOINTS = {
 
   cpf: {
     query: "cpf",
-    url: "https://makima.online/api/consulta/cpf",
+    url: "https://makima.online/api/consulta/cpf2",
     param: "cpf"
   },
 
@@ -114,7 +114,7 @@ const ENDPOINTS = {
 
   nome: {
     query: "nome",
-    url: "https://makima.online/api/consulta/nome3",
+    url: "https://makima.online/api/consulta/nome",
     param: "nome"
   },
 
