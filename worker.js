@@ -286,18 +286,37 @@ return data
 
 /* ================= NORMALIZAR ================= */
 
+/* ================= NORMALIZAR ================= */
+
 function normalizarDados(data){
-if(Array.isArray(data)){
-  return data.map(normalizarDados)
-}
-if(data !== null && typeof data === "object"){
-  const novo={}
-  for(const k in data){
-    novo[k]=normalizarDados(data[k])
+
+  // array
+  if(Array.isArray(data)){
+    return data.map(normalizarDados)
   }
-  return novo
-}
-return data
+
+  // objeto
+  if(data !== null && typeof data === "object"){
+
+    const novo={}
+
+    for(const k in data){
+
+      // remove campos indesejados
+      if(
+        k.toLowerCase() === "link" ||
+        (k.toLowerCase() === "by" && data[k] === "Makima Search")
+      ){
+        continue
+      }
+
+      novo[k]=normalizarDados(data[k])
+    }
+
+    return novo
+  }
+
+  return data
 }
 
 /* ================= ERRO ================= */
