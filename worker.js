@@ -941,7 +941,6 @@ const TOKENS = {
   italoedu7: "VITALICIO",
   astrobrinde: "VITALICIO",
   Zontra88: "VITALICIO",
-  fxckbuscas: "VITALICIO",
   vermute777: "VITALICIO",
   astrao: "VITALICIO",
   santanavip: "VITALICIO",
