@@ -57,6 +57,7 @@ const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 const TOKENS = {
   ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
+thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
   astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   vermute777:{plano:"VITALICIO",credits:1000,endpoints:null},
@@ -940,6 +941,7 @@ const TOKENS = {
   omaigd: "VITALICIO",
   italoedu7: "VITALICIO",
   astrobrinde: "VITALICIO",
+  thiagoexclusivo: "EXCLUSIVO",
   Zontra88: "VITALICIO",
   vermute777: "VITALICIO",
   astrao: "VITALICIO",
