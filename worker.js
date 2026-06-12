@@ -780,249 +780,72 @@ button:hover::after{
  background:linear-gradient(145deg,rgba(59,130,246,.15),rgba(255,255,255,.02));
 }
 
-/* =========================================
-   VITALÍCIO 👑
-========================================= */
+.plan[data-plan="DIARIO"]{
+  position:relative;
+  overflow:hidden;
+
+  background:
+  linear-gradient(
+    135deg,
+    #ff4fa3,
+    #ff6bb3,
+    #ff93c9
+  ) !important;
+
+  border:2px solid #ffc2df !important;
+
+  box-shadow:
+    0 0 25px rgba(255,79,163,.5),
+    0 0 60px rgba(255,79,163,.3),
+    inset 0 0 25px rgba(255,255,255,.08);
+
+  animation: diarioPulse 2s infinite alternate;
+}
 
 .plan[data-plan="VITALICIO"]{
- position:relative;
- overflow:hidden;
+  position:relative;
+  overflow:hidden;
 
- border:1px solid rgba(168,85,247,.55);
+  background:
+  linear-gradient(
+    135deg,
+    #7c3aed,
+    #9333ea,
+    #c084fc
+  ) !important;
 
- background:
- linear-gradient(
-   145deg,
-   rgba(168,85,247,.16),
-   rgba(124,58,237,.08),
-   rgba(255,255,255,.02)
- );
+  border:2px solid #d8b4fe !important;
 
- box-shadow:
-  0 0 25px rgba(168,85,247,.15),
-  inset 0 0 0 1px rgba(255,255,255,.04);
-
- animation: vipGlow 3s ease-in-out infinite alternate;
-}
-
-/* Título */
-.plan[data-plan="VITALICIO"] .plan-top span:first-child{
- color:#c084fc;
- font-weight:800;
- letter-spacing:.5px;
-}
-
-/* Glow animado */
-@keyframes vipGlow{
- from{
   box-shadow:
-   0 0 15px rgba(168,85,247,.15),
-   0 0 25px rgba(168,85,247,.08);
- }
+    0 0 30px rgba(168,85,247,.55),
+    0 0 80px rgba(168,85,247,.35),
+    inset 0 0 25px rgba(255,255,255,.08);
 
- to{
-  box-shadow:
-   0 0 30px rgba(168,85,247,.35),
-   0 0 60px rgba(168,85,247,.15);
- }
+  animation: vipPulse 2s infinite alternate;
 }
 
-/* Aurora */
-.plan[data-plan="VITALICIO"]::before{
- content:"";
-
- position:absolute;
- inset:0;
-
- background:
- linear-gradient(
-  120deg,
-  transparent,
-  rgba(168,85,247,.18),
-  transparent
- );
-
- animation: vipAurora 4s linear infinite;
- pointer-events:none;
+@keyframes diarioPulse{
+  from{
+    transform:scale(1);
+  }
+  to{
+    transform:scale(1.02);
+    box-shadow:
+      0 0 40px rgba(255,79,163,.8),
+      0 0 90px rgba(255,79,163,.5);
+  }
 }
 
-@keyframes vipAurora{
- from{
-  transform:translateX(-100%);
- }
-
- to{
-  transform:translateX(100%);
- }
-}
-
-/* Partículas */
-.plan[data-plan="VITALICIO"]::after{
- content:"";
-
- position:absolute;
- inset:-50%;
-
- background:
- radial-gradient(circle,#d8b4fe 1px,transparent 1px);
-
- background-size:22px 22px;
-
- opacity:.20;
-
- animation: vipParticles 10s linear infinite;
-
- pointer-events:none;
-}
-
-@keyframes vipParticles{
- from{
-  transform:translateY(0);
- }
-
- to{
-  transform:translateY(80px);
- }
-}
-
-/* Hover */
-.plan[data-plan="VITALICIO"]:hover{
- transform:translateY(-4px) scale(1.02);
-
- box-shadow:
-  0 0 40px rgba(168,85,247,.40),
-  0 0 80px rgba(168,85,247,.20);
-}
-
-
-/* =========================================
-   DIÁRIO 🌸
-========================================= */
-
-.plan[data-plan="DIARIO"]{
- position:relative;
- overflow:hidden;
-
- border:1px solid rgba(244,114,182,.55);
-
- background:
- linear-gradient(
-   145deg,
-   rgba(244,114,182,.15),
-   rgba(251,113,133,.08),
-   rgba(255,255,255,.02)
- );
-
- box-shadow:
-  0 0 20px rgba(244,114,182,.15),
-  inset 0 0 0 1px rgba(255,255,255,.04);
-
- animation: diarioGlow 3s ease-in-out infinite alternate;
-}
-
-/* Título */
-.plan[data-plan="DIARIO"] .plan-top span:first-child{
- color:#f9a8d4;
- font-weight:800;
- letter-spacing:.5px;
-}
-
-/* Glow rosa */
-@keyframes diarioGlow{
- from{
-  box-shadow:
-   0 0 10px rgba(244,114,182,.12),
-   0 0 20px rgba(244,114,182,.08);
- }
-
- to{
-  box-shadow:
-   0 0 25px rgba(244,114,182,.30),
-   0 0 50px rgba(244,114,182,.15);
- }
-}
-
-/* Aurora rosa */
-.plan[data-plan="DIARIO"]::before{
- content:"";
-
- position:absolute;
- inset:0;
-
- background:
- linear-gradient(
-   120deg,
-   transparent,
-   rgba(244,114,182,.18),
-   transparent
- );
-
- animation: diarioAurora 5s linear infinite;
-
- pointer-events:none;
-}
-
-@keyframes diarioAurora{
- from{
-  transform:translateX(-100%);
- }
-
- to{
-  transform:translateX(100%);
- }
-}
-
-/* Partículas rosas */
-.plan[data-plan="DIARIO"]::after{
- content:"";
-
- position:absolute;
- inset:-50%;
-
- background:
- radial-gradient(circle,#fbcfe8 1px,transparent 1px);
-
- background-size:20px 20px;
-
- opacity:.18;
-
- animation: diarioParticles 8s linear infinite;
-
- pointer-events:none;
-}
-
-@keyframes diarioParticles{
- from{
-  transform:translateY(0);
- }
-
- to{
-  transform:translateY(70px);
- }
-}
-
-/* Hover */
-.plan[data-plan="DIARIO"]:hover{
- transform:translateY(-4px) scale(1.02);
-
- box-shadow:
-  0 0 35px rgba(244,114,182,.35),
-  0 0 70px rgba(244,114,182,.18);
-}
-
-
-/* =========================================
-   SELECIONADO
-========================================= */
-
-.plan.selected{
- transform:scale(1.03);
-
- border-width:2px;
-}
-
-.plan.selected::before{
- opacity:.8;
+@keyframes vipPulse{
+  from{
+    transform:scale(1);
+  }
+  to{
+    transform:scale(1.02);
+    box-shadow:
+      0 0 50px rgba(168,85,247,.9),
+      0 0 120px rgba(168,85,247,.6);
+  }
 }
 
 `
