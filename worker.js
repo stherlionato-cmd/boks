@@ -618,13 +618,31 @@ pre{
 
 /* BADGE */
 .badge{
- display:inline-flex;
- align-items:center;
- gap:6px;
- padding:6px 12px;
- border-radius:999px;
- font-size:11px;
- font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+  position:relative;
+  overflow:hidden;
+}
+
+.badge.diario{
+  background:rgba(255,79,163,.15);
+  color:#ff4fa3;
+  border:1px solid rgba(255,79,163,.35);
+}
+
+.badge.diario::after{
+  content:"";
+  position:absolute;
+  inset:-50%;
+  background:radial-gradient(circle,#ff4fa3 1px,transparent 1px);
+  background-size:18px 18px;
+  opacity:.25;
+  animation:stars 4s linear infinite;
 }
 
 .plan.vip{
@@ -1757,3 +1775,4 @@ window.addEventListener("resize", resizeCanvas);
     }
   })
 }
+ 
