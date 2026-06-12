@@ -793,15 +793,41 @@ button:hover::after{
 }
 
 .plan[data-plan="DIARIO"]{
- border:1px solid rgba(168,85,247,.5);
+ border:1px solid rgba(244,114,182,.45);
+ background:linear-gradient(
+   145deg,
+   rgba(244,114,182,.08),
+   rgba(255,255,255,.02)
+ );
 }
 
 .plan[data-plan="DIARIO"]:hover{
- box-shadow:0 10px 30px rgba(168,85,247,.2);
+ box-shadow:0 10px 30px rgba(244,114,182,.25);
 }
 
 .plan[data-plan="DIARIO"] .plan-top span:first-child{
- color:#a855f7;
+ color:#f9a8d4;
+ 
+ .badge.diario{
+ background:rgba(244,114,182,.15);
+ color:#f9a8d4;
+}
+
+.plan[data-plan="DIARIO"]::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:inherit;
+ background:linear-gradient(
+   120deg,
+   transparent,
+   rgba(244,114,182,.15),
+   transparent
+ );
+ opacity:.4;
+ pointer-events:none;
+}
+
 }
 
 `
