@@ -791,6 +791,19 @@ button:hover::after{
 .plan[data-plan="VITALICIO"] .plan-top span:first-child{
  color:#a855f7;
 }
+
+.plan[data-plan="DIARIO"]{
+ border:1px solid rgba(168,85,247,.5);
+}
+
+.plan[data-plan="DIARIO"]:hover{
+ box-shadow:0 10px 30px rgba(168,85,247,.2);
+}
+
+.plan[data-plan="DIARIO"] .plan-top span:first-child{
+ color:#a855f7;
+}
+
 `
 }
 
