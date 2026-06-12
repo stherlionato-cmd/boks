@@ -1019,11 +1019,9 @@ const TOKENS = {
   astrobrinde: "VITALICIO",
   thiagoexclusivo: "EXCLUSIVO",
   Zontra88: "VITALICIO",
-  vermute777: "DIARIO",
   astrao: "VITALICIO",
   santanavip: "VITALICIO",
   digapony: "VITALICIO",
-  mahdiario: "DIARIO",
   santanateste: "TESTE",
   felix: "TESTE",
   vermute7: "TESTE"
