@@ -1015,14 +1015,6 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 /* ===== TOKENS ===== */
 const TOKENS = {
   omaigd: "VITALICIO",
-  italoedu7: "VITALICIO",
-  astrobrinde: "VITALICIO",
-  thiagoexclusivo: "EXCLUSIVO",
-  Zontra88: "VITALICIO",
-  astrao: "VITALICIO",
-  fellipevip: "DIARIO",
-  santanavip: "VITALICIO",
-  digapony: "VITALICIO",
   santanateste: "TESTE",
   felix: "TESTE",
   vermute7: "TESTE"
