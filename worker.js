@@ -64,7 +64,7 @@ thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
 fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
-  digapony:{plano:"VITALICIO",credits:1000,endpoints:null},
+  cicerovip:{plano:"VITALICIO",credits:1000,endpoints:null},
   santanavip:{plano:"VITALICIO",credits:1000,endpoints:null},
   // 🧪 PLANO DE TESTE (3 BUSCAS)
     santanateste:{ 
@@ -1015,6 +1015,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 /* ===== TOKENS ===== */
 const TOKENS = {
   omaigd: "VITALICIO",
+  cicerovip: "VITALICIO",
   santanateste: "TESTE",
   felix: "TESTE",
   vermute7: "TESTE"
