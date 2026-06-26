@@ -904,9 +904,9 @@ return new Response(`
 <!-- MODAL MANUTENÇÃO -->
 <div class="modal" id="maintenanceModal">
   <div class="modal-box">
-    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ Atenção!</h2>
+    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ APROVEITE!</h2>
     <p style="font-size:14px;opacity:.8;line-height:1.5;">
-      Renove seu acesso com o dono. Telegram: @puxadas71.
+      Aproveite as consultas ilimitadas e exclusivas. Atualizações e melhorias sendo feitas.
     </p>
     <button onclick="fecharMaintenanceModal()" style="margin-top:15px;">Fechar</button>
   </div>
