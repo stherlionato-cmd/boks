@@ -62,6 +62,7 @@ thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   vermute777:{plano:"DIARIO",credits:1000,endpoints:null},
 fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
+  mapeia:{plano:"EXCLUSIVO",credits:500000,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
   cicerovip:{plano:"VITALICIO",credits:1000,endpoints:null},
@@ -1015,7 +1016,8 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 /* ===== TOKENS ===== */
 const TOKENS = {
   omaigd: "VITALICIO",
-  cicerovip: "VITALICIO",
+  kkkkkaps: "VITALICIO",
+  mapeia: "EXCLUSIVO",
   santanateste: "TESTE",
   felix: "TESTE",
   vermute7: "TESTE"
