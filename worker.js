@@ -93,37 +93,37 @@ fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
 const ENDPOINTS = {
   placa: {
     query: "placa",
-    url: "https://makima.online/api/consultas/placa",
+    url: "https://makima.online/consultas/placa",
     param: "placa"
   },
 
   cpf: {
     query: "cpf",
-    url: "https://makima.online/api/consultas/cpf3",
+    url: "https://makima.online/consultas/cpf3",
     param: "cpf"
   },
 
   telefone: {
     query: "telefone",
-    url: "https://makima.online/api/consultas/telefone",
+    url: "https://makima.online/consultas/telefone",
     param: "telefone"
   },
 
   cnpj: {
     query: "query",
-    url: "https://makima.online/api/consultas/cnpj",
+    url: "https://makima.online/consultas/cnpj",
     param: "query"
   },
 
   nome: {
     query: "nome",
-    url: "https://makima.online/api/consulta/nome",
+    url: "https://makima.online/consultas/nome",
     param: "nome"
   },
 
   cep: {
     query: "cep",
-    url: "https://makima.online/api/consultas/cep",
+    url: "https://makima.online/consultas/cep",
     param: "cep"
   }
 }
