@@ -198,21 +198,30 @@ delete dados.status
 function formatarResultado(dados){
   if(!dados || !dados.resultado) return dados;
 
+  // Remove o link da resposta da API
+  if (dados.link) {
+    delete dados.link;
+  }
+
   // Limpeza básica
   let resultado = dados.resultado;
 
   if(typeof resultado === "string"){
-resultado = resultado
-  .replace(/©.*?(HydraCore|Karen Search).*/gi,"")
-  .replace(/══════════════════════════/g,"")
-  .replace(/\r/g,"")
-  .replace(/\n{2,}/g,"\n\n")
-  .trim();
+    resultado = resultado
+      .replace(/"link":"https:\/\/api\.karenhosting\.com\.br\/api\/consultas\/view\/[^"]*",?/gi, "")
+      .replace(/©.*?(HydraCore|Karen Search).*/gi,"")
+      .replace(/══════════════════════════/g,"")
+      .replace(/\r/g,"")
+      .replace(/\n{2,}/g,"\n\n")
+      .trim();
 
     // Separar seções pelo título
     const seções = resultado.split(/\n\n(?=[A-ZÀ-Ú ]{3,}:)/g).map(sec => {
       const [titulo, ...conteudo] = sec.split("\n");
-      return { titulo: titulo.trim(), conteudo: conteudo.join("\n").trim() };
+      return {
+        titulo: titulo.trim(),
+        conteudo: conteudo.join("\n").trim()
+      };
     });
 
     dados.resultado = seções;
