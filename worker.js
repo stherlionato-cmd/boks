@@ -186,6 +186,15 @@ if(!json){
 // 🔥 LIMPEZA PADRÃO ASTRO
 let dados = json
 
+// Remove campos indesejados da resposta
+if (dados.resultado) {
+  delete dados.resultado.link;
+}
+
+delete dados.link;
+delete dados.criador;
+delete dados.status;
+
 // 🔥 TRATAMENTO ESPECÍFICO SARA
 if(config.tipo === "sara"){
   dados = tratarSara(dados)
