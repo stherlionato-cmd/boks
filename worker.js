@@ -62,7 +62,7 @@ thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   vermute777:{plano:"DIARIO",credits:1000,endpoints:null},
 fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
-  PEREIRA:{plano:"EXCLUSIVO",credits:500000,endpoints:null},
+  mapeia:{plano:"EXCLUSIVO",credits:500000,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
   cicerovip:{plano:"VITALICIO",credits:1000,endpoints:null},
@@ -186,15 +186,6 @@ if(!json){
 // 🔥 LIMPEZA PADRÃO ASTRO
 let dados = json
 
-// Remove campos indesejados da resposta
-if (dados.resultado) {
-  delete dados.resultado.link;
-}
-
-delete dados.link;
-delete dados.criador;
-delete dados.status;
-
 // 🔥 TRATAMENTO ESPECÍFICO SARA
 if(config.tipo === "sara"){
   dados = tratarSara(dados)
@@ -207,30 +198,21 @@ delete dados.status
 function formatarResultado(dados){
   if(!dados || !dados.resultado) return dados;
 
-  // Remove o link da resposta da API
-  if (dados.link) {
-    delete dados.link;
-  }
-
   // Limpeza básica
   let resultado = dados.resultado;
 
   if(typeof resultado === "string"){
-    resultado = resultado
-      .replace(/"link":"https:\/\/api\.karenhosting\.com\.br\/api\/consultas\/view\/[^"]*",?/gi, "")
-      .replace(/©.*?(HydraCore|Karen Search).*/gi,"")
-      .replace(/══════════════════════════/g,"")
-      .replace(/\r/g,"")
-      .replace(/\n{2,}/g,"\n\n")
-      .trim();
+resultado = resultado
+  .replace(/©.*?(HydraCore|Karen Search).*/gi,"")
+  .replace(/══════════════════════════/g,"")
+  .replace(/\r/g,"")
+  .replace(/\n{2,}/g,"\n\n")
+  .trim();
 
     // Separar seções pelo título
     const seções = resultado.split(/\n\n(?=[A-ZÀ-Ú ]{3,}:)/g).map(sec => {
       const [titulo, ...conteudo] = sec.split("\n");
-      return {
-        titulo: titulo.trim(),
-        conteudo: conteudo.join("\n").trim()
-      };
+      return { titulo: titulo.trim(), conteudo: conteudo.join("\n").trim() };
     });
 
     dados.resultado = seções;
@@ -1035,7 +1017,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 const TOKENS = {
   omaigd: "VITALICIO",
   kkkkkaps: "VITALICIO",
-  PEREIRA "EXCLUSIVO",
+  mapeia: "EXCLUSIVO",
   santanateste: "TESTE",
   felix: "TESTE",
   vermute7: "TESTE"
