@@ -93,25 +93,25 @@ fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
 const ENDPOINTS = {
   placa: {
     query: "placa",
-    url: "https://makima.online/api/consulta/placa2",
+    url: "https://makima.online/api/consultas/placa",
     param: "placa"
   },
 
   cpf: {
     query: "cpf",
-    url: "https://makima.online/api/consulta/cpf2",
+    url: "https://makima.online/api/consultas/cpf3",
     param: "cpf"
   },
 
   telefone: {
     query: "telefone",
-    url: "https://makima.online/api/consulta/telefone",
+    url: "https://makima.online/api/consultas/telefone",
     param: "telefone"
   },
 
   cnpj: {
     query: "query",
-    url: "https://makima.online/api/consulta/cnpj",
+    url: "https://makima.online/api/consultas/cnpj",
     param: "query"
   },
 
@@ -123,7 +123,7 @@ const ENDPOINTS = {
 
   cep: {
     query: "cep",
-    url: "https://makima.online/api/consulta/cep",
+    url: "https://makima.online/api/consultas/cep",
     param: "cep"
   }
 }
@@ -293,27 +293,32 @@ return data
 
 function normalizarDados(data){
 
-  // array
+  // Array
   if(Array.isArray(data)){
     return data.map(normalizarDados)
   }
 
-  // objeto
+  // Objeto
   if(data !== null && typeof data === "object"){
 
-    const novo={}
+    const novo = {}
 
     for(const k in data){
 
-      // remove campos indesejados
+      const key = k.toLowerCase()
+
+      // Remove campos indesejados
       if(
-        k.toLowerCase() === "link" ||
-        (k.toLowerCase() === "by" && data[k] === "Makima Search")
+        key === "link" ||
+        key === "criador" ||
+        key === "creator" ||
+        key === "status" ||
+        (key === "by" && data[k] === "Makima Search")
       ){
         continue
       }
 
-      novo[k]=normalizarDados(data[k])
+      novo[k] = normalizarDados(data[k])
     }
 
     return novo
