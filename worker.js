@@ -57,33 +57,74 @@ const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 const TOKENS = {
   ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
+thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
   astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
-  douglasvip:{plano:"VITALICIO",credits:1000,endpoints:null},
+  vermute777:{plano:"DIARIO",credits:1000,endpoints:null},
+fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
+  PEREIRA:{plano:"EXCLUSIVO",credits:500000,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
-  digapony:{plano:"VITALICIO",credits:1000,endpoints:null},
+  cicerovip:{plano:"VITALICIO",credits:1000,endpoints:null},
   santanavip:{plano:"VITALICIO",credits:1000,endpoints:null},
   // 🧪 PLANO DE TESTE (3 BUSCAS)
     santanateste:{ 
     plano:"TESTE",
     credits:5,
     endpoints:null
+  },
+  
+    vermute7:{ 
+    plano:"TESTE",
+    credits:5,
+    endpoints:null
+  },
+
+    felix:{ 
+    plano:"TESTE",
+    credits:5,
+    endpoints:["cpf"]
   }
+  
 }
 
 /* ================= ENDPOINTS ================= */
 
 const ENDPOINTS = {
+  placa: {
+    query: "placa",
+    url: "https://makima.online/consultas/placa",
+    param: "placa"
+  },
+
   cpf: {
     query: "cpf",
     url: "https://makima.online/consultas/cpf3",
     param: "cpf"
   },
+
   telefone: {
     query: "telefone",
     url: "https://makima.online/consultas/telefone",
     param: "telefone"
+  },
+
+  cnpj: {
+    query: "query",
+    url: "https://makima.online/consultas/cnpj",
+    param: "query"
+  },
+
+  nome: {
+    query: "nome",
+    url: "https://makima.online/consultas/nome",
+    param: "nome"
+  },
+
+  cep: {
+    query: "cep",
+    url: "https://makima.online/consultas/cep",
+    param: "cep"
   }
 }
 /* ================= CONSULTA ================= */
@@ -122,7 +163,7 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "KEY_l3xn9fsj" : "KEY_l3xn9fsj";
+const apikey = config.tipo === "sara" ? "Bokss" : "Bokss";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
@@ -248,18 +289,42 @@ return data
 
 /* ================= NORMALIZAR ================= */
 
+/* ================= NORMALIZAR ================= */
+
 function normalizarDados(data){
-if(Array.isArray(data)){
-  return data.map(normalizarDados)
-}
-if(data !== null && typeof data === "object"){
-  const novo={}
-  for(const k in data){
-    novo[k]=normalizarDados(data[k])
+
+  // Array
+  if(Array.isArray(data)){
+    return data.map(normalizarDados)
   }
-  return novo
-}
-return data
+
+  // Objeto
+  if(data !== null && typeof data === "object"){
+
+    const novo = {}
+
+    for(const k in data){
+
+      const key = k.toLowerCase()
+
+      // Remove campos indesejados
+      if(
+        key === "link" ||
+        key === "criador" ||
+        key === "creator" ||
+        key === "status" ||
+        (key === "by" && data[k] === "Makima Search")
+      ){
+        continue
+      }
+
+      novo[k] = normalizarDados(data[k])
+    }
+
+    return novo
+  }
+
+  return data
 }
 
 /* ================= ERRO ================= */
@@ -464,21 +529,13 @@ pre{
 }
 
 .modal-box{
- width:92%;
+ width:100%;
  max-width:380px;
-
  background:#020617;
  border-radius:18px;
  padding:20px;
-
  transform:scale(.9);
  transition:.3s;
-
- position:relative;
- overflow:hidden;
-
- max-height:90vh;
- overflow-y:auto;
 }
 
 .modal.show .modal-box{
@@ -567,13 +624,31 @@ pre{
 
 /* BADGE */
 .badge{
- display:inline-flex;
- align-items:center;
- gap:6px;
- padding:6px 12px;
- border-radius:999px;
- font-size:11px;
- font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+  position:relative;
+  overflow:hidden;
+}
+
+.badge.diario{
+  background:rgba(255,79,163,.15);
+  color:#ff4fa3;
+  border:1px solid rgba(255,79,163,.35);
+}
+
+.badge.diario::after{
+  content:"";
+  position:absolute;
+  inset:-50%;
+  background:radial-gradient(circle,#ff4fa3 1px,transparent 1px);
+  background-size:18px 18px;
+  opacity:.25;
+  animation:stars 4s linear infinite;
 }
 
 .plan.vip{
@@ -638,8 +713,7 @@ button:hover::after{
 /* CARD BASE */
 .plan{
  position:relative;
-padding:14px;
- min-height:auto;
+ padding:12px 14px;
  border-radius:14px;
  border:1px solid rgba(255,255,255,.06);
  background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
@@ -683,17 +757,22 @@ padding:14px;
 /* BADGE */
 .badge-plan{
  position:absolute;
+ top:10px;
+ right:10px;
 
- top:8px;
- right:8px;
+ background:linear-gradient(135deg,#3b82f6,#2563eb);
+ color:#fff;
 
- font-size:9px;
- padding:4px 8px;
+ font-size:10px;
+ font-weight:600;
+ padding:4px 10px;
+ border-radius:999px;
 
- max-width:110px;
- text-align:center;
+ box-shadow:
+   0 4px 12px rgba(59,130,246,.3),
+   inset 0 1px 0 rgba(255,255,255,.2);
 
- z-index:2;
+ letter-spacing:.3px;
 }
 
 .plan.featured{
@@ -725,331 +804,72 @@ padding:14px;
  background:linear-gradient(145deg,rgba(59,130,246,.15),rgba(255,255,255,.02));
 }
 
-.plan[data-plan="VITALICIO"]{
- border:1px solid rgba(168,85,247,.5);
-}
-
-.plan[data-plan="VITALICIO"]:hover{
- box-shadow:0 10px 30px rgba(168,85,247,.2);
-}
-
-.plan[data-plan="VITALICIO"] .plan-top span:first-child{
- color:#a855f7;
-}
-
-/* ================= PIX PREMIUM ================= */
-
-.pix-box{
-  margin-top:18px;
-  display:none;
-
-  padding:18px;
-  border-radius:18px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255,255,255,.04),
-      rgba(255,255,255,.01)
-    );
-
-  border:1px solid rgba(59,130,246,.18);
-
-  animation:pixFade .5s ease;
-
-  box-shadow:
-    0 10px 40px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.05);
-
+.plan[data-plan="DIARIO"]{
   position:relative;
   overflow:hidden;
-}
-
-/* glow */
-.pix-box::before{
-  content:"";
-  position:absolute;
-  inset:0;
 
   background:
-    linear-gradient(
-      120deg,
-      transparent,
-      rgba(59,130,246,.12),
-      transparent
-    );
+  linear-gradient(
+    135deg,
+    #ff4fa3,
+    #ff6bb3,
+    #ff93c9
+  ) !important;
 
-  transform:translateX(-100%);
-  animation:shine 4s linear infinite;
+  border:2px solid #ffc2df !important;
+
+  box-shadow:
+    0 0 25px rgba(255,79,163,.5),
+    0 0 60px rgba(255,79,163,.3),
+    inset 0 0 25px rgba(255,255,255,.08);
+
+  animation: diarioPulse 2s infinite alternate;
 }
 
-@keyframes shine{
-  to{
-    transform:translateX(100%);
-  }
+.plan[data-plan="VITALICIO"]{
+  position:relative;
+  overflow:hidden;
+
+  background:
+  linear-gradient(
+    135deg,
+    #7c3aed,
+    #9333ea,
+    #c084fc
+  ) !important;
+
+  border:2px solid #d8b4fe !important;
+
+  box-shadow:
+    0 0 30px rgba(168,85,247,.55),
+    0 0 80px rgba(168,85,247,.35),
+    inset 0 0 25px rgba(255,255,255,.08);
+
+  animation: vipPulse 2s infinite alternate;
 }
 
-@keyframes pixFade{
+@keyframes diarioPulse{
   from{
-    opacity:0;
-    transform:translateY(15px) scale(.98);
+    transform:scale(1);
   }
   to{
-    opacity:1;
-    transform:translateY(0) scale(1);
+    transform:scale(1.02);
+    box-shadow:
+      0 0 40px rgba(255,79,163,.8),
+      0 0 90px rgba(255,79,163,.5);
   }
 }
 
-.pix-header{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.pix-icon{
-  width:54px;
-  height:54px;
-  border-radius:16px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  background:
-    linear-gradient(
-      135deg,
-      #3b82f6,
-      #2563eb
-    );
-
-  font-size:24px;
-
-  box-shadow:
-    0 10px 30px rgba(59,130,246,.3);
-
-  animation:pulse 2s infinite;
-}
-
-@keyframes pulse{
-  0%{
+@keyframes vipPulse{
+  from{
     transform:scale(1);
   }
-  50%{
-    transform:scale(1.05);
+  to{
+    transform:scale(1.02);
+    box-shadow:
+      0 0 50px rgba(168,85,247,.9),
+      0 0 120px rgba(168,85,247,.6);
   }
-  100%{
-    transform:scale(1);
-  }
-}
-
-.pix-title{
-  font-size:15px;
-  font-weight:700;
-}
-
-.pix-sub{
-  font-size:12px;
-  opacity:.65;
-  margin-top:2px;
-}
-
-.pix-info{
-  margin-top:18px;
-}
-
-.pix-label{
-  font-size:12px;
-  opacity:.7;
-  margin-bottom:8px;
-}
-
-.pix-key{
-  background:#0b1228;
-  border:1px solid rgba(255,255,255,.05);
-
-  padding:14px;
-  border-radius:12px;
-
-  font-size:12px;
-  word-break:break-all;
-
-  transition:.25s;
-}
-
-.pix-key:hover{
-  transform:scale(1.01);
-  border-color:rgba(59,130,246,.35);
-}
-
-.pix-valor{
-  margin-top:14px;
-
-  font-size:16px;
-  font-weight:800;
-
-  color:#22c55e;
-
-  animation:valorGlow 2s infinite;
-}
-
-@keyframes valorGlow{
-  0%{
-    text-shadow:0 0 0 rgba(34,197,94,0);
-  }
-  50%{
-    text-shadow:0 0 12px rgba(34,197,94,.5);
-  }
-  100%{
-    text-shadow:0 0 0 rgba(34,197,94,0);
-  }
-}
-
-.pix-alert{
-  margin-top:16px;
-
-  padding:14px;
-  border-radius:12px;
-
-  background:
-    rgba(250,204,21,.08);
-
-  border:
-    1px solid rgba(250,204,21,.15);
-
-  font-size:12px;
-  line-height:1.6;
-
-  color:#fde68a;
-}
-
-.telegram-box{
-  margin-top:16px;
-
-  display:flex;
-  align-items:center;
-  gap:14px;
-
-  text-decoration:none;
-  color:#fff;
-
-  padding:14px;
-  border-radius:14px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(59,130,246,.12),
-      rgba(59,130,246,.03)
-    );
-
-  border:1px solid rgba(59,130,246,.2);
-
-  transition:.25s;
-}
-
-.telegram-box:hover{
-  transform:translateY(-2px) scale(1.01);
-
-  box-shadow:
-    0 10px 25px rgba(59,130,246,.15);
-}
-
-.telegram-icon{
-  width:48px;
-  height:48px;
-  border-radius:14px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  background:#3b82f6;
-
-  font-size:22px;
-}
-
-.telegram-title{
-  font-size:14px;
-  font-weight:700;
-}
-
-.telegram-user{
-  margin-top:2px;
-  font-size:12px;
-  opacity:.7;
-}
-
-.pix-buttons{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-
-  margin-top:18px;
-}
-
-.pix-copy{
-  background:
-    linear-gradient(
-      90deg,
-      #3b82f6,
-      #2563eb
-    );
-}
-
-.pix-send{
-  background:
-    linear-gradient(
-      90deg,
-      #22c55e,
-      #16a34a
-    );
-}
-
-.plan-top{
- display:flex;
- justify-content:space-between;
- gap:10px;
- align-items:flex-start;
-}
-
-.plan-top span{
- word-break:break-word;
-}
-
-@media(max-width:480px){
-
-  .modal-box{
-    width:94%;
-    padding:16px;
-  }
-
-  .plan-top{
-    flex-direction:column;
-    gap:4px;
-  }
-
-  .price{
-    font-size:20px;
-  }
-
-  .badge-plan{
-    position:static;
-    display:inline-block;
-    margin-bottom:8px;
-  }
-
-  .telegram-box{
-    padding:12px;
-  }
-
-  .pix-title{
-    font-size:14px;
-  }
-
-  .pix-key{
-    font-size:11px;
-  }
-
 }
 
 `
@@ -1089,9 +909,9 @@ return new Response(`
 <!-- MODAL MANUTENÇÃO -->
 <div class="modal" id="maintenanceModal">
   <div class="modal-box">
-    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ Manutenção Finalizada!</h2>
+    <h2 style="font-size:16px;margin-bottom:10px;">⚠️ APROVEITE!</h2>
     <p style="font-size:14px;opacity:.8;line-height:1.5;">
-      Aproveite as consultas.
+      Aproveite as consultas ilimitadas e exclusivas. Atualizações e melhorias sendo feitas.
     </p>
     <button onclick="fecharMaintenanceModal()" style="margin-top:15px;">Fechar</button>
   </div>
@@ -1151,23 +971,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <div class="modal" id="modal">
   <div class="modal-box">
 
-<h2 style="font-size:16px;margin-bottom:10px;">
-🚀 CONSULTAS ILIMITADAS
-</h2>
-
-<p style="
-font-size:13px;
-opacity:.75;
-line-height:1.6;
-margin-bottom:15px;
-">
-✅ CPF, Telefone, Placa. etc...<br>
-✅ Endereços completos<br>
-✅ Score e renda<br>
-✅ Veículos e laudos<br>
-✅ Parentes e vínculos<br>
-✅ Muito mais...
-</p>
+    <h2 style="font-size:16px;margin-bottom:10px;">🔐 Acesso</h2>
 
     <input id="tokenInput" placeholder="Digite seu token">
 
@@ -1179,116 +983,35 @@ margin-bottom:15px;
 
 <div class="plans">
 
-  <div class="plan" onclick="selecionarPlano('diario','14,90', this)"
+  <div class="plan" data-plan="DIARIO">
     <div class="plan-top">
-      <span>📅 DIÁRIO</span>
-      <span class="price">R$14,90</span>
+      <span>DIÁRIO</span>
+      <span class="price">R$20</span>
     </div>
-
     <div class="plan-info">
-      Acesso ilimitado por 24h
+      Acesso 24h
     </div>
   </div>
 
-  <div class="plan" onclick="selecionarPlano('semanal','24,90', this)"
+  <div class="plan featured" data-plan="PRO">
     <div class="plan-top">
-      <span>📆 SEMANAL</span>
-      <span class="price">R$24,90</span>
+      <span>PRO</span>
+      <span class="price">R$40/mês</span>
     </div>
-
     <div class="plan-info">
-      Consultas ilimitadas por 7 dias
+      +5000 consultas
     </div>
   </div>
 
-  <div class="plan featured" onclick="selecionarPlano('vitalicio','20,90', this)"
-      <div class="badge-plan">🔥 MAIS VENDIDO</div>
-
-    <div class="plan-top">
-      <span>👑 VITALÍCIO</span>
-      <span class="price">R$20,90</span>
-    </div>
-
-    <div class="plan-info">
-      Acesso permanente + ilimitado
-    </div>
+<div class="plan" data-plan="VITALICIO">
+  <div class="plan-top">
+    <span>VITALÍCIO</span>
+    <span class="price">R$50 único</span>
   </div>
-
+  <div class="plan-info">
+    Ilimitado
+  </div>
 </div>
-
-<!-- BOX PIX -->
-<div id="pixBox" class="pix-box">
-
-  <div class="pix-header">
-    <div class="pix-icon">💳</div>
-
-    <div>
-      <div class="pix-title">
-        Pagamento via PIX
-      </div>
-
-      <div class="pix-sub">
-        Liberação rápida após envio do comprovante
-      </div>
-    </div>
-  </div>
-
-  <div class="pix-info">
-
-    <div class="pix-label">
-      🔑 Chave PIX
-    </div>
-
-    <div id="pixKey" class="pix-key">
-      f0d0f3b1-8776-4f06-a254-b6ea3686f71a
-    </div>
-
-    <div id="pixValor" class="pix-valor">
-      💰 Valor: R$ 0,00
-    </div>
-
-  </div>
-
-  <div class="pix-alert">
-    ⏳ Após o pagamento, envie o comprovante no Telegram.
-    <br>
-    Seu acesso será liberado em alguns minutos.
-  </div>
-
-  <a
-    href="https://t.me/puxardados5"
-    target="_blank"
-    class="telegram-box"
-  >
-    <div class="telegram-icon">
-      ✈️
-    </div>
-
-    <div>
-      <div class="telegram-title">
-        Enviar comprovante
-      </div>
-
-      <div class="telegram-user">
-        Telegram: @puxardados5
-      </div>
-    </div>
-  </a>
-
-  <div class="pix-buttons">
-
-    <button onclick="copiarPix()" class="pix-copy">
-      📋 Copiar Chave PIX
-    </button>
-
-    <button
-      onclick="window.open('https://t.me/puxardados5')"
-      class="pix-send"
-    >
-      📄 Enviar Comprovante
-    </button>
-
-  </div>
 
 </div>
 
@@ -1298,8 +1021,11 @@ margin-bottom:15px;
 /* ===== TOKENS ===== */
 const TOKENS = {
   omaigd: "VITALICIO",
-  digapony: "VITALICIO",
-  santanateste: "TESTE"
+  kkkkkaps: "VITALICIO",
+  PEREIRA: "EXCLUSIVO",
+  santanateste: "TESTE",
+  felix: "TESTE",
+  vermute7: "TESTE"
 };
 
 /* ===== MODAIS ===== */
@@ -1364,35 +1090,6 @@ function salvarTokenModal(){
   salvarToken(token);
   efeitoPremium(token);
   fecharModal();
-}
-
-const CHAVE_PIX = "f0d0f3b1-8776-4f06-a254-b6ea3686f71a";
-
-function selecionarPlano(plano, valor, el){
-
-  document.querySelectorAll(".plan").forEach(p=>{
-    p.classList.remove("selected");
-  });
-
-  el.classList.add("selected");
-
-  const box = document.getElementById("pixBox");
-
-  document.getElementById("pixValor").innerHTML =
-    "💰 Valor: R$ " + valor;
-
-  box.style.display = "block";
-
-  mostrarToast(
-    "Plano " + plano.toUpperCase() + " selecionado 🚀"
-  );
-}
-
-function copiarPix(){
-
-  navigator.clipboard.writeText(CHAVE_PIX);
-
-  mostrarToast("Chave PIX copiada ✅");
 }
 
 /* ===== TOAST ===== */
@@ -1835,21 +1532,13 @@ pre{
 }
 
 .modal-box{
- width:92%;
+ width:100%;
  max-width:380px;
-
  background:#020617;
  border-radius:18px;
  padding:20px;
-
  transform:scale(.9);
  transition:.3s;
-
- position:relative;
- overflow:hidden;
-
- max-height:90vh;
- overflow-y:auto;
 }
 
 .modal.show .modal-box{
@@ -2085,3 +1774,4 @@ window.addEventListener("resize", resizeCanvas);
     }
   })
 }
+ 
