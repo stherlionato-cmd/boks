@@ -427,6 +427,35 @@ input:focus,select:focus{
  box-shadow:0 0 0 2px rgba(59,130,246,.3);
 }
 
+body::before{
+content:"";
+position:fixed;
+inset:-30%;
+
+background:
+radial-gradient(circle,#3b82f655 0%,transparent 30%),
+radial-gradient(circle,#9333ea55 0%,transparent 35%),
+radial-gradient(circle,#06b6d455 0%,transparent 30%);
+
+filter:blur(120px);
+
+animation:aurora 16s linear infinite alternate;
+
+z-index:-2;
+}
+
+@keyframes aurora{
+
+0%{
+transform:translate(-10%,-10%);
+}
+
+100%{
+transform:translate(10%,10%);
+}
+
+}
+
 /* BUTTON */
 button{
  width:100%;
