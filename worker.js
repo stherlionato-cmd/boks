@@ -543,333 +543,262 @@ pre{
 }
 
 /* PLANOS */
+.plans{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-top:18px;
+}
+
+/* CARD */
+
 .plan{
- padding:14px;
- border-radius:16px;
- margin-top:10px;
- border:1px solid rgba(255,255,255,.06);
- background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
- transition:.3s;
- cursor:pointer;
- position:relative;
- overflow:hidden;
+    position:relative;
+    overflow:hidden;
+
+    padding:16px;
+    border-radius:18px;
+
+    background:
+    linear-gradient(180deg,
+    rgba(255,255,255,.05),
+    rgba(255,255,255,.02));
+
+    border:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter:blur(16px);
+
+    transition:
+    transform .25s,
+    border-color .25s,
+    box-shadow .25s;
+
+    cursor:pointer;
+}
+
+/* Partículas */
+
+.plan::before{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:
+    radial-gradient(circle,#ffffff18 1px,transparent 1px);
+
+    background-size:22px 22px;
+
+    opacity:.18;
+
+    animation:particles 12s linear infinite;
+
+    pointer-events:none;
+}
+
+@keyframes particles{
+
+from{
+background-position:0 0;
+}
+
+to{
+background-position:0 90px;
+}
+
+}
+
+/* brilho */
+
+.plan::after{
+
+content:"";
+
+position:absolute;
+
+top:-120%;
+
+left:-60%;
+
+width:45%;
+
+height:320%;
+
+background:linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,.08),
+transparent
+);
+
+transform:rotate(25deg);
+
+transition:.7s;
+
 }
 
 .plan:hover{
- transform:translateY(-4px) scale(1.02);
- border-color:rgba(59,130,246,.4);
-}
 
-/* glow */
-.plan::after{
- content:"";
- position:absolute;
- inset:0;
- background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
- opacity:0;
- transition:.4s;
+transform:translateY(-3px);
+
+border-color:rgba(59,130,246,.45);
+
+box-shadow:
+0 12px 35px rgba(0,0,0,.35),
+0 0 25px rgba(59,130,246,.10);
+
 }
 
 .plan:hover::after{
- opacity:1;
-}
 
-/* BADGE */
-.badge{
- display:inline-flex;
- align-items:center;
- gap:6px;
- padding:6px 12px;
- border-radius:999px;
- font-size:11px;
- font-weight:600;
-}
+left:150%;
 
-/* FREE */
-.badge.free{
- background:rgba(34,197,94,.15);
- color:#22c55e;
-}
-
-/* PRO */
-.badge.pro{
- background:rgba(59,130,246,.15);
- color:#3b82f6;
-}
-
-.badge.vitalicio{
- background:rgba(168,85,247,.15);
- color:#a855f7;
-}
-
-@keyframes stars{
- from{transform:translateY(0)}
- to{transform:translateY(40px)}
-}
-
-@keyframes shake{
-  0%{transform:translateX(0)}
-  25%{transform:translateX(-5px)}
-  50%{transform:translateX(5px)}
-  75%{transform:translateX(-5px)}
-  100%{transform:translateX(0)}
-}
-
-#bg{
- position:fixed;
- inset:0;
- z-index:0;
- pointer-events:none;
-}
-
-/* BADGE */
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-  position:relative;
-  overflow:hidden;
-}
-
-.badge.diario{
-  background:rgba(255,79,163,.15);
-  color:#ff4fa3;
-  border:1px solid rgba(255,79,163,.35);
-}
-
-.badge.diario::after{
-  content:"";
-  position:absolute;
-  inset:-50%;
-  background:radial-gradient(circle,#ff4fa3 1px,transparent 1px);
-  background-size:18px 18px;
-  opacity:.25;
-  animation:stars 4s linear infinite;
-}
-
-.plan.vip{
- position:relative;
- overflow:hidden;
-}
-
-.plan.vip::after{
- content:"";
- position:absolute;
- inset:-50%;
- background:radial-gradient(circle,#facc15 1px,transparent 1px);
- background-size:18px 18px;
- opacity:.15;
- animation:stars 6s linear infinite;
- pointer-events:none;
-}
-
-/* Partículas VIP */
-.badge.vip::after{
- content:"";
- position:absolute;
- inset:-50%;
- background:radial-gradient(circle,#facc15 1px,transparent 1px);
- background-size:18px 18px;
- opacity:.25;
- animation:stars 4s linear infinite;
-}
-
-button{
- position:relative;
- overflow:hidden;
-}
-
-button::after{
- content:"";
- position:absolute;
- inset:0;
- background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent);
- transform:translateX(-100%);
-}
-
-button:hover::after{
- transform:translateX(100%);
- transition:.6s;
-}
-
-@keyframes ripple{
- to{
-  transform:scale(2);
-  opacity:0;
- }
-}
-
-.plans{
- display:flex;
- flex-direction:column;
- gap:10px;
- margin-top:10px;
-}
-
-/* CARD BASE */
-.plan{
- position:relative;
- padding:12px 14px;
- border-radius:14px;
- border:1px solid rgba(255,255,255,.06);
- background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
- cursor:pointer;
- transition:.25s;
-}
-
-/* HOVER LIMPO */
-.plan:hover{
- transform:translateY(-2px);
- border-color:rgba(59,130,246,.4);
 }
 
 /* HEADER */
+
 .plan-top{
- display:flex;
- justify-content:space-between;
- font-size:13px;
- font-weight:600;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+font-size:15px;
+
+font-weight:700;
+
+margin-bottom:6px;
+
 }
 
-/* INFO */
 .plan-info{
- font-size:12px;
- opacity:.6;
- margin-top:4px;
+
+font-size:12px;
+
+opacity:.72;
+
+line-height:1.45;
+
 }
 
-/* PREÇO */
 .price{
- opacity:.8;
- font-weight:500;
+
+font-size:18px;
+
+font-weight:800;
+
+color:#fff;
+
+margin-top:10px;
+
 }
 
-/* PRO DESTAQUE */
-.plan.featured{
- border:1px solid rgba(59,130,246,.6);
- box-shadow:0 10px 25px rgba(59,130,246,.12);
-}
+/* Badge */
 
-/* BADGE */
 .badge-plan{
- position:absolute;
- top:10px;
- right:10px;
 
- background:linear-gradient(135deg,#3b82f6,#2563eb);
- color:#fff;
+position:absolute;
 
- font-size:10px;
- font-weight:600;
- padding:4px 10px;
- border-radius:999px;
+top:14px;
 
- box-shadow:
-   0 4px 12px rgba(59,130,246,.3),
-   inset 0 1px 0 rgba(255,255,255,.2);
+right:14px;
 
- letter-spacing:.3px;
+padding:5px 10px;
+
+border-radius:999px;
+
+font-size:10px;
+
+font-weight:700;
+
+letter-spacing:.5px;
+
+background:rgba(59,130,246,.14);
+
+border:1px solid rgba(59,130,246,.35);
+
+color:#7cb8ff;
+
+backdrop-filter:blur(8px);
+
 }
 
-.plan.featured{
- border:1px solid rgba(59,130,246,.6);
- box-shadow:
-   0 10px 30px rgba(59,130,246,.15),
-   inset 0 0 0 1px rgba(255,255,255,.05);
- position:relative;
-}
+/* Selecionado */
 
-/* glow suave animado */
-.plan.featured::before{
- content:"";
- position:absolute;
- inset:0;
- border-radius:inherit;
- background:linear-gradient(120deg,transparent,rgba(59,130,246,.2),transparent);
- opacity:.4;
- pointer-events:none;
-}
-
-.plan.featured .plan-top span:first-child{
- color:#3b82f6;
-}
-
-/* SELEÇÃO */
 .plan.selected{
- border-color:#3b82f6;
- background:linear-gradient(145deg,rgba(59,130,246,.15),rgba(255,255,255,.02));
+
+border-color:#3b82f6;
+
+box-shadow:
+0 0 0 1px rgba(59,130,246,.5),
+0 10px 35px rgba(59,130,246,.18);
+
 }
 
-.plan[data-plan="DIARIO"]{
-  position:relative;
-  overflow:hidden;
-
-  background:
-  linear-gradient(
-    135deg,
-    #ff4fa3,
-    #ff6bb3,
-    #ff93c9
-  ) !important;
-
-  border:2px solid #ffc2df !important;
-
-  box-shadow:
-    0 0 25px rgba(255,79,163,.5),
-    0 0 60px rgba(255,79,163,.3),
-    inset 0 0 25px rgba(255,255,255,.08);
-
-  animation: diarioPulse 2s infinite alternate;
-}
+/* VITALÍCIO */
 
 .plan[data-plan="VITALICIO"]{
-  position:relative;
-  overflow:hidden;
 
-  background:
-  linear-gradient(
-    135deg,
-    #7c3aed,
-    #9333ea,
-    #c084fc
-  ) !important;
+border-color:rgba(168,85,247,.55);
 
-  border:2px solid #d8b4fe !important;
+background:
+linear-gradient(
+180deg,
+rgba(168,85,247,.18),
+rgba(255,255,255,.03)
+);
 
-  box-shadow:
-    0 0 30px rgba(168,85,247,.55),
-    0 0 80px rgba(168,85,247,.35),
-    inset 0 0 25px rgba(255,255,255,.08);
+box-shadow:
+0 12px 45px rgba(168,85,247,.18);
 
-  animation: vipPulse 2s infinite alternate;
 }
 
-@keyframes diarioPulse{
-  from{
-    transform:scale(1);
-  }
-  to{
-    transform:scale(1.02);
-    box-shadow:
-      0 0 40px rgba(255,79,163,.8),
-      0 0 90px rgba(255,79,163,.5);
-  }
+.plan[data-plan="VITALICIO"]::before{
+
+opacity:.28;
+
+background:
+radial-gradient(circle,#c084fc55 1px,transparent 1px);
+
+background-size:18px 18px;
+
 }
 
-@keyframes vipPulse{
-  from{
-    transform:scale(1);
-  }
-  to{
-    transform:scale(1.02);
-    box-shadow:
-      0 0 50px rgba(168,85,247,.9),
-      0 0 120px rgba(168,85,247,.6);
-  }
+.plan[data-plan="VITALICIO"] .badge-plan{
+
+background:rgba(168,85,247,.16);
+
+border-color:rgba(168,85,247,.45);
+
+color:#d8b4fe;
+
+}
+
+/* Faixa superior */
+
+.plan[data-plan="VITALICIO"] .top-line{
+
+position:absolute;
+
+left:0;
+
+top:0;
+
+width:100%;
+
+height:2px;
+
+background:linear-gradient(
+90deg,
+transparent,
+#c084fc,
+transparent
+);
+
+opacity:.8;
+
 }
 
 `
