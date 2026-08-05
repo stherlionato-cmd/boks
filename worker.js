@@ -350,9 +350,17 @@ return `
 }
 
 body{
- background: radial-gradient(circle at 20% 20%, #0a0f2a, #02030a);
- color:#e2e8f0;
- padding:20px;
+    margin:0;
+    color:#fff;
+
+    background:
+        radial-gradient(circle at top,#5b21b622 0%,transparent 45%),
+        radial-gradient(circle at bottom right,#2563eb22 0%,transparent 40%),
+        radial-gradient(circle at left,#06b6d422 0%,transparent 35%),
+        #04050b;
+
+    min-height:100vh;
+    overflow-x:hidden;
 }
 
 /* HEADER */
