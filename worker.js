@@ -62,7 +62,7 @@ thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   vermute777:{plano:"DIARIO",credits:1000,endpoints:null},
 fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
-  PEREIRA:{plano:"EXCLUSIVO",credits:500000,endpoints:null},
+  PEREIRA:{plano:"DONO",credits:500000,endpoints:null},
   Zontra88:{plano:"VITALICIO",credits:1000,endpoints:null},
   astropro:{plano:"VITALICIO",credits:1000,endpoints:null},
   cicerovip:{plano:"VITALICIO",credits:1000,endpoints:null},
@@ -108,24 +108,6 @@ const ENDPOINTS = {
     url: "https://makima.online/consultas/telefone",
     param: "telefone"
   },
-
-  cnpj: {
-    query: "query",
-    url: "https://makima.online/consultas/cnpj",
-    param: "query"
-  },
-
-  nome: {
-    query: "nome",
-    url: "https://makima.online/consultas/nome",
-    param: "nome"
-  },
-
-  cep: {
-    query: "cep",
-    url: "https://makima.online/consultas/cep",
-    param: "cep"
-  }
 }
 /* ================= CONSULTA ================= */
 
