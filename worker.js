@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Jezebel • Trabalhos Espirituais</title>
+
+    <meta name="description"
+        content="Jezebel — Trabalhos espirituais, consultas e orientação espiritual.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 export default {
 async fetch(request, env, ctx){
 
@@ -145,11 +159,41 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "KEY_7ejrhyt0" : "KEY_7ejrhyt0";
+/* ================= API KEYS ================= */
 
-const apiURL = config.url + "?" +
-  config.param + "=" + encodeURIComponent(valor) +
-  "&apikey=" + apikey;
+const API_KEYS = [
+  { key: "KEY_8zm8ght6", usos: 0 },
+  { key: "KEY_mtc0v1um", usos: 0 },
+  { key: "KEY_66gx3idl", usos: 0 },
+  { key: "KEY_ravlw5ob", usos: 0 },
+  { key: "KEY_th8bu84w", usos: 0 },
+  { key: "KEY_0o8c96d2", usos: 0 }
+];
+
+function getApiKey() {
+  for (const api of API_KEYS) {
+    if (api.usos < 100) {
+      api.usos++;
+      return api.key;
+    }
+  }
+
+  // Reinicia quando todas chegarem em 100 usos
+  API_KEYS.forEach(api => api.usos = 0);
+  API_KEYS[0].usos = 1;
+  return API_KEYS[0].key;
+}
+
+const apikey = getApiKey();
+
+const apiURL =
+  config.url +
+  "?" +
+  config.param +
+  "=" +
+  encodeURIComponent(valor) +
+  "&apikey=" +
+  apikey;
 
   const res = await fetch(apiURL,{
     headers:{
@@ -1360,3 +1404,292 @@ window.addEventListener("resize", resizeCanvas);
 })
 
 }
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- FUNDO DE PARTÍCULAS -->
+    <div id="particles"></div>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+            <span class="logo-symbol">☾</span>
+            <span>JEZEBEL</span>
+            <small>TRABALHOS ESPIRITUAIS</small>
+        </div>
+
+        <nav class="nav">
+            <a href="#inicio">Início</a>
+            <a href="#trabalhos">Trabalhos</a>
+            <a href="#consultas">Consultas</a>
+            <a href="#sobre">Sobre</a>
+        </nav>
+
+        <div class="header-actions">
+
+            <button class="icon-btn" id="favoriteButton">
+                ♡
+                <span class="badge" id="favoriteCount">0</span>
+            </button>
+
+            <button class="icon-btn" id="cartButton">
+                🛒
+                <span class="badge" id="cartCount">0</span>
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+
+        <div class="hero-content">
+
+            <div class="eyebrow">
+                ✦ MAGIA • INTENÇÃO • ESPIRITUALIDADE ✦
+            </div>
+
+            <h1>
+                Onde sua intenção
+                <span>encontra o poder.</span>
+            </h1>
+
+            <p>
+                Trabalhos espirituais e consultas realizados com
+                fé, intenção e propósito.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#trabalhos" class="btn-primary">
+                    Explorar trabalhos
+                </a>
+
+                <a href="#consultas" class="btn-outline">
+                    Consultar oráculos
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="hero-decoration">
+
+            <div class="moon">☾</div>
+
+            <div class="magic-circle">
+                <span>✦</span>
+                <span>✧</span>
+                <span>✦</span>
+                <span>✧</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CATEGORIAS -->
+    <section class="categories">
+
+        <div class="section-title">
+            <span>EXPLORE</span>
+            <h2>Escolha seu caminho</h2>
+        </div>
+
+        <div class="category-grid">
+
+            <button class="category-card" data-category="Todos">
+                <span>✦</span>
+                <strong>Todos</strong>
+            </button>
+
+            <button class="category-card" data-category="Amor">
+                <span>♡</span>
+                <strong>Amor</strong>
+            </button>
+
+            <button class="category-card" data-category="Proteção">
+                <span>◉</span>
+                <strong>Proteção</strong>
+            </button>
+
+            <button class="category-card" data-category="Prosperidade">
+                <span>✧</span>
+                <strong>Prosperidade</strong>
+            </button>
+
+            <button class="category-card" data-category="Consultas">
+                <span>☽</span>
+                <strong>Consultas</strong>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- PRODUTOS -->
+    <section class="products-section" id="trabalhos">
+
+        <div class="section-header">
+
+            <div>
+                <span class="section-label">CATÁLOGO JEZEBEL</span>
+                <h2>Trabalhos espirituais</h2>
+            </div>
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Buscar trabalho..."
+                >
+
+                <span>⌕</span>
+
+            </div>
+
+        </div>
+
+        <div class="products-grid" id="productsGrid"></div>
+
+    </section>
+
+
+    <!-- CONSULTAS -->
+    <section class="consultation-section" id="consultas">
+
+        <div class="consultation-content">
+
+            <span>ORÁCULOS & INTUIÇÃO</span>
+
+            <h2>
+                Às vezes,
+                tudo que falta é
+                <strong>a resposta certa.</strong>
+            </h2>
+
+            <p>
+                Consulte os oráculos e receba uma orientação
+                para compreender melhor seus caminhos e possibilidades.
+            </p>
+
+            <button
+                class="btn-primary"
+                onclick="filterCategory('Consultas')">
+
+                Ver consultas
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- SOBRE -->
+    <section class="about" id="sobre">
+
+        <div class="about-symbol">
+            ☾
+        </div>
+
+        <div>
+
+            <span>JEZEBEL</span>
+
+            <h2>
+                Feito com fé,
+                intenção e poder.
+            </h2>
+
+            <p>
+                Um espaço dedicado à espiritualidade,
+                aos oráculos e aos trabalhos realizados
+                com propósito e intenção.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <div class="footer-logo">
+            JEZEBEL
+        </div>
+
+        <p>
+            © 2026 Jezebel. Todos os direitos reservados.
+        </p>
+
+    </footer>
+
+
+    <!-- CARRINHO -->
+    <aside class="cart-sidebar" id="cartSidebar">
+
+        <div class="cart-header">
+
+            <h2>Seu carrinho</h2>
+
+            <button id="closeCart">
+                ×
+            </button>
+
+        </div>
+
+        <div id="cartItems" class="cart-items"></div>
+
+        <div class="cart-footer">
+
+            <div class="cart-total">
+
+                <span>Total</span>
+
+                <strong id="cartTotal">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+            <button class="checkout-btn" id="checkoutButton">
+
+                Continuar para pagamento
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- OVERLAY -->
+    <div class="overlay" id="overlay"></div>
+
+
+    <!-- TOAST -->
+    <div class="toast" id="toast">
+        Adicionado ao carrinho ✦
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
