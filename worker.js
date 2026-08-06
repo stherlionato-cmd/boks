@@ -58,7 +58,7 @@ const TOKENS = {
   ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
 thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
-  astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
+  astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},,
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   vermute777:{plano:"DIARIO",credits:1000,endpoints:null},
 fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
@@ -145,11 +145,41 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "KEY_l3xn9fsj" : "KEY_l3xn9fsj";
+/* ================= API KEYS ================= */
 
-const apiURL = config.url + "?" +
-  config.param + "=" + encodeURIComponent(valor) +
-  "&apikey=" + apikey;
+const API_KEYS = [
+  { key: "KEY_8zm8ght6", usos: 0 },
+  { key: "KEY_mtc0v1um", usos: 0 },
+  { key: "KEY_66gx3idl", usos: 0 },
+  { key: "KEY_ravlw5ob", usos: 0 },
+  { key: "KEY_th8bu84w", usos: 0 },
+  { key: "KEY_0o8c96d2", usos: 0 }
+];
+
+function getApiKey() {
+  for (const api of API_KEYS) {
+    if (api.usos < 100) {
+      api.usos++;
+      return api.key;
+    }
+  }
+
+  // Reinicia quando todas chegarem em 100 usos
+  API_KEYS.forEach(api => api.usos = 0);
+  API_KEYS[0].usos = 1;
+  return API_KEYS[0].key;
+}
+
+const apikey = getApiKey();
+
+const apiURL =
+  config.url +
+  "?" +
+  config.param +
+  "=" +
+  encodeURIComponent(valor) +
+  "&apikey=" +
+  apikey;
 
   const res = await fetch(apiURL,{
     headers:{
@@ -1359,4 +1389,4 @@ window.addEventListener("resize", resizeCanvas);
   }
 })
 
-}
+} 
