@@ -148,10 +148,7 @@ try{
 /* ================= API KEYS ================= */
 
 const API_KEYS = [
-  "KEY_8zm8ght6",
-  // "KEY_2",
-  // "KEY_3",
-  // "KEY_4"
+  "KEY_8zm8ght6"
 ];
 
 let json = null;
