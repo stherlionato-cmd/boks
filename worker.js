@@ -148,42 +148,53 @@ try{
 /* ================= API KEYS ================= */
 
 const API_KEYS = [
-  { key: "KEY_8zm8ght6", usos: 0 }
+  "KEY_8zm8ght6",
+  // "KEY_2",
+  // "KEY_3",
+  // "KEY_4"
 ];
 
-function getApiKey() {
-  for (const api of API_KEYS) {
-    if (api.usos < 100) {
-      api.usos++;
-      return api.key;
+let json = null;
+
+for (const apikey of API_KEYS) {
+
+  const apiURL =
+    config.url +
+    "?" +
+    config.param +
+    "=" +
+    encodeURIComponent(valor) +
+    "&apikey=" +
+    apikey;
+
+  const res = await fetch(apiURL, {
+    headers: {
+      "User-Agent": "Mozilla/5.0",
+      "Accept": "application/json"
     }
+  });
+
+  json = await res.json();
+
+  const texto = JSON.stringify(json).toLowerCase();
+
+  // Se a chave bateu limite diário, tenta a próxima
+  if (
+    texto.includes("limite diário") ||
+    texto.includes("daily limit") ||
+    texto.includes("limite de consultas") ||
+    texto.includes("rate limit")
+  ) {
+    continue;
   }
 
-  // Reinicia quando todas chegarem em 100 usos
-  API_KEYS.forEach(api => api.usos = 0);
-  API_KEYS[0].usos = 1;
-  return API_KEYS[0].key;
+  // Encontrou uma chave válida
+  break;
 }
 
-const apikey = getApiKey();
-
-const apiURL =
-  config.url +
-  "?" +
-  config.param +
-  "=" +
-  encodeURIComponent(valor) +
-  "&apikey=" +
-  apikey;
-
-  const res = await fetch(apiURL,{
-    headers:{
-      "User-Agent":"Mozilla/5.0",
-      "Accept":"application/json"
-    }
-  })
-
-  const json = await res.json()
+if (!json) {
+  return jsonErro("API_LIMIT", "Todas as chaves atingiram o limite diário.");
+}
 
 if(!json){
   return jsonErro("API_001","Erro na API")
