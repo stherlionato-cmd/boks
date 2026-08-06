@@ -128,13 +128,6 @@ if(tokenData.endpoints && !tokenData.endpoints.includes(endpoint)){
   return jsonErro("AUTH_003","Endpoint não liberado")
 }
 
-// 💰 CRÉDITOS
-if(tokenData.plano !== "VITALICIO"){
-  if(tokenData.credits <= 0){
-    return jsonErro("LIMIT_001","Créditos esgotados")
-  }
-  tokenData.credits -= 1
-}
 
 const config = ENDPOINTS[endpoint]
 const valor = url.searchParams.get(config.query)
