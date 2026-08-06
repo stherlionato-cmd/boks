@@ -1074,6 +1074,7 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 const TOKENS = {
   omaigd: "VITALICIO",
   kkkkkaps: "VITALICIO",
+  fxckbuscas: "VITALICIO",
   PEREIRA: "DONO",
   santanateste: "TESTE",
   felix: "TESTE",
