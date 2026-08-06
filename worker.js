@@ -148,12 +148,7 @@ try{
 /* ================= API KEYS ================= */
 
 const API_KEYS = [
-  { key: "KEY_8zm8ght6", usos: 0 },
-  { key: "KEY_mtc0v1um", usos: 0 },
-  { key: "KEY_66gx3idl", usos: 0 },
-  { key: "KEY_ravlw5ob", usos: 0 },
-  { key: "KEY_th8bu84w", usos: 0 },
-  { key: "KEY_0o8c96d2", usos: 0 }
+  { key: "KEY_8zm8ght6", usos: 0 }
 ];
 
 function getApiKey() {
