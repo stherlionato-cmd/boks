@@ -83,12 +83,12 @@ const ENDPOINTS = {
   cpf2: {
     query: "cpf",
     url: "https://makima.online/consultas/cpf2",
-    param: "cpf2"
+    param: "cpf"
   },
   cpf3: {
     query: "cpf",
     url: "https://makima.online/consultas/cpf3",
-    param: "cpf3"
+    param: "cpf"
   },
   rg: {
     query: "rg",
@@ -1708,7 +1708,9 @@ async function consultar(){
   efeitoPremium(token);
 
 const PARAMS = {
-  cpf:"cpf3",
+  cpf:"cpf",
+  cpf2:"cpf2",
+  cpf3:"cpf3",
   nome:"nome2",
   telefone:"telefone",
   telefone_full:"telefone",
