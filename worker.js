@@ -954,6 +954,40 @@ padding:14px;
     0 10px 25px rgba(59,130,246,.15);
 }
 
+/* DONO */
+.badge.dono{
+  position:relative;
+  overflow:hidden;
+
+  background:rgba(168,85,247,.18);
+  color:#d8b4fe;
+
+  border:1px solid rgba(168,85,247,.45);
+
+  box-shadow:
+    0 0 18px rgba(168,85,247,.25);
+}
+
+.badge.dono::after{
+  content:"";
+  position:absolute;
+  inset:-50%;
+
+  background:
+    radial-gradient(circle,#fff 1px,transparent 1px);
+
+  background-size:18px 18px;
+
+  opacity:.35;
+
+  animation:stars 4s linear infinite;
+}
+
+.badge.dono::before{
+  content:"👑";
+  margin-right:6px;
+} 
+
 .telegram-icon{
   width:48px;
   height:48px;
@@ -977,7 +1011,8 @@ padding:14px;
   margin-top:2px;
   font-size:12px;
   opacity:.7;
-}
+
+
 
 .pix-buttons{
   display:flex;
@@ -1325,13 +1360,22 @@ function fecharMaintenanceModal(){
 
 /* ===== BADGE ===== */
 function renderBadge(plano){
+
   const el = document.getElementById("badgeContainer");
   const classe = plano.toLowerCase();
-  const texto = plano.toUpperCase();
 
-  el.innerHTML = '<div class="badge ' + classe + '">' + texto + '</div>';
+  const nomes = {
+    DONO:"👑 DONO",
+    VITALICIO:"💎 VITALÍCIO",
+    TESTE:"🧪 TESTE",
+    FREE:"🟢 FREE"
+  };
+
+  el.innerHTML =
+    '<div class="badge '+classe+'">'+
+      (nomes[plano] || plano)+
+    '</div>';
 }
-
 /* ===== PREMIUM EFFECT ===== */
 function efeitoPremium(token){
   const plano = TOKENS[token];
