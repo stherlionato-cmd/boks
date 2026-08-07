@@ -6,11 +6,11 @@ let endpoint = url.pathname.replace("/","")
 
 // 🔥 ALIAS
 const ALIAS = {
-  cpf:"cpf",
   cpf2:"cpf",
   cpf3:"cpf",
   cpf4:"cpf",
-  cpf:"cpf"
+  cpf5:"cpf",
+  cpf6:"cpf"
 }
 
 if(ALIAS[endpoint]){
