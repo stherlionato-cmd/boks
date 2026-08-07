@@ -1707,22 +1707,31 @@ async function consultar(){
   salvarToken(token);
   efeitoPremium(token);
 
-const PARAMS = ${JSON.stringify(
-  Object.fromEntries(
-    Object.entries(ENDPOINTS).map(([nome, config]) => [
-      nome,
-      config.param
-    ])
-  )
-)};
-
-const param = PARAMS[endpoint];
-
-if(!param){
-  mostrarToast("Parâmetro não configurado ❌");
-  btn.disabled = false;
-  btn.innerText = "Consultar";
-  return;
+const PARAMS = {
+  cpf:"cpf3",
+  nome:"nome2",
+  telefone:"telefone",
+  telefone_full:"telefone",
+  telefone_cpf:"cpf",
+  placa:"placa",  
+  ddd:"ddd",
+  operadora:"telefone",
+  rg:"rg",
+  titulo:"titulo",
+  pis:"pis",
+  nis:"nis",
+  parentes:"cpf",
+  vizinhos:"cpf",
+  cep:"cep",
+  estado:"uf",
+  email:"email",
+  score:"cpf",
+  renda:"valor",
+  cbo:"cbo",
+  foto_sp:"cpf",
+  foto_ma:"cpf",
+  foto_ro:"cpf",
+  foto_all:"cpf"
 }
 
 const param = PARAMS[endpoint];
