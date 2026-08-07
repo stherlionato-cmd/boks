@@ -123,12 +123,12 @@ const ENDPOINTS = {
   cheque: {
     query: "cpf",
     url: "https://makima.online/consultas/cheque",
-    param: "cpf"
+    param: "chque"
   },
   irpf: {
     query: "cpf",
     url: "https://makima.online/consultas/irpf",
-    param: "cpf"
+    param: "irpf"
   },
   telefone: {
     query: "telefone",
