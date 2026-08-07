@@ -55,7 +55,7 @@ const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 /* ================= TOKENS (SEM KV) ================= */
 
 const TOKENS = {
-  ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
+  PEREIRA:{plano:"DONO",credits:-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
   astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
@@ -106,7 +106,7 @@ if(tokenData.endpoints && !tokenData.endpoints.includes(endpoint)){
 }
 
 // 💰 CRÉDITOS
-if(tokenData.plano !== "VITALICIO"){
+if(tokenData.plano !== "DONO"){
   if(tokenData.credits <= 0){
     return jsonErro("LIMIT_001","Créditos esgotados")
   }
@@ -192,7 +192,7 @@ dados = formatarResultado(dados);
     meta:{
       api:"Astro Ultra",
       plano: tokenData.plano,
-      creditos_restantes: tokenData.plano === "VITALICIO" ? "ilimitado" : tokenData.credits,
+      creditos_restantes: tokenData.plano === "DONO" ? "ilimitado" : tokenData.credits,
       endpoint,
       timestamp:new Date().toISOString()
     },
@@ -725,7 +725,7 @@ padding:14px;
  background:linear-gradient(145deg,rgba(59,130,246,.15),rgba(255,255,255,.02));
 }
 
-.plan[data-plan="VITALICIO"]{
+.plan[data-plan="DONO"]{
  border:1px solid rgba(168,85,247,.5);
 }
 
@@ -733,7 +733,7 @@ padding:14px;
  box-shadow:0 10px 30px rgba(168,85,247,.2);
 }
 
-.plan[data-plan="VITALICIO"] .plan-top span:first-child{
+.plan[data-plan="DONO"] .plan-top span:first-child{
  color:#a855f7;
 }
 
@@ -1297,7 +1297,7 @@ margin-bottom:15px;
 <script>
 /* ===== TOKENS ===== */
 const TOKENS = {
-  omaigd: "VITALICIO",
+  PEREIRA: "DONO",
   digapony: "VITALICIO",
   santanateste: "TESTE"
 };
@@ -1557,8 +1557,8 @@ const api = "https://promstpagamentos.discloud.app/verify_payment?payment_id=" +
 const novoToken = "user_" + Math.random().toString(36).slice(2,10)
 
 TOKENS[novoToken] = {
-  plano:"PRO",
-  credits:1000,
+  plano:"DONO",
+  credits:-1,
   endpoints:null
 }
       return new Response(JSON.stringify({
