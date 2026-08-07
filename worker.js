@@ -232,7 +232,7 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "@KEY_boawvtj7" : "@KEY_boawvtj7";
+const apikey = config.tipo === "sara" ? "@KEY_9g1jptja" : "@KEY_9g1jptja";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
