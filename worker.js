@@ -8,7 +8,7 @@ let endpoint = url.pathname.replace("/","")
 const ALIAS = {
   cpf:"cpf",
   cpf:"cpf",
-  cpf3:"cpf3",
+  cpf3:"cpf",
   cpf:"cpf",
   cpf:"cpf"
 }
@@ -83,12 +83,12 @@ const ENDPOINTS = {
   cpf2: {
     query: "cpf",
     url: "https://makima.online/consultas/cpf2",
-    param: "cpf"
+    param: "cpf2"
   },
   cpf3: {
     query: "cpf",
     url: "https://makima.online/consultas/cpf3",
-    param: "cpf"
+    param: "cpf3"
   },
   rg: {
     query: "rg",
