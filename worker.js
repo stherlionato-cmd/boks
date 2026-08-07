@@ -58,7 +58,7 @@ const TOKENS = {
   ifnvipilimitado:{plano:"VITALICIO",credits:-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
 thiagoexclusivo:{plano:"EXCLUSIVO",credits:-1,endpoints:null},
-  astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},,
+  astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
   vermute777:{plano:"DIARIO",credits:1000,endpoints:null},
 fellipevip:{plano:"DIARIO",credits:100,endpoints:null},
