@@ -297,18 +297,47 @@ resultado = resultado
 // Aplica a formatação antes de retornar
 dados = formatarResultado(dados);
 
-  return new Response(JSON.stringify({
-    status:true,
-    meta:{
-      api:"Astro Ultra",
+  const inicioConsulta = Date.now();
+
+return new Response(JSON.stringify({
+  status: true,
+
+  plataforma: {
+    nome: "🚀 Astro Search Ultra",
+    versao: "v3.0",
+    descricao: "Plataforma Inteligente",
+
+    usuario: {
       plano: tokenData.plano,
-      creditos_restantes: tokenData.plano === "DONO" ? "ilimitado" : tokenData.credits,
-      endpoint,
-      timestamp:new Date().toISOString()
+      token:
+        token === "PEREIRA"
+          ? "👑 DONO"
+          : token.substring(0, 4) + "••••",
+      creditos:
+        tokenData.plano === "DONO"
+          ? "♾️ Ilimitado"
+          : tokenData.credits
     },
-    consulta:{[config.query]:valor},
-    dados
-  },null,2),{
+
+    sistema: {
+      api: "🟢 Online",
+      servidor: "BR-01",
+      latencia: (Date.now() - inicioConsulta) + " ms",
+      versao: "3.0.1",
+      seguranca: "🛡️ Ativa",
+      firewall: "🟢 Ativo",
+      timestamp: new Date().toISOString()
+    }
+  },
+
+  consulta: {
+    endpoint,
+    [config.query]: valor
+  },
+
+  dados
+
+}, null, 2), {
     headers:{
       "Content-Type":"application/json;charset=UTF-8"
     }
@@ -1197,6 +1226,164 @@ padding:14px;
 
 }
 
+/* ================= PREMIUM MODAL ================= */
+
+.premium-modal{
+    max-width:420px;
+    padding:26px;
+    border-radius:24px;
+
+    background:
+    linear-gradient(
+    180deg,
+    rgba(18,24,45,.98),
+    rgba(6,10,24,.98));
+
+    border:1px solid rgba(255,255,255,.06);
+
+    box-shadow:
+    0 30px 80px rgba(0,0,0,.55);
+}
+
+.premium-header{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.premium-logo{
+    width:70px;
+    height:70px;
+
+    margin:auto;
+    margin-bottom:15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:20px;
+
+    font-size:34px;
+
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+
+    box-shadow:0 15px 35px rgba(59,130,246,.35);
+}
+
+.premium-header h2{
+    font-size:23px;
+    font-weight:800;
+}
+
+.premium-header p{
+    margin-top:8px;
+    opacity:.65;
+}
+
+.premium-features{
+    margin:25px 0;
+
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+
+    font-size:14px;
+}
+
+.premium-card{
+
+    margin-top:15px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    background:
+    rgba(255,255,255,.03);
+
+    transition:.3s;
+
+    cursor:pointer;
+}
+
+.premium-card:hover{
+
+    transform:translateY(-4px);
+
+    border-color:#3b82f6;
+
+    box-shadow:
+    0 15px 35px rgba(59,130,246,.15);
+
+}
+
+.premium-card.featured{
+
+    border:2px solid #3b82f6;
+
+    background:
+    linear-gradient(
+    180deg,
+    rgba(59,130,246,.12),
+    rgba(255,255,255,.03));
+
+}
+
+.premium-badge{
+
+display:inline-block;
+
+padding:6px 10px;
+
+border-radius:999px;
+
+background:#2563eb;
+
+font-size:11px;
+
+font-weight:700;
+
+margin-bottom:10px;
+
+}
+
+.premium-card h3{
+
+font-size:18px;
+
+margin-bottom:10px;
+
+}
+
+.price{
+
+display:block;
+
+font-size:30px;
+
+font-weight:800;
+
+margin-bottom:15px;
+
+}
+
+.premium-card button{
+
+margin-top:0;
+
+border-radius:14px;
+
+background:
+linear-gradient(90deg,#3b82f6,#2563eb);
+
+font-size:15px;
+
+font-weight:700;
+
+}
+
 `
 }
 
@@ -1293,147 +1480,74 @@ ${Object.keys(ENDPOINTS).map(e=>`<option>${e}</option>`).join("")}
 <div id="toast">Copiado!</div>
 
 <!-- MODAL TOKEN -->
-<div class="modal" id="modal">
-  <div class="modal-box">
+<div class="modal-box premium-modal">
 
-<h2 style="font-size:16px;margin-bottom:10px;">
-🚀 CONSULTAS ILIMITADAS
-</h2>
+<div class="premium-header">
 
-<p style="
-font-size:13px;
-opacity:.75;
-line-height:1.6;
-margin-bottom:15px;
-">
-✅ CPF, Telefone, Placa. etc...<br>
-✅ Endereços completos<br>
-✅ Score e renda<br>
-✅ Veículos e laudos<br>
-✅ Parentes e vínculos<br>
-✅ Muito mais...
-</p>
+<div class="premium-logo">🚀</div>
 
-    <input id="tokenInput" placeholder="Digite seu token">
+<h2>ASTRO PREMIUM</h2>
 
-<button onclick="salvarTokenModal()">Entrar</button>
-
-<div style="margin-top:15px;font-size:12px;opacity:.6;">
-  Planos disponíveis:
-</div>
-
-<div class="plans">
-
-  <div class="plan" onclick="selecionarPlano('diario','14,90', this)">
-    <div class="plan-top">
-      <span>📅 DIÁRIO</span>
-      <span class="price">R$14,90</span>
-    </div>
-
-    <div class="plan-info">
-      Acesso ilimitado por 24h
-    </div>
-  </div>
-
-  <div class="plan" onclick="selecionarPlano('semanal','24,90', this)">
-    <div class="plan-top">
-      <span>📆 SEMANAL</span>
-      <span class="price">R$24,90</span>
-    </div>
-
-    <div class="plan-info">
-      Consultas ilimitadas por 7 dias
-    </div>
-  </div>
-
-  <div class="plan featured" onclick="selecionarPlano('vitalicio','20,90', this)">
-      <div class="badge-plan">🔥 MAIS VENDIDO</div>
-
-    <div class="plan-top">
-      <span>👑 VITALÍCIO</span>
-      <span class="price">R$20,90</span>
-    </div>
-
-    <div class="plan-info">
-      Acesso permanente + ilimitado
-    </div>
-  </div>
+<p>Acesso ilimitado à plataforma</p>
 
 </div>
 
-<!-- BOX PIX -->
-<div id="pixBox" class="pix-box">
+<div class="premium-features">
 
-  <div class="pix-header">
-    <div class="pix-icon">💳</div>
+<div>✅ Consultas ilimitadas</div>
 
-    <div>
-      <div class="pix-title">
-        Pagamento via PIX
-      </div>
+<div>⚡ Mais de 20 módulos</div>
 
-      <div class="pix-sub">
-        Liberação rápida após envio do comprovante
-      </div>
-    </div>
-  </div>
+<div>🚀 Resposta instantânea</div>
 
-  <div class="pix-info">
+<div>🔄 Atualizações constantes</div>
 
-    <div class="pix-label">
-      🔑 Chave PIX
-    </div>
+</div>
 
-    <div id="pixKey" class="pix-key">
-      f0d0f3b1-8776-4f06-a254-b6ea3686f71a
-    </div>
+<div class="premium-plans">
 
-    <div id="pixValor" class="pix-valor">
-      💰 Valor: R$ 0,00
-    </div>
+<div class="premium-card featured"
+onclick="selecionarPlano('vitalicio','20,90',this)">
 
-  </div>
+<div class="premium-badge">
+🔥 MAIS VENDIDO
+</div>
 
-  <div class="pix-alert">
-    ⏳ Após o pagamento, envie o comprovante no Telegram.
-    <br>
-    Seu acesso será liberado em alguns minutos.
-  </div>
+<h3>👑 VITALÍCIO</h3>
 
-  <a
-    href="https://t.me/puxardados5"
-    target="_blank"
-    class="telegram-box"
-  >
-    <div class="telegram-icon">
-      ✈️
-    </div>
+<span class="price">
+R$20,90
+</span>
 
-    <div>
-      <div class="telegram-title">
-        Enviar comprovante
-      </div>
+<button>
+Comprar Agora
+</button>
 
-      <div class="telegram-user">
-        Telegram: @puxardados5
-      </div>
-    </div>
-  </a>
+</div>
 
-  <div class="pix-buttons">
+<div class="premium-card"
+onclick="selecionarPlano('diario','14,90',this)">
 
-    <button onclick="copiarPix()" class="pix-copy">
-      📋 Copiar Chave PIX
-    </button>
+<h3>📅 DIÁRIO</h3>
 
-    <button
-      onclick="window.open('https://t.me/puxardados5')"
-      class="pix-send"
-    >
-      📄 Enviar Comprovante
-    </button>
+<span class="price">
+R$14,90
+</span>
 
-  </div>
+</div>
+
+<div class="premium-card"
+onclick="selecionarPlano('semanal','24,90',this)">
+
+<h3>📆 SEMANAL</h3>
+
+<span class="price">
+R$24,90
+</span>
+
+</div>
+
+</div>
 
 </div>
 
