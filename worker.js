@@ -136,9 +136,9 @@ const ENDPOINTS = {
     param: "telefone"
   },
   nome: {
-    query: "name",
+    query: "nome",
     url: "https://makima.online/consultas/nome",
-    param: "name"
+    param: "nome"
   },
   nome2: {
     query: "nome",
