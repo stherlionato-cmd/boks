@@ -1179,7 +1179,7 @@ margin-bottom:15px;
 
 <div class="plans">
 
-  <div class="plan" onclick="selecionarPlano('diario','14,90', this)"
+  <div class="plan" onclick="selecionarPlano('diario','14,90', this)">
     <div class="plan-top">
       <span>📅 DIÁRIO</span>
       <span class="price">R$14,90</span>
@@ -1190,7 +1190,7 @@ margin-bottom:15px;
     </div>
   </div>
 
-  <div class="plan" onclick="selecionarPlano('semanal','24,90', this)"
+  <div class="plan" onclick="selecionarPlano('semanal','24,90', this)">
     <div class="plan-top">
       <span>📆 SEMANAL</span>
       <span class="price">R$24,90</span>
@@ -1201,7 +1201,7 @@ margin-bottom:15px;
     </div>
   </div>
 
-  <div class="plan featured" onclick="selecionarPlano('vitalicio','20,90', this)"
+  <div class="plan featured" onclick="selecionarPlano('vitalicio','20,90', this)">
       <div class="badge-plan">🔥 MAIS VENDIDO</div>
 
     <div class="plan-top">
@@ -1305,6 +1305,14 @@ const TOKENS = {
 /* ===== MODAIS ===== */
 function abrirModal(){
   document.getElementById("modal").classList.add("show");
+}
+
+function copiar(id){
+  const texto = document.getElementById(id).innerText;
+
+  navigator.clipboard.writeText(texto);
+
+  mostrarToast("Copiado!");
 }
 
 function fecharModal(){
