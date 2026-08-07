@@ -6,12 +6,10 @@ let endpoint = url.pathname.replace("/","")
 
 // 🔥 ALIAS
 const ALIAS = {
-  cpf2:"cpf",
-  cpf3:"cpf",
-  cpf4:"cpf",
-  cpf5:"cpf",
-  cpf6:"cpf"
-}
+  cpf: "cpf",
+  cpf2: "cpf",
+  cpf3: "cpf"
+};
 
 if(ALIAS[endpoint]){
   endpoint = ALIAS[endpoint]
@@ -80,16 +78,19 @@ const ENDPOINTS = {
     url: "https://makima.online/consultas/cpf",
     param: "cpf"
   },
+
   cpf2: {
-    query: "cpf",
-    url: "https://makima.online/consultas/cpf2",
-    param: "cpf"
-  },
+  query: "cpf",
+  url: "https://makima.online/consultas/cpf2",
+  param: "cpf"
+},
+
   cpf3: {
-    query: "cpf",
-    url: "https://makima.online/consultas/cpf3",
-    param: "cpf"
-  },
+  query: "cpf",
+  url: "https://makima.online/consultas/cpf3",
+  param: "cpf"
+},
+
   rg: {
     query: "rg",
     url: "https://makima.online/consultas/rg",
