@@ -6,10 +6,12 @@ let endpoint = url.pathname.replace("/","")
 
 // 🔥 ALIAS
 const ALIAS = {
-  cpf: "cpf",
-  cpf2: "cpf",
-  cpf3: "cpf"
-};
+  cpf:"cpf",
+  cpf:"cpf",
+  cpf3:"cpf3",
+  cpf:"cpf",
+  cpf:"cpf"
+}
 
 if(ALIAS[endpoint]){
   endpoint = ALIAS[endpoint]
@@ -65,7 +67,7 @@ const TOKENS = {
   // 🧪 PLANO DE TESTE (3 BUSCAS)
     santanateste:{ 
     plano:"TESTE",
-    credits:99999,
+    credits:5,
     endpoints:null
   }
 }
@@ -78,19 +80,16 @@ const ENDPOINTS = {
     url: "https://makima.online/consultas/cpf",
     param: "cpf"
   },
-
   cpf2: {
-  query: "cpf2",
-  url: "https://makima.online/consultas/cpf2",
-  param: "cpf"
-},
-
+    query: "cpf",
+    url: "https://makima.online/consultas/cpf2",
+    param: "cpf"
+  },
   cpf3: {
-  query: "cpf3",
-  url: "https://makima.online/consultas/cpf3",
-  param: "cpf"
-},
-
+    query: "cpf",
+    url: "https://makima.online/consultas/cpf3",
+    param: "cpf"
+  },
   rg: {
     query: "rg",
     url: "https://makima.online/consultas/rg",
@@ -137,14 +136,14 @@ const ENDPOINTS = {
     param: "telefone"
   },
   nome: {
-    query: "nome",
+    query: "name",
     url: "https://makima.online/consultas/nome",
-    param: "nome"
+    param: "name"
   },
   nome2: {
     query: "nome",
     url: "https://makima.online/consultas/nome2",
-    param: "name"
+    param: "nome"
   },
   pai: {
     query: "pai",
@@ -233,7 +232,7 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "KEY_vzoxtmbr" : "KEY_vzoxtmbr";
+const apikey = config.tipo === "sara" ? "KEY_utvz7pq5" : "KEY_utvz7pq5";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
@@ -2364,3 +2363,4 @@ window.addEventListener("resize", resizeCanvas);
     }
   })
 }
+0
