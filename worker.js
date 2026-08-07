@@ -917,6 +917,53 @@ button:hover::after{
   }
 }
 
+@keyframes donoPulse{
+
+    from{
+        transform:scale(1);
+        box-shadow:
+            0 0 20px rgba(255,215,0,.7),
+            0 0 40px rgba(255,215,0,.4);
+    }
+
+    to{
+        transform:scale(1.08);
+        box-shadow:
+            0 0 40px rgba(255,215,0,1),
+            0 0 80px rgba(255,215,0,.8);
+    }
+
+}
+
+@keyframes starsMove{
+
+    from{
+        transform:translateY(0);
+    }
+
+    to{
+        transform:translateY(35px);
+    }
+
+}
+
+@keyframes shine{
+
+    from{
+        transform:translateX(-120%);
+    }
+
+    to{
+        transform:translateX(120%);
+    }
+
+}
+.sparkles{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
 `
 }
 
@@ -1091,9 +1138,21 @@ function fecharMaintenanceModal(){
 function renderBadge(plano){
   const el = document.getElementById("badgeContainer");
   const classe = plano.toLowerCase();
-  const texto = plano.toUpperCase();
 
-  el.innerHTML = '<div class="badge ' + classe + '">' + texto + '</div>';
+  let icone = "⭐";
+
+  if(plano === "DONO") icone = "👑";
+  if(plano === "VITALICIO") icone = "💎";
+  if(plano === "PRO") icone = "🚀";
+  if(plano === "FREE") icone = "🍃";
+  if(plano === "DIARIO") icone = "⚡";
+
+  el.innerHTML = `
+    <div class="badge ${classe}">
+      <span class="sparkles"></span>
+      ${icone} ${plano}
+    </div>
+  `;
 }
 
 /* ===== PREMIUM EFFECT ===== */
@@ -1106,6 +1165,12 @@ if(plano === "VITALICIO"){
 } else if(plano === "FREE"){
     body.style.boxShadow = "inset 0 0 80px rgba(34,197,94,.2)";
   }
+}
+
+if(plano === "DONO"){
+    body.style.boxShadow =
+      "inset 0 0 220px rgba(255,215,0,.25)";
+    return;
 }
 
 /* ===== ERRO SHAKE ===== */
