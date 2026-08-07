@@ -49,7 +49,7 @@ return consultar(endpoint,request,url,ctx)
 
 /* ================= CONFIG ================= */
 
-const ADMIN_TOKEN = "dragonsubdono"
+const ADMIN_TOKEN = "pereira#171"
 const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 
 /* ================= TOKENS (SEM KV) ================= */
