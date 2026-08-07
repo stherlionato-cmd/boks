@@ -1709,9 +1709,9 @@ async function consultar(){
 
 const PARAMS = {
   cpf:"cpf",
-  cpf2:"cpf2",
-  cpf3:"cpf3",
-  nome:"nome2",
+  cpf2:"cpf",
+  cpf3:"cpf",
+  nome:"nome",
   telefone:"telefone",
   telefone_full:"telefone",
   telefone_cpf:"cpf",
