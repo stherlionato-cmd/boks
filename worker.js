@@ -77,13 +77,123 @@ const TOKENS = {
 const ENDPOINTS = {
   cpf: {
     query: "cpf",
+    url: "https://makima.online/consultas/cpf",
+    param: "cpf"
+  },
+  cpf2: {
+    query: "cpf",
+    url: "https://makima.online/consultas/cpf2",
+    param: "cpf"
+  },
+  cpf3: {
+    query: "cpf",
     url: "https://makima.online/consultas/cpf3",
+    param: "cpf"
+  },
+  rg: {
+    query: "rg",
+    url: "https://makima.online/consultas/rg",
+    param: "rg"
+  },
+  titulo: {
+    query: "titulo",
+    url: "https://makima.online/consultas/titulo",
+    param: "titulo"
+  },
+  obito: {
+    query: "cpf",
+    url: "https://makima.online/consultas/obito",
+    param: "cpf"
+  },
+  bens: {
+    query: "cpf",
+    url: "https://makima.online/consultas/bens",
+    param: "cpf"
+  },
+  certidoes: {
+    query: "cpf",
+    url: "https://makima.online/consultas/certidoes",
+    param: "cpf"
+  },
+  vacinas: {
+    query: "cpf",
+    url: "https://makima.online/consultas/vacinas",
+    param: "cpf"
+  },
+  cheque: {
+    query: "cpf",
+    url: "https://makima.online/consultas/cheque",
+    param: "cpf"
+  },
+  irpf: {
+    query: "cpf",
+    url: "https://makima.online/consultas/irpf",
     param: "cpf"
   },
   telefone: {
     query: "telefone",
     url: "https://makima.online/consultas/telefone",
     param: "telefone"
+  },
+  nome: {
+    query: "name",
+    url: "https://makima.online/consultas/nome",
+    param: "name"
+  },
+  nome2: {
+    query: "nome",
+    url: "https://makima.online/consultas/nome2",
+    param: "nome"
+  },
+  pai: {
+    query: "pai",
+    url: "https://makima.online/consultas/pai",
+    param: "pai"
+  },
+  mae: {
+    query: "mae",
+    url: "https://makima.online/consultas/mae",
+    param: "mae"
+  },
+  email: {
+    query: "email",
+    url: "https://makima.online/consultas/email",
+    param: "email"
+  },
+  score: {
+    query: "cpf",
+    url: "https://makima.online/consultas/score",
+    param: "cpf"
+  },
+  placa: {
+    query: "placa",
+    url: "https://makima.online/consultas/placa",
+    param: "placa"
+  },
+  cnh: {
+    query: "cpf",
+    url: "https://makima.online/consultas/cnh",
+    param: "cpf"
+  },
+  renavam: {
+    query: "renavam",
+    url: "https://makima.online/consultas/renavam",
+    param: "renavam"
+  },
+  chassi: {
+    query: "chassi",
+    url: "https://makima.online/consultas/chassi",
+    param: "chassi"
+  },
+  motor: {
+    query: "motor",
+    url: "https://makima.online/consultas/motor",
+    param: "motor"
+  },
+  cep2: {
+    query: "cep",
+    url: "https://makima.online/consultas/cep2",
+    param: "cep"
   }
 }
 /* ================= CONSULTA ================= */
