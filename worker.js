@@ -88,7 +88,7 @@ const ENDPOINTS = {
   cpf3: {
     query: "cpf",
     url: "https://makima.online/consultas/cpf3",
-    param: "cpf"
+    param: "cpf3"
   },
   rg: {
     query: "rg",
