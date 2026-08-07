@@ -6,11 +6,11 @@ let endpoint = url.pathname.replace("/","")
 
 // 🔥 ALIAS
 const ALIAS = {
-  cpf2:"cpf2",
-  cpf3:"cpf3",
-  cpf4:"cpf4",
-  cpf5:"cpf5",
-  cpf6:"cpf6"
+  cpf2:"cpf",
+  cpf3:"cpf",
+  cpf4:"cpf",
+  cpf5:"cpf",
+  cpf6:"cpf"
 }
 
 if(ALIAS[endpoint]){
@@ -2361,3 +2361,4 @@ window.addEventListener("resize", resizeCanvas);
     }
   })
 }
+0
