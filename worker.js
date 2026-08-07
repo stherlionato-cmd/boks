@@ -144,7 +144,7 @@ const ENDPOINTS = {
   nome2: {
     query: "nome",
     url: "https://makima.online/consultas/nome2",
-    param: "nome"
+    param: "name"
   },
   pai: {
     query: "pai",
