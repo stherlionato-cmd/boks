@@ -216,7 +216,7 @@ if(tokenData.endpoints && !tokenData.endpoints.includes(endpoint)){
 }
 
 // 💰 CRÉDITOS
-if(tokenData.plano !== "VITALICIO"){
+if(tokenData.plano !== "DONO"){
   if(tokenData.credits <= 0){
     return jsonErro("LIMIT_001","Créditos esgotados")
   }
