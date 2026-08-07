@@ -67,7 +67,7 @@ const TOKENS = {
   // 🧪 PLANO DE TESTE (3 BUSCAS)
     santanateste:{ 
     plano:"TESTE",
-    credits:5,
+    credits:99999,
     endpoints:null
   }
 }
@@ -232,7 +232,7 @@ if(!valor){
 
 try{
 
-const apikey = config.tipo === "sara" ? "@KEY_utvz7pq5" : "@KEY_utvz7pq5";
+const apikey = config.tipo === "sara" ? "@KEY_vzoxtmbr" : "@KEY_vzoxtmbr";
 
 const apiURL = config.url + "?" +
   config.param + "=" + encodeURIComponent(valor) +
