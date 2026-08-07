@@ -55,7 +55,7 @@ const BASE_SARA = "https://sara-api.xyz/api/consulta/"
 /* ================= TOKENS (SEM KV) ================= */
 
 const TOKENS = {
-  PEREIRA:{plano:"DONO",credits:50000,endpoints:cpf3},
+  PEREIRA:{plano:"DONO","credits":-1,endpoints:null},
   bocadass:{plano:"VITALICIO",credits:-1,endpoints:null},
   astrofree:{plano:"FREE",credits:100,endpoints:["cpf","nome"]},
   fxckbuscas:{plano:"VITALICIO",credits:500000,endpoints:null},
